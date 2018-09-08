@@ -1,0 +1,396 @@
+<div layout="column" layout-padding ng-cloak>
+
+    <!-- module selector -->
+    <md-list>
+        <md-list-item class="md-2-line">
+            <md-icon md-svg-icon="chevron-right"></md-icon>
+            <div class="md-list-item-text">
+                <h3>Choose module you are developing on</h3>
+                <p>Selected module debug mode will be turned on automatically and "restart CleepOS" button added on app toolbar.</p>
+            </div>
+            <md-input-container class="no-margin">
+                <md-select ng-model="devCtl.selectedModule" ng-disabled="devCtl.loading" aria-label="Select module">
+                    <md-option value=""><em>No module</em></md-option>
+                    <md-option ng-repeat="module in devCtl.modules" ng-value="module">
+                        {{module}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+            <md-input-container class="no-margin">
+                <md-button class="md-raised md-primary" ng-click="devCtl.selectModule()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="worker"></md-icon>
+                    Select module
+                </md-button>
+            </md-input-container>
+        </md-list-item>
+    </md-list>
+
+    <!-- navigation -->
+    <md-nav-bar md-selected-nav-item="devCtl.selectedMainNav" nav-bar-aria-label="Main tabs">
+        <md-nav-item name="devtools" md-nav-click="devCtl.showTab('devtools')">
+            Development helper
+        </md-nav-item>
+        <md-nav-item name="buildtools" md-nav-click="devCtl.showTab('buildtools')">
+            Build helper
+        </md-nav-item>
+    </md-nav-bar>
+
+    <!-- dev tools -->
+    <div ng-show="devCtl.selectedMainNav==='devtools'">
+
+        <!-- actions -->
+        <md-list>
+
+            <!-- reload backend -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Restart CleepOS to reload changes on backend</h3>
+                    <p>Due to python2.7 restriction it's not possible to reload for sure a python module.</p>
+                </div>
+                <md-button class="md-raised md-primary" ng-click="devCtl.restartBackend()">
+                    <md-icon md-svg-icon="restart"></md-icon>
+                    Reload backend changes
+                </md-button>
+            </md-list-item>
+
+            <!-- reload frontend -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Reload frontend changes</h3>
+                    <p>It is simply a page refresh you can do pressing CTRL-R or F5.</p>
+                </div>
+                <md-button class="md-raised md-primary" ng-click="devCtl.restartFrontend()">
+                    <md-icon md-svg-icon="restart"></md-icon>
+                    Reload frontend changes
+                </md-button>
+            </md-list-item>
+
+            <!-- load logs -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Load device log messages on viewer below</h3>
+                    <p>Note that an automatically updated "remote_[device-ip].log" file should be available on your repository root.</p>
+                </div>
+                <md-button class="md-raised md-primary" ng-click="devCtl.loadLogs()">
+                    <md-icon md-svg-icon="file-download"></md-icon>
+                    Load logs
+                </md-button>
+            </md-list-item>
+
+        </md-list>
+
+        <!-- log viewer -->
+        <div layout="column" layout-padding>
+            <md-content>
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <h2 flex md-truncate>Log viewer</h2>
+                        <md-button class="md-primary md-raised" ng-click="devCtl.gotoLogsTop()" aria-label="Goto top">
+                            <md-icon class="toolbar-white-icon" md-svg-icon="format-vertical-align-top"></md-icon>
+                            Top
+                        </md-button>
+                        <md-button class="md-primary md-raised" ng-click="devCtl.gotoLogsBottom()" aria-label="Goto bottom">
+                            <md-icon class="toolbar-white-icon" md-svg-icon="format-vertical-align-bottom"></md-icon>
+                            Bottom
+                        </md-button>
+                    </div>
+                </md-toolbar>
+                <div ui-codemirror ui-codemirror-opts="devCtl.codemirrorOptions" ng-model="devCtl.logs" class="codemirror-code"></div>
+            </md-content>
+        </div>
+
+    </div>
+
+    <!-- build and publish tools -->
+    <div ng-show="devCtl.selectedMainNav==='buildtools'">
+    
+        <md-list>
+
+            <!-- no module selected -->
+            <md-list-item ng-if="!devCtl.config.moduleInDev">
+                <md-icon md-svg-icon="alert"></md-icon>
+                <p>Please select a module to enable module build.</p>
+            </md-list-item>
+
+            <!-- analyze module -->
+            <md-list-item ng-if="devCtl.config.moduleInDev">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <p>Analyze module to check its content</p>
+                <md-button class="md-raised md-primary" ng-click="devCtl.analyzeModule()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="cogs"></md-icon>
+                    Analyze module
+                </md-button>
+            </md-list-item>
+
+        </md-list>
+
+        <!-- error after analyze -->
+        <md-content ng-if="devCtl.analyzeError">
+            <div layout="row" flex>
+                <div style="padding-left:15px; padding-right:15px;">
+                    <md-icon md-svg-icon="alert-circle" class="icon-xl"></md-icon>
+                </div>
+                <div layout="column">
+                    <span class="md-title">Error occured during module analyze, please check analyze logs:</span>
+                    <p ng-bind="devCtl.analyzeError"></p>
+                </div>
+            </div>
+        </md-content>
+    
+        <!-- navigation -->
+        <md-nav-bar md-selected-nav-item="devCtl.selectedNav" nav-bar-aria-label="Tabs" ng-if="devCtl.data">
+            <md-nav-item name="buildmodule" md-nav-click="devCtl.showTab('buildmodule')">
+                Build module
+            </md-nav-item>
+            <md-nav-item name="moduledesc" md-nav-click="devCtl.showTab('moduledesc')">
+                Module description
+            </md-nav-item>
+            <md-nav-item name="scripts" md-nav-click="devCtl.showTab('scripts')">
+                Scripts
+            </md-nav-item>
+            <md-nav-item name="backendfiles" md-nav-click="devCtl.showTab('backendfiles')">
+                Backend files
+            </md-nav-item>
+            <md-nav-item name="frontendfiles" md-nav-click="devCtl.showTab('frontendfiles')">
+                Frontend files
+            </md-nav-item>
+        </md-nav-bar>
+    
+        <!-- build tab -->
+        <div ng-show="devCtl.selectedNav==='buildmodule'" ng-if="devCtl.data">
+            <md-list>
+    
+                <!-- errors -->
+                <md-subheader class="md-no-sticky">Errors</md-subheader>
+                <md-list-item ng-repeat="error in devCtl.data.python.errors">
+                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
+                    <p>{{error}}</p>
+                </md-list-item>
+                <md-list-item ng-repeat="error in devCtl.data.js.errors">
+                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
+                    <p>{{error}}</p>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.python.errors.length===0 && devCtl.data.js.errors.length===0">
+                    <md-icon md-svg-icon="thumb-up"></md-icon>
+                    <p>No error</p>
+                </md-list-item>
+    
+                <!-- warnings -->
+                <md-subheader class="md-no-sticky">Warnings</md-subheader>
+                <md-list-item ng-repeat="warn in devCtl.data.python.warnings">
+                    <md-icon md-svg-icon="alert"></md-icon>
+                    <p>{{warn}}</p>
+                </md-list-item>
+                <md-list-item ng-repeat="warn in devCtl.data.js.warnings">
+                    <md-icon md-svg-icon="alert"></md-icon>
+                    <p>{{warn}}</p>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.python.warnings.length===0 && devCtl.data.js.warnings.length===0">
+                    <md-icon md-svg-icon="thumb-up"></md-icon>
+                    <p>No warning</p>
+                </md-list-item>
+    
+                <!-- build actions -->
+                <md-subheader class="md-no-sticky">Build</md-subheader>
+                <md-list-item>
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Generate desc.json file in your module dir</p>
+                    <md-button class="md-raised md-primary" ng-click="devCtl.generateDescJson()">
+                        <md-icon md-svg-icon="wrench"></md-icon>
+                        Generate file
+                    </md-button>
+                </md-list-item>
+                <md-list-item>
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Build and download module package archive</p>
+                    <div ng-if="devCtl.data.python.errors.length>0">
+                        <span>Build disabled, please fix errors</span>
+                    </div>
+                    <md-button class="md-raised md-primary" ng-click="devCtl.buildPackage()" ng-disabled="devCtl.data.python.errors.length>0">
+                        <md-icon md-svg-icon="download"></md-icon>
+                        Build module
+                    </md-button>
+                </md-list-item>
+   
+            </md-list>
+        </div>
+    
+        <!-- module description -->
+        <div ng-show="devCtl.selectedNav==='moduledesc'" ng-if="devCtl.data">
+            <md-list>
+    
+                <!-- changelog -->
+                <md-subheader class="md-no-sticky">Module version changelog</md-subheader>
+                <md-list-item>
+                    <md-input-container class="md-block" style="width:100%">
+                        <label>Changelog (html format supported during display)</label>
+                        <textarea ng-model="devCtl.data.changelog" rows="5"></textarea>
+                    </md-input-container>
+                </md-list-item>
+    
+                <!-- icon -->
+                <md-subheader class="md-no-sticky">Module icon</md-subheader>
+                <md-list-item>
+                    <md-icon md-svg-icon="account-box-outline"></md-icon>
+                    <p>Choose icon from <a href="https://materialdesignicons.com" target="_blank">MaterialDesignIcons</a> website</p>
+                    <md-input-container class="no-margin">
+                        <input ng-model="devCtl.data.icon" placeholder="icon">
+                        <md-icon md-svg-icon="{{devCtl.data.icon}}"></md-icon>
+                    </md-input-container>
+                </md-list-item>
+    
+                <!-- metadata -->
+                <md-subheader class="md-no-sticky">Module metadata</md-subheader>
+                <md-list-item ng-if="devCtl.data.metadata.author">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Author</p>
+                    <div>
+                        <span ng-bind="devCtl.data.metadata.author"></span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.description">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Description</p>
+                    <div>
+                        <span ng-bind="devCtl.data.metadata.description"></span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.version">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Version</p>
+                    <div>
+                        <span ng-bind="devCtl.data.metadata.version"></span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.price!==undefined">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Price</p>
+                    <div ng-if="devCtl.data.metadata.price!==0">
+                        <span ng-bind="devCtl.data.metadata.price"></span>€
+                    </div>
+                    <div ng-if="devCtl.data.metadata.price===0">
+                        <span>Free module</span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.country">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Country</p>
+                    <div>
+                        <span ng-bind="devCtl.data.metadata.country"></span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.urls.info">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Info url</p>
+                    <div>
+                        <a href="{{devCtl.data.metadata.urls.info}}" target="_blank">{{devCtl.data.metadata.urls.info}}</a>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.tags && devCtl.data.metadata.tags.length>0">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Tags</p>
+                    <md-input-container class="no-margin">
+                        <md-chips ng-model="devCtl.data.metadata.tags" readonly="true" md-removable="false" md-enable-chip-edit="false"></md-chips>
+                    </md-input-container>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.deps && devCtl.data.metadata.deps.length>0">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Module dependencies</p>
+                    <md-input-container class="no-margin">
+                        <md-chips ng-model="devCtl.data.metadata.deps" readonly="true" md-removable="false" md-enable-chip-edit="false"></md-chips>
+                    </md-input-container>
+                </md-list-item>
+    
+            </md-list>
+        </div>
+    
+        <!-- scripts -->
+        <div ng-show="devCtl.selectedNav==='scripts'" ng-if="devCtl.data">
+            <md-list>
+                <md-list-item>
+                    <md-icon md-svg-icon="script"></md-icon>
+                    <p>Pre-installation script</p>
+                    <div>
+                        <span ng-if="devCtl.data.scripts.preinst">Found</span>
+                        <span ng-if="!devCtl.data.scripts.preinst">Not found</span>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <md-icon md-svg-icon="script"></md-icon>
+                    <p>Post-installation script</p>
+                    <div>
+                        <span ng-if="devCtl.data.scripts.postinst">Found</span>
+                        <span ng-if="!devCtl.data.scripts.postinst">Not found</span>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <md-icon md-svg-icon="script"></md-icon>
+                    <p>Pre-uninstallation script</p>
+                    <div>
+                        <span ng-if="devCtl.data.scripts.preuninst">Found</span>
+                        <span ng-if="!devCtl.data.scripts.preuninst">Not found</span>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <md-icon md-svg-icon="script"></md-icon>
+                    <p>Post-uninstallation script</p>
+                    <div>
+                        <span ng-if="devCtl.data.scripts.postuninst">Found</span>
+                        <span ng-if="!devCtl.data.scripts.postuninst">Not found</span>
+                    </div>
+                </md-list-item>
+            </md-list>
+        </div>
+    
+        <!-- backend files -->
+        <div ng-show="devCtl.selectedNav==='backendfiles'" ng-if="devCtl.data">
+            <md-list>
+                <!-- module -->
+                <md-subheader class="md-no-sticky">Main module file</md-subheader>
+                <md-list-item>
+                    <md-icon md-svg-icon="language-python"></md-icon>
+                    <p>{{devCtl.data.python.files.module.path}}</p>
+                </md-list-item>
+                <!-- libraries -->
+                <md-subheader class="md-no-sticky">Module libraries</md-subheader>
+                <md-list-item ng-repeat="lib in devCtl.data.python.files.libs">
+                    <md-icon md-svg-icon="library-plus"></md-icon>
+                    <p>{{lib.path}}</p>
+                    <div style="padding-right:15px;">
+                        <span ng-if="!lib.systemlib">Include this library?</span>
+                        <span ng-if="lib.systemlib">System library always available</span>
+                    </div>
+                    <md-checkbox class="md-secondary" ng-model="lib.selected" ng-disabled="lib.systemlib"></md-checkbox>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.python.files.libs.length===0">
+                    <p>No dependency found</p>
+                </md-list-item>
+           </md-list>
+        </div>
+    
+        <!-- frontend files -->
+        <div ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.data">
+            <md-list>
+                <md-subheader class="md-no-sticky">Configure frontend files usage</md-subheader>
+                <md-list-item ng-repeat="file in devCtl.data.js.files">
+                    <md-icon md-svg-icon="file"></md-icon>
+                    <p>{{file.path}}</p>
+                    <md-input-container class="no-margin">
+                        <md-select ng-model="file.type" aria-label="Select type" ng-disabled="file.mandatory">
+                            <md-option ng-repeat="type in devCtl.data.js.filetypes" ng-value="type">{{type}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.js.files.length===0">
+                    <p>No file found</p>
+                </md-list-item>
+            </md-list>
+        </div>
+
+    </div>
+
+</div>
+

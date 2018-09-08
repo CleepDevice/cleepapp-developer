@@ -1,0 +1,1 @@
+{"res": ["desc.json"], "config": {"html": ["developer.directive.html"], "css": [], "js": ["developer.directive.js"]}, "system": {"services": ["developer.service.js"], "widgets": {"html": ["developer.widget.html"], "css": [], "js": ["developer.widget.js"]}}, "icon": "worker"}
