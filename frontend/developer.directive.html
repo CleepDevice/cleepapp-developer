@@ -67,6 +67,23 @@
                 </md-button>
             </md-list-item>
 
+            <!-- remotedev -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Remotedev ({{ devCtl.raspiotService.devices[devCtl.remotedevUuid].running ? 'service is running' : 'service is not running' }})</h3>
+                    <p>Removedev is a service installed on your device that synchronises sources from your dev env and your device (<a href="https://github.com/tangb/cleepmod-developer/wiki/Remotedev" target="_blank">more infos</a>).</p>
+                </div>
+                <md-button class="md-raised md-primary" ng-click="devCtl.startRemotedev()">
+                    <md-icon md-svg-icon="play"></md-icon>
+                    Start
+                </md-button>
+                <md-button class="md-raised md-primary" ng-click="devCtl.stopRemotedev()">
+                    <md-icon md-svg-icon="stop"></md-icon>
+                    Stop
+                </md-button>
+            </md-list-item>
+
             <!-- load logs -->
             <md-list-item class="md-2-line">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
@@ -74,7 +91,7 @@
                     <h3>Load device log messages on viewer below</h3>
                     <p>Note that an automatically updated "remote_[device-ip].log" file should be available on your repository root.</p>
                 </div>
-                <md-button class="md-raised md-primary" ng-click="devCtl.loadLogs()">
+                <md-button class="md-raised md-primary" ng-click="devCtl.loadLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="file-download"></md-icon>
                     Load logs
                 </md-button>

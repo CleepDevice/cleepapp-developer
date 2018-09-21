@@ -16,7 +16,7 @@ var widgetDeveloperDirective = function() {
 
         //start remotedev
         self.startRemotedev = function() {
-            developerService.startPyremotedev()
+            developerService.startRemotedev()
                 .then(function(resp) {
                     if( resp.data )
                         self.device.running = true;

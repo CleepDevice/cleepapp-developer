@@ -10,6 +10,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         self.config = {
             moduleInDev: null
         };
+        self.deve
         self.selectedModule = null;
         self.modules = [];
         self.data = null;
@@ -28,13 +29,18 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 cmInstance.focus();
             }
         };
-        self.restartButtonId = null;
+        self.remotedevUuid = null;
+        self.raspiotService = raspiotService;
 
         /**
          * Init controller
          */
         self.init = function(modules)
         {
+
+			//set remotedev device
+			self.setRemotedevDevice();
+
             //load module configuration
             raspiotService.getModuleConfig('developer')
                 .then(function(config) {
@@ -61,6 +67,21 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 temp.push(module);
             }
             self.modules = temp.sort();
+        };
+
+		/**
+         * Set remotedev device
+         */
+        self.setRemotedevDevice = function()
+        {
+           	for( var i=0; i<raspiotService.devices.length; i++ )
+	        {
+    	        if( raspiotService.devices[i].type==='developer' )
+        	    {
+                    self.remotedevUuid = raspiotService.devices[i].uuid;
+                    break;
+	            }
+    	    }
         };
 
         /**
@@ -201,17 +222,26 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.loadLogs = function()
         {
+            self.loading = true;
+
             systemService.getLogs()
                 .then(function(resp) {
                     self.logs = resp.data.join('');
                     self.codemirrorInstance.refresh();
 
+                    if( self.logs.length===0 )
+                    {
+                        toast.info('Log file is empty');
+                    }
+
                     //jump to end of log
                     $timeout(function() {
                         self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
                     }, 300);
-                    
                 })
+                .finally(function() {
+                    self.loading = false;
+                });
         };
 
         /**
@@ -229,6 +259,31 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         {
             self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
         };
+
+        /**
+         * Start remotedev
+         */
+        self.startRemotedev = function() {
+            developerService.startRemotedev()
+                .then(function(resp) {
+                    if( resp.data ) {
+                        self.device.running = true;
+                    }
+                }); 
+        };  
+
+        /**
+         * Stop remotedev
+         */
+        self.stopRemotedev = function() {
+            developerService.stopRemotedev()
+                .then(function(resp) {
+                    if( resp.data ) {
+                        self.device.running = false;
+                    }
+                }); 
+        };
+
 
     }];
 
