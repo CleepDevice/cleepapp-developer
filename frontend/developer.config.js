@@ -292,7 +292,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
     };
 
     return {
-        templateUrl: 'developer.directive.html',
+        templateUrl: 'developer.config.html',
         replace: true,
         controller: developerController,
         controllerAs: 'devCtl',

@@ -75,7 +75,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      */
     self.restartCleepOs = function()
     {
-        raspiotService.restart(0);
+        raspiotService.restart(1);
     };
 
     /**

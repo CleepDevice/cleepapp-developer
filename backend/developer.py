@@ -16,7 +16,7 @@ from raspiot.raspiot import RaspIotModule
 from raspiot.libs.internals.task import Task
 from raspiot.libs.internals.console import Console
 from raspiot.utils import CommandError, MissingParameter, InvalidParameter
-from raspiot.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, PATH_FRONTEND
+from raspiot.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, SCRIPTS_DIR, PATH_FRONTEND, PATH_SCRIPTS
 from raspiot.libs.internals import __all__ as internals_libs
 from raspiot.libs.externals import __all__ as externals_libs
 from raspiot.libs.drivers import __all__ as drivers_libs
@@ -39,12 +39,12 @@ class Developer(RaspIotModule):
     MODULE_VERSION = u'1.0.0'
     MODULE_PRICE = 0
     MODULE_DEPS = []
-    MODULE_DESCRIPTION = u'Helps you to develop on Raspiot framework.'
+    MODULE_DESCRIPTION = u'Helps you to develop on CleepOS.'
     MODULE_LOCKED = False
-    MODULE_TAGS = [u'developer', u'python', u'raspiot']
+    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module']
     MODULE_CATEGORY = u'APPLICATION'
     MODULE_COUNTRY = None
-    MODULE_URLINFO = u'https://github.com/tangb/Raspiot/wiki/Developer'
+    MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
     MODULE_URLHELP = u'https://github.com/tangb/cleepmod-developer/wiki'
     MODULE_URLSITE = u'https://github.com/tangb/cleepmod-developer'
     MODULE_URLBUGS = u'https://github.com/tangb/cleepmod-developer/issues'
@@ -54,12 +54,17 @@ class Developer(RaspIotModule):
         u'moduleindev': None
     }
 
-    PACKAGE_SCRIPTS = u'/opt/raspiot/scripts/'
-    RASPIOT_PROFILE = u"""[raspiot]
-raspiot/ = /usr/share/pyshared/raspiot/$_$/usr/lib/python2.7/dist-packages/raspiot/
-bin/ = /usr/bin/$_$
-html/ = /opt/raspiot/html/$_$
-log_file_path = /var/log/raspiot.log"""
+    RASPIOT_PROFILE = u"""{
+    "cleepos": {
+        "modules/(?P<modulename>.*?)/backend/": "/usr/lib/python2.7/dist-packages/raspiot/modules/%(modulename)s/",
+        "modules/(?P<modulename>.*?)/frontend/": "/opt/raspiot/html/js/modules/%(modulename)s/",
+        "modules/(?P<modulename>.*?)/scripts/": "/opt/raspiot/scripts/%(modulename)s/",
+        "html/": "/opt/raspiot/html/",
+        "raspiot/": "/usr/lib/python2.7/dist-packages/raspiot/",
+        "bin/": "/usr/bin/",
+        "log_file_path": "/var/log/raspiot.log"
+}
+"""
     RASPIOT_PROFILE_FILE = u'/root/.local/share/remotedev/slave.conf'
 
     FRONT_FILE_TYPE_DROP = u'Do not include file'
@@ -618,6 +623,40 @@ log_file_path = /var/log/raspiot.log"""
             u'changelog': changelog
         }
 
+    def __analyze_scripts(self, module):
+        """
+        Analyze scripts for specified module
+
+        Args:
+            module (string): module to search scripts for
+
+        Returns:
+            tuple (dict, string): js data adn changelog
+        """
+        script_preinst = os.path.join(PATH_SCRIPTS, module, u'preinst.sh')
+        script_postinst = os.path.join(PATH_SCRIPTS, module, u'postinst.sh')
+        script_preuninst = os.path.join(PATH_SCRIPTS, module, u'preuninst.sh')
+        script_postuninst = os.path.join(PATH_SCRIPTS, module, u'postuninst.sh')
+
+        return {
+            u'preinst': {
+                u'found': os.path.exists(script_preinst),
+                u'fullpath': script_preinst
+            },
+            u'postinst': {
+                u'found': os.path.exists(script_postinst),
+                u'fullpath': script_postinst
+            },
+            u'preuninst': {
+                u'found': os.path.exists(script_preuninst),
+                u'fullpath': script_preuninst
+            },
+            u'postuninst': {
+                u'found': os.path.exists(script_postuninst),
+                u'fullpath': script_postuninst
+            }
+        }
+
     def analyze_module(self, module):
         """
         Analyze specified module package and return archive name and filename to download it
@@ -645,21 +684,13 @@ log_file_path = /var/log/raspiot.log"""
         #analyze front part
         analyze_js = self.__analyze_module_js(module)
 
-        #check scripts existence
-        script_preinst = os.path.join(self.PACKAGE_SCRIPTS, module, u'preinst.sh')
-        script_postinst = os.path.join(self.PACKAGE_SCRIPTS, module, u'postinst.sh')
-        script_preuninst = os.path.join(self.PACKAGE_SCRIPTS, module, u'preuninst.sh')
-        script_postuninst = os.path.join(self.PACKAGE_SCRIPTS, module, u'postuninst.sh')
+        #analyze scripts part
+        analyze_scripts = self.__analyze_scripts(module)
 
         return {
             u'python': analyze_python[u'data'],
             u'js': analyze_js[u'data'],
-            u'scripts': {
-                u'preinst': os.path.exists(script_preinst),
-                u'postinst': os.path.exists(script_postinst),
-                u'preuninst': os.path.exists(script_preuninst),
-                u'posuntinst': os.path.exists(script_postuninst)
-            },
+            u'scripts': analyze_scripts,
             u'changelog': analyze_js[u'changelog'],
             u'icon': analyze_js[u'icon'],
             u'metadata': analyze_python[u'metadata']
@@ -764,24 +795,20 @@ log_file_path = /var/log/raspiot.log"""
                 archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module, f['path']))
         #add python files
         for f in data[u'python'][u'files'][u'libs']:
-            if f[u'selected']:
+            if f[u'selected'] and not f[u'systemlib']:
                 archive.write(f[u'fullpath'], os.path.join(BACKEND_DIR, f[u'path']))
         archive.write(data[u'python'][u'files'][u'module'][u'fullpath'], os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path']))
+        #add scripts
+        if data[u'scripts'][u'preinst'][u'found']:
+            archive.write(data[u'scripts'][u'preinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'preinst.sh'))
+        if data[u'scripts'][u'postinst'][u'found']:
+            archive.write(data[u'scripts'][u'postinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'postinst.sh'))
+        if data[u'scripts'][u'preuninst'][u'found']:
+            archive.write(data[u'scripts'][u'preuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'preuninst.sh'))
+        if data[u'scripts'][u'postuninst'][u'found']:
+            archive.write(data[u'scripts'][u'postuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'postuninst.sh'))
         #add module.json
         archive.write(module_json, u'module.json')
-        #add pre and post scripts
-        script_preinst = os.path.join(self.PACKAGE_SCRIPTS, module, u'preinst.sh')
-        script_postinst = os.path.join(self.PACKAGE_SCRIPTS, module, u'postinst.sh')
-        script_preuninst = os.path.join(self.PACKAGE_SCRIPTS, module, u'preuninst.sh')
-        script_postuninst = os.path.join(self.PACKAGE_SCRIPTS, module, u'postuninst.sh')
-        if os.path.exists(script_preinst):
-            archive.write(script_preinst, u'preinst.sh')
-        if os.path.exists(script_postinst):
-            archive.write(script_postinst, u'postinst.sh')
-        if os.path.exists(script_preuninst):
-            archive.write(script_preuninst, u'preuninst.sh')
-        if os.path.exists(script_postuninst):
-            archive.write(script_postuninst, u'postuninst.sh')
         #close archive
         archive.close()
 

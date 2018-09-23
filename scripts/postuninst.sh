@@ -1,4 +1,4 @@
 #!/bin/sh
 
-pip uninstall remotedev
+/usr/local/bin/pip uninstall "remotedev"
 

@@ -135,7 +135,7 @@
             <!-- analyze module -->
             <md-list-item ng-if="devCtl.config.moduleInDev">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
-                <p>Analyze module to check its content</p>
+                <p>Analyze module to check its content and prepare package build</p>
                 <md-button class="md-raised md-primary" ng-click="devCtl.analyzeModule()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="cogs"></md-icon>
                     Analyze module
@@ -214,7 +214,7 @@
                 <md-subheader class="md-no-sticky">Build</md-subheader>
                 <md-list-item>
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Generate desc.json file in your module dir</p>
+                    <p>Generate frontend description file (desc.json) in your module frontend directory</p>
                     <md-button class="md-raised md-primary" ng-click="devCtl.generateDescJson()">
                         <md-icon md-svg-icon="wrench"></md-icon>
                         Generate file
@@ -268,9 +268,12 @@
                         <span ng-bind="devCtl.data.metadata.author"></span>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.description">
+                <md-list-item ng-if="devCtl.data.metadata.description" class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Description</p>
+                    <div class="md-list-item-text">
+                        <h3>Short description of your module</h3>
+                        <p>This description is displayed on module card.</p>
+                    </div>
                     <div>
                         <span ng-bind="devCtl.data.metadata.description"></span>
                     </div>
@@ -282,9 +285,12 @@
                         <span ng-bind="devCtl.data.metadata.version"></span>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.price!==undefined">
+                <md-list-item ng-if="devCtl.data.metadata.price!==undefined" class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Price</p>
+                    <div class="md-list-item-text">
+                        <h3>Module price</h3>
+                        <p>If your module is free set price to 0.</p>
+                    </div>
                     <div ng-if="devCtl.data.metadata.price!==0">
                         <span ng-bind="devCtl.data.metadata.price"></span>€
                     </div>
@@ -292,23 +298,62 @@
                         <span>Free module</span>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.country">
+                <md-list-item ng-if="devCtl.data.metadata.country" class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Country</p>
+                    <div class="md-list-item-text">
+                        <h3>Country</h3>
+                        <p>If your module is specific to a country, set ISO alpha2 country code to make your module only installable for this country users.</p>
+                    </div>
                     <div>
                         <span ng-bind="devCtl.data.metadata.country"></span>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.urls.info">
+                <md-list-item ng-if="devCtl.data.metadata.urls.site" class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Info url</p>
+                    <div class="md-list-item-text">
+                        <h3>Website url</h3>
+                        <p>Used to specify a link to a product your module is linked to (a connected bulb of a specific brand for example)</p>
+                    </div>
+                    <div>
+                        <a href="{{devCtl.data.metadata.urls.site}}" target="_blank">{{devCtl.data.metadata.urls.site}}</a>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.urls.info" class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Info url</h3>
+                        <p>Link to an info page about your module such as github project main page.</p>
+                    </div>
                     <div>
                         <a href="{{devCtl.data.metadata.urls.info}}" target="_blank">{{devCtl.data.metadata.urls.info}}</a>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.tags && devCtl.data.metadata.tags.length>0">
+                <md-list-item ng-if="devCtl.data.metadata.urls.help" class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Tags</p>
+                    <div class="md-list-item-text">
+                        <h3>Help url</h3>
+                        <p>Link to a page that describes how to use your modules like a wiki page on your github repository.</p>
+                    </div>
+                    <div>
+                        <a href="{{devCtl.data.metadata.urls.help}}" target="_blank">{{devCtl.data.metadata.urls.help}}</a>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.urls.bugs" class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Bugs url</h3>
+                        <p>Link to the bugs report page of your module.</p>
+                    </div>
+                    <div>
+                        <a href="{{devCtl.data.metadata.urls.bugs}}" target="_blank">{{devCtl.data.metadata.urls.bugs}}</a>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.tags && devCtl.data.metadata.tags.length>0" class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Module tags</h3>
+                        <p>Tags are used to find your module using search box.</p>
+                    </div>
                     <md-input-container class="no-margin">
                         <md-chips ng-model="devCtl.data.metadata.tags" readonly="true" md-removable="false" md-enable-chip-edit="false"></md-chips>
                     </md-input-container>
@@ -378,7 +423,7 @@
                     <p>{{lib.path}}</p>
                     <div style="padding-right:15px;">
                         <span ng-if="!lib.systemlib">Include this library?</span>
-                        <span ng-if="lib.systemlib">System library always available</span>
+                        <span ng-if="lib.systemlib">System library already available</span>
                     </div>
                     <md-checkbox class="md-secondary" ng-model="lib.selected" ng-disabled="lib.systemlib"></md-checkbox>
                 </md-list-item>
