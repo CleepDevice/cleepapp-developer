@@ -8,14 +8,6 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     self.restartButtonId = null;
 
     /**
-     * Restart raspiot
-     */
-    self.restartRaspiot = function()
-    {
-        return rpcService.sendCommand('restart_raspiot', 'developer', 10);
-    };
-
-    /**
      * Start remotedev
      */
     self.startRemotedev = function()
