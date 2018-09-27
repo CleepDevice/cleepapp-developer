@@ -46,7 +46,7 @@ class Developer(RaspIotModule):
     MODULE_COUNTRY = None
     MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
     MODULE_URLHELP = u'https://github.com/tangb/cleepmod-developer/wiki'
-    MODULE_URLSITE = u'https://github.com/tangb/cleepmod-developer'
+    MODULE_URLSITE = None
     MODULE_URLBUGS = u'https://github.com/tangb/cleepmod-developer/issues'
 
     MODULE_CONFIG_FILE = u'developer.conf'
@@ -54,7 +54,7 @@ class Developer(RaspIotModule):
         u'moduleindev': None
     }
 
-    RASPIOT_PROFILE = u"""{
+    CLEEPOS_PROFILE = u"""{
     "cleepos": {
         "modules/(?P<modulename>.*?)/backend/": "/usr/lib/python2.7/dist-packages/raspiot/modules/%(modulename)s/",
         "modules/(?P<modulename>.*?)/frontend/": "/opt/raspiot/html/js/modules/%(modulename)s/",
@@ -65,7 +65,7 @@ class Developer(RaspIotModule):
         "log_file_path": "/var/log/raspiot.log"
 }
 """
-    RASPIOT_PROFILE_FILE = u'/root/.local/share/remotedev/slave.conf'
+    CLEEPOS_PROFILE_FILE = u'/root/.local/share/remotedev/slave.conf'
 
     FRONT_FILE_TYPE_DROP = u'Do not include file'
     FRONT_FILE_TYPE_SERVICE_JS = u'service-js'
@@ -76,6 +76,16 @@ class Developer(RaspIotModule):
     FRONT_FILE_TYPE_CONFIG_HTML = u'config-html'
     FRONT_FILE_TYPE_CONFIG_CSS = u'config-css'
     FRONT_FILE_TYPE_RESOURCE = u'resource'
+    FRONT_FILE_TYPES = [FRONT_FILE_TYPE_DROP, FRONT_FILE_TYPE_SERVICE_JS, FRONT_FILE_TYPE_WIDGET_JS, FRONT_FILE_TYPE_WIDGET_HTML, FRONT_FILE_TYPE_WIDGET_CSS, FRONT_FILE_TYPE_CONFIG_JS, FRONT_FILE_TYPE_CONFIG_HTML, FRONT_FILE_TYPE_CONFIG_CSS, FRONT_FILE_TYPE_RESOURCE]
+
+
+    CATEGORY_APPLICATION = u'APPLICATION'
+    CATEGORY_CAR = u'CAR'
+    CATEGORY_DRIVER = u'DRIVER'
+    CATEGORY_HOMEAUTOMATION = u'HOMEAUTOMATION'
+    CATEGORY_MEDIA = u'MEDIA'
+    CATEGORY_SERVICE = u'SERVICE'
+    CATEGORIES = [CATEGORY_APPLICATION, CATEGORY_CAR, CATEGORY_DRIVER, CATEGORY_HOMEAUTOMATION, CATEGORY_MEDIA, CATEGORY_SERVICE]
 
     def __init__(self, bootstrap, debug_enabled):
         """
@@ -124,14 +134,14 @@ class Developer(RaspIotModule):
                 self.__developer_uuid = uuid
 
         #write default remotedev profile
-        if not os.path.exists(self.RASPIOT_PROFILE_FILE):
+        if not os.path.exists(self.CLEEPOS_PROFILE_FILE):
             #create dir tree
-            if not self.cleep_filesystem.mkdirs(os.path.dirname(self.RASPIOT_PROFILE_FILE)):
+            if not self.cleep_filesystem.mkdirs(os.path.dirname(self.CLEEPOS_PROFILE_FILE)):
                 self.logger.error('Unable to create pyremote config dir tree. Unable to run developer module properly.')
 
             else:
                 #create default profile file
-                if not self.cleep_filesystem.write_data(self.RASPIOT_PROFILE_FILE, self.RASPIOT_PROFILE):
+                if not self.cleep_filesystem.write_data(self.CLEEPOS_PROFILE_FILE, self.CLEEPOS_PROFILE):
                     self.logger.error(u'Unable to write remotedev config. Unable to run developer module properly.')
 
         #start remotedev status task
@@ -276,6 +286,15 @@ class Developer(RaspIotModule):
             errors.append(u'Field MODULE_DESCRIPTION must be an unicode string')
         elif len(getattr(class_, u'MODULE_DESCRIPTION'))==0:
             errors.append(u'Field MODULE_DESCRIPTION must be provided')
+        #MODULE_CATEGORY
+        if not hasattr(class_, u'MODULE_CATEGORY'):
+            errors.append(u'Mandatory field MODULE_CATEGORY is missing')
+        elif not isinstance(getattr(class_, u'MODULE_CATEGORY'), unicode):
+            errors.append(u'Field MODULE_CATEGORY must be an unicode string')
+        elif len(getattr(class_, u'MODULE_CATEGORY'))==0:
+            errors.append(u'Field MODULE_CATEGORY must be provided')
+        elif getattr(class_, u'MODULE_CATEGORY') not in self.CATEGORIES:
+            errors.append(u'Field MODULE_CATEGORY must be one of possible values (see doc)')
         #MODULE_DEPS
         if not hasattr(class_, u'MODULE_DEPS'):
             errors.append(u'Mandatory field MODULE_DEPS is missing')
@@ -334,6 +353,7 @@ class Developer(RaspIotModule):
 
         #build package metadata
         description = getattr(class_, u'MODULE_DESCRIPTION', u'')
+        category = getattr(class_, u'MODULE_CATEGORY', u'')
         deps = getattr(class_, u'MODULE_DEPS', [])
         version = getattr(class_, u'MODULE_VERSION', u'')
         tags = getattr(class_, u'MODULE_TAGS', [])
@@ -352,6 +372,7 @@ class Developer(RaspIotModule):
         author = getattr(class_, u'MODULE_AUTHOR', u'')
         metadata = {
             u'description': description,
+            u'category': category,
             u'deps': deps,
             u'version': version,
             u'tags': tags,
@@ -553,9 +574,6 @@ class Developer(RaspIotModule):
         errors = []
         warnings = []
 
-        #file types
-        file_types = [self.FRONT_FILE_TYPE_DROP, self.FRONT_FILE_TYPE_SERVICE_JS, self.FRONT_FILE_TYPE_WIDGET_JS, self.FRONT_FILE_TYPE_WIDGET_HTML, self.FRONT_FILE_TYPE_WIDGET_CSS, self.FRONT_FILE_TYPE_CONFIG_JS, self.FRONT_FILE_TYPE_CONFIG_HTML, self.FRONT_FILE_TYPE_CONFIG_CSS, self.FRONT_FILE_TYPE_RESOURCE]
-
         #iterate over files in supposed js module directory
         all_files = {}
         module_path = os.path.join(PATH_FRONTEND, u'js/modules/', module)
@@ -615,7 +633,7 @@ class Developer(RaspIotModule):
         return {
             u'data': {
                 u'files': all_files.values(),
-                u'filetypes': file_types,
+                u'filetypes': self.FRONT_FILE_TYPES,
                 u'errors': errors,
                 u'warnings': warnings
             },
@@ -800,13 +818,13 @@ class Developer(RaspIotModule):
         archive.write(data[u'python'][u'files'][u'module'][u'fullpath'], os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path']))
         #add scripts
         if data[u'scripts'][u'preinst'][u'found']:
-            archive.write(data[u'scripts'][u'preinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'preinst.sh'))
+            archive.write(data[u'scripts'][u'preinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preinst.sh'))
         if data[u'scripts'][u'postinst'][u'found']:
-            archive.write(data[u'scripts'][u'postinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'postinst.sh'))
+            archive.write(data[u'scripts'][u'postinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'postinst.sh'))
         if data[u'scripts'][u'preuninst'][u'found']:
-            archive.write(data[u'scripts'][u'preuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'preuninst.sh'))
+            archive.write(data[u'scripts'][u'preuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preuninst.sh'))
         if data[u'scripts'][u'postuninst'][u'found']:
-            archive.write(data[u'scripts'][u'postuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, module, u'postuninst.sh'))
+            archive.write(data[u'scripts'][u'postuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'postuninst.sh'))
         #add module.json
         archive.write(module_json, u'module.json')
         #close archive
@@ -840,6 +858,6 @@ class Developer(RaspIotModule):
 
         return {
             u'filepath': self.__module_archive,
-            u'filename': u'raspiot_%s_%s.zip' % (self.__module_name, self.__module_version)
+            u'filename': u'cleepmod_%s_%s.zip' % (self.__module_name, self.__module_version)
         }
 
