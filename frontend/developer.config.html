@@ -220,9 +220,12 @@
                         Generate file
                     </md-button>
                 </md-list-item>
-                <md-list-item>
+                <md-list-item class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Build and download module package archive</p>
+                    <div class="md-list-item-text">
+                        <h3>Build and download module package archive</h3>
+                        <p>Please make sure popups are not blocked by your browser</p>
+                    </div>
                     <div ng-if="devCtl.data.python.errors.length>0">
                         <span>Build disabled, please fix errors</span>
                     </div>
@@ -266,6 +269,13 @@
                     <p>Author</p>
                     <div>
                         <span ng-bind="devCtl.data.metadata.author"></span>
+                    </div>
+                </md-list-item>
+                <md-list-item ng-if="devCtl.data.metadata.category">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Category</p>
+                    <div>
+                        <span ng-bind="devCtl.data.metadata.category"></span>
                     </div>
                 </md-list-item>
                 <md-list-item ng-if="devCtl.data.metadata.description" class="md-2-line">
