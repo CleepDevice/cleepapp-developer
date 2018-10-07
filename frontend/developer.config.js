@@ -2,7 +2,7 @@
  * Developer configuration directive
  * Helps developer to analyze and publish module to cleep store
  */
-var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService)
+var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService, $sce)
 {
 
     var developerController = ['$scope', function($scope) {
@@ -168,6 +168,22 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 .then(function(resp) {
                     //save module content
                     self.data = resp.data;
+                    var items = []
+                    for( var i=0; i<self.data.js.errors.length; i++ )
+                        items.push($sce.trustAsHtml(self.data.js.errors[i]));
+                    self.data.js.errors = items;
+                    items = []
+                    for( var i=0; i<self.data.js.warnings.length; i++ )
+                        items.push($sce.trustAsHtml(self.data.js.warnings[i]));
+                    self.data.js.warnings = items;
+                    items = []
+                    for( var i=0; i<self.data.python.errors.length; i++ )
+                        items.push($sce.trustAsHtml(self.data.python.errors[i]));
+                    self.data.python.errors = items;
+                    items = []
+                    for( var i=0; i<self.data.python.warnings.length; i++ )
+                        items.push($sce.trustAsHtml(self.data.python.warnings[i]));
+                    self.data.python.warnings = items;
             
                     //select first nav tab
                     self.selectedNav = 'buildmodule';
@@ -288,7 +304,6 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 }); 
         };
 
-
     }];
 
     var developerLink = function(scope, element, attrs, controller) {
@@ -306,5 +321,5 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
 
 var RaspIot = angular.module('RaspIot');
 RaspIot.directive('developerConfigDirective', ['$rootScope', 'toastService', 'raspiotService', 'developerService', 'systemService', '$timeout',
-                    'appToolbarService', developerConfigDirective]);
+                    'appToolbarService', '$sce', developerConfigDirective]);
 

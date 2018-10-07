@@ -184,11 +184,11 @@
                 <md-subheader class="md-no-sticky">Errors</md-subheader>
                 <md-list-item ng-repeat="error in devCtl.data.python.errors">
                     <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p>{{error}}</p>
+                    <p ng-bind-html="error"></p>
                 </md-list-item>
                 <md-list-item ng-repeat="error in devCtl.data.js.errors">
                     <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p>{{error}}</p>
+                    <p ng-bind-html="error"></p>
                 </md-list-item>
                 <md-list-item ng-if="devCtl.data.python.errors.length===0 && devCtl.data.js.errors.length===0">
                     <md-icon md-svg-icon="thumb-up"></md-icon>
@@ -199,11 +199,11 @@
                 <md-subheader class="md-no-sticky">Warnings</md-subheader>
                 <md-list-item ng-repeat="warn in devCtl.data.python.warnings">
                     <md-icon md-svg-icon="alert"></md-icon>
-                    <p>{{warn}}</p>
+                    <p ng-bind-html="warn"></p>
                 </md-list-item>
                 <md-list-item ng-repeat="warn in devCtl.data.js.warnings">
                     <md-icon md-svg-icon="alert"></md-icon>
-                    <p>{{warn}}</p>
+                    <p ng-bind-html="warn"></p>
                 </md-list-item>
                 <md-list-item ng-if="devCtl.data.python.warnings.length===0 && devCtl.data.js.warnings.length===0">
                     <md-icon md-svg-icon="thumb-up"></md-icon>

@@ -415,13 +415,14 @@ class Developer(RaspIotModule):
         self.logger.debug('Main module file: %s' % module_main_fullpath)
 
         #get all files to package
+        paths = []
         for root, _, filenames in os.walk(module_path):
             for filename in filenames:
                 fullpath = os.path.join(root, filename)
                 (file_no_ext, ext) = os.path.splitext(filename)
-                ##parts = Tools.full_path_split(fullpath)
-                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') and filename not in (module_main_filename, u'__init__.py') and ext==u'.py':
+                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') and filename not in (module_main_filename) and ext==u'.py':
                     self.logger.debug('File to import: %s' % fullpath)
+                    paths.append(os.path.split(fullpath)[0])
                     files[u'libs'].append({
                         u'fullpath': fullpath,
                         u'path': fullpath.replace(modules_path, u'')[1:],
@@ -429,11 +430,14 @@ class Developer(RaspIotModule):
                         u'selected': True
                     })
                     
-        #add __init__ if missing
-        init_path = os.path.join(module_path, u'__init__.py')
-        if not os.path.exists(init_path):
-            self.logger.debug(u'Add missing __init__.py file')
-            self.cleep_filesystem.write_data(init_path, '')
+        #check missing __init__.py
+        init_py_path = os.path.join(module_path, u'__init__.py')
+        if not os.path.exists(init_py_path):
+            errors.append(u'Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
+        for path in paths:
+            init_py_path = os.path.join(path, u'__init__.py')
+            if not os.path.exists(init_py_path):
+                errors.append(u'Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
             
         #get events
         events = []
@@ -885,37 +889,24 @@ class Developer(RaspIotModule):
                 archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module, f['path']))
 
         #add python files
-        paths = {}
         path_in = data[u'python'][u'files'][u'module'][u'fullpath']
         path_out = os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path'])
         archive.write(path_in, path_out)
-        paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
         for f in data[u'python'][u'files'][u'libs']:
             if f[u'selected']:
                 path_in = f[u'fullpath']
                 path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
-                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
                 archive.write(path_in, path_out)
         for f in data[u'python'][u'events']:
             if f[u'selected']:
                 path_in = f[u'fullpath']
                 path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
-                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
                 archive.write(path_in, path_out)
         for f in data[u'python'][u'formatters']:
             if f[u'selected']:
                 path_in = f[u'fullpath']
                 path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
-                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
                 archive.write(path_in, path_out)
-
-        #add python __init__.py files
-        #for path in paths:
-        #path = os.path.join(base_module_path, u'__init__.py')
-        #if os.path.exists(path):
-        #    archive.write(path, os.path.join(BACKEND_DIR, u'modules', '__init__.py'))
-        #else:
-        #    archive.writestr(os.path.join(BACKEND_DIR, u'modules', '__init__.py'), '')
 
         #add scripts
         if data[u'scripts'][u'preinst'][u'found']:
