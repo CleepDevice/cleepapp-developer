@@ -69,6 +69,12 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             self.modules = temp.sort();
         };
 
+        /**
+         * Dummy click for line hover
+         */
+        self.dummyClick = function()
+        {};
+
 		/**
          * Set remotedev device
          */
@@ -160,7 +166,6 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             //analyze module
             developerService.analyzeModule(self.config.moduleInDev)
                 .then(function(resp) {
-                    console.log(resp);
                     //save module content
                     self.data = resp.data;
             
@@ -208,7 +213,6 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                     return developerService.downloadPackage();
                 })
                 .then(function(resp) {
-                    console.log('download done?', resp);
                 }, function(err) {
                     console.error('Download failed', err);
                 })

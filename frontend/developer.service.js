@@ -75,9 +75,15 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      */
     self.handleRestartButton = function(config)
     {
+        //drop invalid config
+        if( config===undefined || config===null )
+        {
+            return;
+        }
+
         if( config.moduleindev && !self.restartButtonId )
         {
-            self.restartButtonId = appToolbarService.addButton('Restart CleepOS', 'restart', self.restartCleepOs, 'md-accent');
+            self.restartButtonId = appToolbarService.addButton('Dev: restart backend', 'restart', self.restartCleepOs, 'md-accent');
         }
         else if( !config.moduleindev && self.restartButtonId )
         {

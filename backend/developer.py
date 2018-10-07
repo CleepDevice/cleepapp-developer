@@ -10,7 +10,6 @@ import json
 import copy
 from zipfile import ZipFile, ZIP_DEFLATED
 from tempfile import NamedTemporaryFile
-from modulefinder import ModuleFinder
 from threading import Thread
 from raspiot.raspiot import RaspIotModule
 from raspiot.libs.internals.task import Task
@@ -40,8 +39,9 @@ class Developer(RaspIotModule):
     MODULE_PRICE = 0
     MODULE_DEPS = []
     MODULE_DESCRIPTION = u'Helps you to develop on CleepOS.'
+    MODULE_LONGDESCRIPTION = u'Developer module helps you to develop on CleepOS installing and preconfiguring remote sync tools. It also provides a full page that helps you to check and build your own module.<br/>This module will provide the official way to publish your module on CleepOS market.<br/><br/>Lot of resources are available on developer module wiki, have a look and start enjoying CleepOS!'
     MODULE_LOCKED = False
-    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module']
+    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs']
     MODULE_CATEGORY = u'APPLICATION'
     MODULE_COUNTRY = None
     MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
@@ -252,6 +252,12 @@ class Developer(RaspIotModule):
                     self.remotedevStoppedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
                 self.remotedev_is_running = False
 
+    def __get_files_in_path(self, path):
+        """
+        Return list of files in path
+        """
+        pass
+
     def __analyze_module_python(self, module):
         """
         Analyze package python part
@@ -269,6 +275,8 @@ class Developer(RaspIotModule):
         #init
         errors = []
         warnings = []
+        self.logger.debug(u'Raspiot_path=%s' % self.raspiot_path)
+        modules_path = os.path.join(self.raspiot_path, u'modules')
 
         #get module instance
         try:
@@ -286,6 +294,13 @@ class Developer(RaspIotModule):
             errors.append(u'Field MODULE_DESCRIPTION must be an unicode string')
         elif len(getattr(class_, u'MODULE_DESCRIPTION'))==0:
             errors.append(u'Field MODULE_DESCRIPTION must be provided')
+        #MODULE_LONGDESCRIPTION
+        if not hasattr(class_, u'MODULE_LONGDESCRIPTION'):
+            errors.append(u'Mandatory field MODULE_LONGDESCRIPTION is missing')
+        elif not isinstance(getattr(class_, u'MODULE_LONGDESCRIPTION'), unicode):
+            errors.append(u'Field MODULE_LONGDESCRIPTION must be an unicode string')
+        elif len(getattr(class_, u'MODULE_LONGDESCRIPTION'))==0:
+            errors.append(u'Field MODULE_LONGDESCRIPTION must be provided')
         #MODULE_CATEGORY
         if not hasattr(class_, u'MODULE_CATEGORY'):
             errors.append(u'Mandatory field MODULE_CATEGORY is missing')
@@ -353,6 +368,7 @@ class Developer(RaspIotModule):
 
         #build package metadata
         description = getattr(class_, u'MODULE_DESCRIPTION', u'')
+        longdescription = getattr(class_, u'MODULE_LONGDESCRIPTION', u'')
         category = getattr(class_, u'MODULE_CATEGORY', u'')
         deps = getattr(class_, u'MODULE_DEPS', [])
         version = getattr(class_, u'MODULE_VERSION', u'')
@@ -372,6 +388,7 @@ class Developer(RaspIotModule):
         author = getattr(class_, u'MODULE_AUTHOR', u'')
         metadata = {
             u'description': description,
+            u'longdescription': longdescription,
             u'category': category,
             u'deps': deps,
             u'version': version,
@@ -383,46 +400,100 @@ class Developer(RaspIotModule):
         }
         self.logger.debug('Module "%s" metadata: %s' % (module, metadata))
 
-        #build main module file infos
+        #add main module file
         files = {
             u'module': None,
             u'libs': []
         }
-        module_pyc = inspect.getfile(module_)
-        module_py = module_pyc.replace(u'.pyc', u'.py')
+        module_main_fullpath = inspect.getfile(module_).replace(u'.pyc', u'.py')
+        (module_path, module_main_filename) = os.path.split(module_main_fullpath)
         files['module'] = {
-            u'fullpath': module_py,
-            u'path': module_py.replace(os.path.join(self.raspiot_path, u'modules'), u'')[1:],
-            u'filename': os.path.basename(module_py)
+            u'fullpath': module_main_fullpath,
+            u'path': module_main_fullpath.replace(modules_path, u'')[1:],
+            u'filename': module_main_filename
         }
-        self.logger.debug('Module file infos: %s' % module_py)
+        self.logger.debug('Main module file: %s' % module_main_fullpath)
 
-        #build module dependencies infos
-        finder = ModuleFinder()
-        try:
-            finder.run_script(module_py)
-            for name, _ in finder.modules.iteritems():
-                self.logger.debug('lib name: %s' % name)
-                if name.startswith(u'raspiot.'):
-                    if name.find(u'.libs.')>0:
-                        #add lib
-                        lib = '%s.py' % os.path.join(self.raspiot_path, os.path.sep.join(name.split(u'.')[1:]))
-                        if not os.path.exists(lib):
-                            self.logger.debug('Lib %s not found' % lib)
-                        else:
-                            files[u'libs'].append({
-                                u'fullpath': lib,
-                                u'path': lib.replace(self.raspiot_path, u'')[1:],
-                                u'filename': os.path.basename(lib),
-                                u'selected': True,
-                                u'systemlib': Tools.is_system_lib(lib)
-                            })
-        except:
-            self.logger.exception('Exception occured during module dependencies finder:')
+        #get all files to package
+        for root, _, filenames in os.walk(module_path):
+            for filename in filenames:
+                fullpath = os.path.join(root, filename)
+                (file_no_ext, ext) = os.path.splitext(filename)
+                ##parts = Tools.full_path_split(fullpath)
+                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') and filename not in (module_main_filename, u'__init__.py') and ext==u'.py':
+                    self.logger.debug('File to import: %s' % fullpath)
+                    files[u'libs'].append({
+                        u'fullpath': fullpath,
+                        u'path': fullpath.replace(modules_path, u'')[1:],
+                        u'filename': os.path.basename(fullpath),
+                        u'selected': True
+                    })
+                    
+        #add __init__ if missing
+        init_path = os.path.join(module_path, u'__init__.py')
+        if not os.path.exists(init_path):
+            self.logger.debug(u'Add missing __init__.py file')
+            self.cleep_filesystem.write_data(init_path, '')
+            
+        #get events
+        events = []
+        for f in os.listdir(module_path):
+            fullpath = os.path.join(module_path, f)
+            (event, ext) = os.path.splitext(f)
+            parts = Tools.full_path_split(fullpath)
+            if event.lower().find(u'event')>=0 and ext==u'.py':
+                self.logger.debug('Loading event "%s"' % u'raspiot.modules.%s.%s' % (parts[-2], event))
+                try:
+                    mod_ = importlib.import_module(u'raspiot.modules.%s.%s' % (parts[-2], event))
+                    event_class_name = next((item for item in dir(mod_) if item.lower()==event.lower()), None)
+                    if event_class_name:
+                        class_ = getattr(mod_, event_class_name)
+                        events.append({
+                            u'fullpath': fullpath,
+                            u'path': u'%s.py' % os.path.join(parts[-2], event),
+                            u'filename': os.path.basename(fullpath),
+                            u'name': event_class_name,
+                            u'selected': True
+                        })
+                    else:
+                        self.logger.debug(u'Event class must have the same name than filename (%s)' % f)
+                        errors.append(u'Event class must have the same name than filename (%s)' % f)
+                except:
+                    self.logger.exception(u'Unable to load event %s' % f)
+                    errors.append(u'Unable to load event %s' % f)
+
+        #get formatters
+        formatters = []
+        for f in os.listdir(module_path):
+            fullpath = os.path.join(module_path, f)
+            (formatter, ext) = os.path.splitext(f)
+            parts = Tools.full_path_split(fullpath)
+            if formatter.lower().find(u'formatter')>=0 and ext==u'.py':
+                self.logger.debug('Loading formatter "%s"' % u'raspiot.modules.%s.%s' % (parts[-2], formatter))
+                try:
+                    mod_ = importlib.import_module(u'raspiot.modules.%s.%s' % (parts[-2], formatter))
+                    formatter_class_name = next((item for item in dir(mod_) if item.lower()==formatter.lower()), None)
+                    if formatter_class_name:
+                        class_ = getattr(mod_, formatter_class_name)
+                        formatters.append({
+                            u'fullpath': fullpath,
+                            u'path': u'.py' % s.path.join(parts[-2], formatter),
+                            u'filename': os.path.basename(fullpath),
+                            u'name': formatter_class_name,
+                            u'selected': True
+                        })
+                    else:
+                        self.logger.debug(u'Formatter class must have the same name than filename (%s)' % f)
+                        errors.append(u'Formatter class must have the same name than filename (%s)' % f)
+                except:
+                    self.logger.exception(u'Unable to load formatter %s' % f)
+                    errors.append(u'Unable to load formatter %s' % f)
 
         return {
             u'data': {
                 u'files': files,
+                u'events': events,
+                u'formatters': formatters,
                 u'errors': errors,
                 u'warnings': warnings
             },
@@ -807,15 +878,45 @@ class Developer(RaspIotModule):
         module_archive = fd.name
         self.logger.debug('Archive filepath: %s' % module_archive)
         archive = ZipFile(fd, u'w', ZIP_DEFLATED)
+
         #add js files
         for f in data[u'js'][u'files']:
             if f[u'type']!=self.FRONT_FILE_TYPE_DROP:
                 archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module, f['path']))
+
         #add python files
+        paths = {}
+        path_in = data[u'python'][u'files'][u'module'][u'fullpath']
+        path_out = os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path'])
+        archive.write(path_in, path_out)
+        paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
         for f in data[u'python'][u'files'][u'libs']:
-            if f[u'selected'] and not f[u'systemlib']:
-                archive.write(f[u'fullpath'], os.path.join(BACKEND_DIR, f[u'path']))
-        archive.write(data[u'python'][u'files'][u'module'][u'fullpath'], os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path']))
+            if f[u'selected']:
+                path_in = f[u'fullpath']
+                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
+                archive.write(path_in, path_out)
+        for f in data[u'python'][u'events']:
+            if f[u'selected']:
+                path_in = f[u'fullpath']
+                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
+                archive.write(path_in, path_out)
+        for f in data[u'python'][u'formatters']:
+            if f[u'selected']:
+                path_in = f[u'fullpath']
+                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+                paths[os.path.split(path_in)[0]] = os.path.split(path_out)[0]
+                archive.write(path_in, path_out)
+
+        #add python __init__.py files
+        #for path in paths:
+        #path = os.path.join(base_module_path, u'__init__.py')
+        #if os.path.exists(path):
+        #    archive.write(path, os.path.join(BACKEND_DIR, u'modules', '__init__.py'))
+        #else:
+        #    archive.writestr(os.path.join(BACKEND_DIR, u'modules', '__init__.py'), '')
+
         #add scripts
         if data[u'scripts'][u'preinst'][u'found']:
             archive.write(data[u'scripts'][u'preinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preinst.sh'))
@@ -825,8 +926,10 @@ class Developer(RaspIotModule):
             archive.write(data[u'scripts'][u'preuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preuninst.sh'))
         if data[u'scripts'][u'postuninst'][u'found']:
             archive.write(data[u'scripts'][u'postuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'postuninst.sh'))
+
         #add module.json
         archive.write(module_json, u'module.json')
+
         #close archive
         archive.close()
 
