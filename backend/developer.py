@@ -481,7 +481,7 @@ class Developer(RaspIotModule):
                         class_ = getattr(mod_, formatter_class_name)
                         formatters.append({
                             u'fullpath': fullpath,
-                            u'path': u'.py' % s.path.join(parts[-2], formatter),
+                            u'path': u'%s.py' % os.path.join(parts[-2], formatter),
                             u'filename': os.path.basename(fullpath),
                             u'name': formatter_class_name,
                             u'selected': True
