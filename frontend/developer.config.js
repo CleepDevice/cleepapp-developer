@@ -10,7 +10,6 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         self.config = {
             moduleInDev: null
         };
-        self.deve
         self.selectedModule = null;
         self.modules = [];
         self.data = null;
@@ -35,9 +34,8 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         /**
          * Init controller
          */
-        self.init = function(modules)
+        self.init = function()
         {
-
 			//set remotedev device
 			self.setRemotedevDevice();
 
@@ -45,28 +43,42 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             raspiotService.getModuleConfig('developer')
                 .then(function(config) {
                     self.setConfig(config);
-                });
 
-            //get list of module names
+                    //get list of module names
+                    self.modules = self.__modulesList(false);
+
+                    //make sure god mode wasn't enabled before
+                    if( self.config.moduleInDev && self.modules.indexOf(self.config.moduleInDev)===-1 )
+                    {
+                        self.modules = self.__modulesList(true);
+                    }
+                });
+        };
+
+        /**
+         * Load modules that can be developed
+         */
+        self.__modulesList = function(all)
+        {
             var temp = [];
-            for( var module in modules )
+            for( var module in raspiotService.modules )
             {
-                if( modules[module].locked )
+                if( raspiotService.modules[module].locked && !all )
                 {
                     //system module, drop it
                     continue;
                 }
 
-                /*if( module=='developer' )
+                if( module=='developer' && !all )
                 {
                     //drop developer module
                     continue;
-                }*/
+                }
 
                 //append module name
                 temp.push(module);
             }
-            self.modules = temp.sort();
+            return temp.sort();
         };
 
         /**
@@ -74,6 +86,15 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.dummyClick = function()
         {};
+
+        /**
+         * Godmode
+         */
+        self.godMode = function()
+        {
+            console.log('God mode: all modules available in list!');
+            self.modules = self.__modulesList(true);
+        };
 
 		/**
          * Set remotedev device
@@ -133,6 +154,9 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                     //save new config
                     self.setConfig(config);
 
+                    //clear previous analysis
+                    self.resetAnalysis();
+
                     //user message
                     if( config.moduleindev )
                     {
@@ -143,7 +167,17 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                         toast.success('No module in development');
                     }
                 });
-        }
+        };
+
+
+        /**
+         * Reset analysis
+         */
+        self.resetAnalysis = function()
+        {
+            self.data = null;
+            self.analyzeError = null;
+        };
 
         /**
          * Analyze selected module
@@ -151,9 +185,10 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         self.analyzeModule = function()
         {
             //reset members
-            self.data = null;
+            self.resetAnalysis();
+
+            //set loading
             self.loading = true;
-            self.analyzeError = null;
 
             //check params
             if( !self.config.moduleInDev )
@@ -265,6 +300,25 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         };
 
         /**
+         * Clear logs
+         */
+        self.clearLogs = function()
+        {
+            self.loading = true;
+
+            systemService.clearLogs()
+                .then(function() {
+                    self.logs = '';
+                    self.codemirrorInstance.refresh();
+
+                    toast.info('Log file is cleared');
+                })
+                .finally(function() {
+                    self.loading = false;
+                });
+        };
+
+        /**
          * Goto top of logs
          */
         self.gotoLogsTop = function()
@@ -307,7 +361,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
     }];
 
     var developerLink = function(scope, element, attrs, controller) {
-        controller.init(raspiotService.modules);
+        controller.init();
     };
 
     return {
