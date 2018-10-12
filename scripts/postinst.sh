@@ -7,7 +7,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #set cleepos profile as daemon default profile
-/bin/sed -i -E "s/^DAEMON_PROFILE_NAME=.*$/DAEMON_PROFILE_NAME=cleepos/g" /etc/default/remotedev.conf
+/bin/sed -i -E "s/^DAEMON_PROFILE_NAME=.*$/DAEMON_PROFILE_NAME='cleepos'/g" /etc/default/remotedev.conf
 if [ $? -ne 0 ]; then
     exit 1
 fi
