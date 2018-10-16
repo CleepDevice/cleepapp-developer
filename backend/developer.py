@@ -40,7 +40,6 @@ class Developer(RaspIotModule):
     MODULE_DEPS = []
     MODULE_DESCRIPTION = u'Helps you to develop on CleepOS.'
     MODULE_LONGDESCRIPTION = u'Developer module helps you to develop on CleepOS installing and preconfiguring remote sync tools. It also provides a full page that helps you to check and build your own module.<br/>This module will provide the official way to publish your module on CleepOS market.<br/><br/>Lot of resources are available on developer module wiki, have a look and start enjoying CleepOS!'
-    MODULE_LOCKED = False
     MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs']
     MODULE_CATEGORY = u'APPLICATION'
     MODULE_COUNTRY = None
