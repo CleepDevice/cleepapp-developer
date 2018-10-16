@@ -213,17 +213,18 @@
                     <md-icon md-svg-icon="thumb-up"></md-icon>
                     <p>No warning</p>
                 </md-list-item>
+
+                <!-- release changelog -->
+                <md-subheader class="md-no-sticky">Release changelog</md-subheader>
+                <md-list-item>
+                    <md-input-container class="md-block" style="width:100%">
+                        <label>Changelog (html format supported during display)</label>
+                        <textarea ng-model="devCtl.data.changelog" rows="5"></textarea>
+                    </md-input-container>
+                </md-list-item>
     
                 <!-- build actions -->
                 <md-subheader class="md-no-sticky">Build</md-subheader>
-                <md-list-item>
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Generate frontend description file (desc.json) in your app frontend directory</p>
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDescJson()">
-                        <md-icon md-svg-icon="wrench"></md-icon>
-                        Generate file
-                    </md-button>
-                </md-list-item>
                 <md-list-item class="md-2-line">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
                     <div class="md-list-item-text">
@@ -245,15 +246,6 @@
         <!-- module description -->
         <div ng-show="devCtl.selectedNav==='moduledesc'" ng-if="devCtl.data">
             <md-list>
-    
-                <!-- changelog -->
-                <md-subheader class="md-no-sticky">Application version changelog</md-subheader>
-                <md-list-item>
-                    <md-input-container class="md-block" style="width:100%">
-                        <label>Changelog (html format supported during display)</label>
-                        <textarea ng-model="devCtl.data.changelog" rows="5"></textarea>
-                    </md-input-container>
-                </md-list-item>
     
                 <!-- icon -->
                 <md-subheader class="md-no-sticky">Application icon</md-subheader>
@@ -311,6 +303,7 @@
                         <span ng-bind="devCtl.data.metadata.version"></span>
                     </div>
                 </md-list-item>
+                <!-- do not display price info until infrastructure is available for that
                 <md-list-item ng-if="devCtl.data.metadata.price!==undefined" class="md-2-line" ng-click="devCtl.dummyClick()">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
                     <div class="md-list-item-text">
@@ -322,6 +315,7 @@
                         <span ng-if="devCtl.data.metadata.price===0">Free application</span>
                     </div>
                 </md-list-item>
+                -->
                 <md-list-item ng-if="devCtl.data.metadata.country" class="md-2-line" ng-click="devCtl.dummyClick()">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
                     <div class="md-list-item-text">
@@ -440,8 +434,8 @@
                     <md-icon md-svg-icon="language-python"></md-icon>
                     <p>{{devCtl.data.python.files.module.path}}</p>
                 </md-list-item>
-                <!-- libraries -->
-                <md-subheader class="md-no-sticky">Application libraries</md-subheader>
+                <!-- other files -->
+                <md-subheader class="md-no-sticky">Other backend files</md-subheader>
                 <md-list-item ng-repeat="lib in devCtl.data.python.files.libs">
                     <md-icon md-svg-icon="library-plus"></md-icon>
                     <p>{{lib.path}}</p>
@@ -487,6 +481,18 @@
         <!-- frontend files -->
         <div ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.data">
             <md-list>
+                <!-- build desc.json -->
+                <md-subheader class="md-no-sticky">Frontend description file</md-subheader>
+                <md-list-item>
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Generate frontend description file (desc.json) in your app frontend directory</p>
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDescJson()">
+                        <md-icon md-svg-icon="wrench"></md-icon>
+                        Generate file
+                    </md-button>
+                </md-list-item>
+
+                <!-- files list -->
                 <md-subheader class="md-no-sticky">Configure frontend files usage</md-subheader>
                 <md-list-item ng-repeat="file in devCtl.data.js.files">
                     <md-icon md-svg-icon="file"></md-icon>
