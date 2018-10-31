@@ -63,9 +63,10 @@ class Developer(RaspIotModule):
         "raspiot/": "/usr/lib/python2.7/dist-packages/raspiot/",
         "bin/": "/usr/bin/",
         "log_file_path": "/var/log/raspiot.log"
+    }
 }
 """
-    CLEEPOS_PROFILE_FILE = u'/root/.local/share/remotedev/slave.conf'
+    CLEEPOS_PROFILE_FILE = u'/root/.local/share/remotedev/execenv.conf'
 
     FRONT_FILE_TYPE_DROP = u'Do not include file'
     FRONT_FILE_TYPE_SERVICE_JS = u'service-js'
