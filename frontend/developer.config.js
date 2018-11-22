@@ -5,6 +5,8 @@
 var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService, $sce)
 {
 
+    // konami code: ssuperr
+
     var developerController = ['$scope', function($scope) {
         var self = this;
         self.config = {
@@ -60,10 +62,14 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.__modulesList = function(all)
         {
+            if( all===undefined ) {
+                all = false;
+            }
+
             var temp = [];
             for( var module in raspiotService.modules )
             {
-                if( raspiotService.modules[module].locked && !all )
+                if( raspiotService.modules[module].locked || !all )
                 {
                     //system module, drop it
                     continue;
@@ -92,7 +98,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.godMode = function()
         {
-            console.log('God mode: all modules available in list!');
+            toast.info('God mode activated, all modules are available in list');
             self.modules = self.__modulesList(true);
         };
 
@@ -265,7 +271,8 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 })
                 .then(function(resp) {
                 }, function(err) {
-                    console.error('Download failed', err);
+                    console.error('Download failed:', err);
+                    toast.error('Download failed');
                 })
                 .finally(function() {
                     self.loading = false;
