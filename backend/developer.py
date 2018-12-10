@@ -625,7 +625,8 @@ class Developer(RaspIotModule):
 
         #check directive usage for found images
         for image in images:
-            pattern = r"mod-img-src\s*=\s*[\"']\s*%s\s*[\"']" % image[u'filename']
+            pattern = r"mod-img-src\s*=\s*[\"']\s*%s\s*[\"']" % image[u'path']
+            self.logger.debug(u'Mod-img-src pattern: %s' % pattern)
             found = False
             for cached in cacheds:
                 matches = re.finditer(pattern, cached, re.MULTILINE)
@@ -652,34 +653,39 @@ class Developer(RaspIotModule):
         #iterate over files in supposed js module directory
         all_files = {}
         module_path = os.path.join(PATH_FRONTEND, u'js/modules/', module)
+        self.logger.info('module_path=%s' % module_path)
         if not os.path.exists(module_path):
             raise CommandError(u'Module "%s" has no javascript' % module_path)
-        for f in os.listdir(module_path):
-            #drop some files
-            if f.startswith(u'.') or f.startswith(u'~') or f.endswith(u'.tmp'):
-                continue
+        for root, _, filenames in os.walk(module_path):
+            for f in filenames:
+                self.logger.info('root=%s f=%s' % (root, f))
+                #drop some files
+                if f.startswith(u'.') or f.startswith(u'~') or f.endswith(u'.tmp'):
+                    continue
 
-            #get file values
-            fullpath = os.path.join(module_path, f)
-            filepath = fullpath.replace(module_path + os.path.sep, '')
-            filename = os.path.basename(fullpath)
+                #get file values
+                fullpath = os.path.join(root, f)
+                filepath = os.path.join(root.replace(module_path, u''), f)
+                if filepath[0]==os.path.sep:
+                    filepath = filepath[1:]
+                filename = f
 
-            #mandatory field
-            mandatory = False
-            type_ = self.FRONT_FILE_TYPE_DROP
-            if filename==u'desc.json':
-                mandatory = True
-                type_ = self.FRONT_FILE_TYPE_RESOURCE
+                #mandatory field
+                mandatory = False
+                type_ = self.FRONT_FILE_TYPE_DROP
+                if filename==u'desc.json':
+                    mandatory = True
+                    type_ = self.FRONT_FILE_TYPE_RESOURCE
 
-            #append file infos
-            all_files[filepath] = {
-                u'fullpath': fullpath,
-                u'path': filepath,
-                u'filename': filename,
-                u'ext': os.path.splitext(fullpath)[1].replace(u'.', u''),
-                u'mandatory': mandatory,
-                u'type': type_
-            }
+                #append file infos
+                all_files[filepath] = {
+                    u'fullpath': fullpath,
+                    u'path': filepath,
+                    u'filename': filename,
+                    u'ext': os.path.splitext(fullpath)[1].replace(u'.', u''),
+                    u'mandatory': mandatory,
+                    u'type': type_
+                }
         self.logger.debug('all_files: %s' % all_files)
 
         #load existing description file
