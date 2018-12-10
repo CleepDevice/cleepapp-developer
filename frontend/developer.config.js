@@ -134,6 +134,10 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.restartBackend = function()
         {
+            //clear last analysis
+            self.resetAnalysis();
+
+            //restart cleepos
             developerService.restartCleepOs();
         };
 
