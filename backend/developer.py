@@ -35,7 +35,7 @@ class Developer(RaspIotModule):
         https://github.com/tangb/remotedev
     """
     MODULE_AUTHOR = u'Cleep'
-    MODULE_VERSION = u'1.0.1'
+    MODULE_VERSION = u'1.0.2'
     MODULE_PRICE = 0
     MODULE_DEPS = []
     MODULE_DESCRIPTION = u'Helps you to develop on CleepOS.'
