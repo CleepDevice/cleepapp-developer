@@ -69,18 +69,15 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             var temp = [];
             for( var module in raspiotService.modules )
             {
-                if( raspiotService.modules[module].locked || !all )
+                if( !all )
                 {
-                    //system module, drop it
-                    continue;
+                    if( raspiotService.modules[module].core===true || module==='developer' )
+                    {
+                        //system module, drop it
+                        continue;
+                    }
                 }
-
-                if( module=='developer' && !all )
-                {
-                    //drop developer module
-                    continue;
-                }
-
+    
                 //append module name
                 temp.push(module);
             }
