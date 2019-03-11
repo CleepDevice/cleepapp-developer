@@ -1,1 +1,12 @@
-{"res": ["desc.json"], "config": {"html": ["developer.config.html"], "css": [], "js": ["developer.config.js"]}, "system": {"services": ["developer.service.js"], "widgets": {"html": ["developer.widget.html"], "css": [], "js": ["developer.widget.js"]}}, "icon": "worker"}
+{
+    "icon": "worker",
+    "global": {
+        "js": ["developer.service.js", "developer.widget.js"],
+        "html": ["developer.widget.html"]
+    },
+    "config": {
+        "html": ["developer.config.html"],
+        "js": ["developer.config.js"]
+    }
+}
+
