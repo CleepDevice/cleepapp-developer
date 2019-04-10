@@ -16,19 +16,10 @@
                 <md-icon md-svg-icon="refresh"></md-icon>
                 <span>Restart CleepOs</span>
             </md-button>
-            <md-button class="md-raised md-primary" aria-label="Start pyremotedev" ng-click="widgetCtl.startRemotedev()">
-                <md-icon md-svg-icon="play"></md-icon>
-                <span>Start Remotedev</span>
-            </md-button>
-            <md-button class="md-raised md-primary" aria-label="Stop pyremotedev" ng-click="widgetCtl.stopRemotedev()">
-                <md-icon md-svg-icon="stop"></md-icon>
-                <span>Stop Remotedev</span>
-            </md-button>
         </div>
     </md-card-content>
     <md-card-footer>
-        <span ng-if="widgetCtl.device.running">Remotedev is running</span>
-        <span ng-if="!widgetCtl.device.running">Remotedev is NOT running</span>
+        
     </md-card-footer>
 </md-card>
 

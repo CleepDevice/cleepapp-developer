@@ -105,40 +105,6 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     });
 
     /**
-     * Catch remotedev started events
-     */
-    $rootScope.$on('developer.remotedev.started', function(event, uuid, params) {
-        for( var i=0; i<raspiotService.devices.length; i++ )
-        {
-            if( raspiotService.devices[i].uuid==uuid )
-            {
-                if( raspiotService.devices[i].running===false )
-                {
-                    raspiotService.devices[i].running = true;
-                    break;
-                }
-            }
-        }
-    });
-
-    /**
-     * Catch remotedev stoped events
-     */
-    $rootScope.$on('developer.remotedev.stopped', function(event, uuid, params) {
-        for( var i=0; i<raspiotService.devices.length; i++ )
-        {
-            if( raspiotService.devices[i].uuid==uuid )
-            {
-                if( raspiotService.devices[i].running===true )
-                {
-                    raspiotService.devices[i].running = false;
-                    break;
-                }
-            }
-        }
-    });
-
-    /**
      * Catch remotedev stoped events
      */
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {

@@ -13,24 +13,6 @@ var widgetDeveloperDirective = function() {
         self.restartCleepOs = function() {
             raspiotService.restart(0)
         };
-
-        //start remotedev
-        self.startRemotedev = function() {
-            developerService.startRemotedev()
-                .then(function(resp) {
-                    if( resp.data )
-                        self.device.running = true;
-                });
-        };
-
-        //stop remotedev
-        self.stopRemotedev = function() {
-            developerService.stopRemotedev()
-                .then(function(resp) {
-                    if( resp.data )
-                        self.device.running = false;
-                });
-        };
     }];
 
     return {
