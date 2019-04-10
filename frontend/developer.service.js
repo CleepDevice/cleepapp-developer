@@ -2,7 +2,7 @@
  * Developer service
  * Handle developer module requests
  */
-var developerService = function($q, $rootScope, rpcService, raspiotService, appToolbarService)
+var developerService = function($q, $rootScope, rpcService, raspiotService, appToolbarService, $window)
 {
     var self = this;
     self.restartButtonId = null;
@@ -137,8 +137,16 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
             }
         }
     });
+
+    /**
+     * Catch remotedev stoped events
+     */
+    $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
+        $window.location.reload();
+    });
+
 };
     
 var RaspIot = angular.module('RaspIot');
-RaspIot.service('developerService', ['$q', '$rootScope', 'rpcService', 'raspiotService', 'appToolbarService', developerService]);
+RaspIot.service('developerService', ['$q', '$rootScope', 'rpcService', 'raspiotService', 'appToolbarService', '$window', developerService]);
 
