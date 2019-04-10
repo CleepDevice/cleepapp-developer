@@ -23,6 +23,7 @@ from raspiot.libs.configs import __all__ as configs_libs
 from raspiot.libs.commands import __all__ as commands_libs
 import raspiot.libs.internals.tools as Tools
 
+
 __all__ = ['Developer']
 
 
@@ -257,6 +258,7 @@ class Developer(RaspIotModule):
         """
         Send event to restart frontend
         """
+        self.logger.info(u'Sending restart event to frontend')
         self.frontend_restart_event.send(to=u'rpc')
 
     def __analyze_module_python(self, module):
