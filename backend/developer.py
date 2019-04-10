@@ -109,8 +109,7 @@ class Developer(RaspIotModule):
         self.__module_version = None
 
         #events
-        self.remotedevStartedEvent = self._get_event('developer.remotedev.started')
-        self.remotedevStoppedEvent = self._get_event('developer.remotedev.stopped')
+        self.frontend_restart_event = self._get_event('developer.frontend.restart')
 
     def _configure(self):
         """
@@ -242,21 +241,23 @@ class Developer(RaspIotModule):
                 #remotedev is running
                 if not self.remotedev_is_running:
                     #send is running event
-                    self.remotedevStartedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
+                    #self.remotedevStartedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
+                    pass
                 self.remotedev_is_running = True
 
             else:
                 #remotedev is not running
                 if self.remotedev_is_running:
                     #send is not running event
-                    self.remotedevStoppedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
+                    #self.remotedevStoppedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
+                    pass
                 self.remotedev_is_running = False
 
-    def __get_files_in_path(self, path):
+    def restart_frontend(self):
         """
-        Return list of files in path
+        Send event to restart frontend
         """
-        pass
+        self.frontend_restart_event.send(to=u'rpc')
 
     def __analyze_module_python(self, module):
         """
