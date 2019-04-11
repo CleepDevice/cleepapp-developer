@@ -10,7 +10,7 @@ var widgetDeveloperDirective = function() {
         self.device = $scope.device;
 
         //restart cleepos
-        self.restartCleepOs = function() {
+        self.restartCleepBackend = function() {
             raspiotService.restart(0)
         };
     }];

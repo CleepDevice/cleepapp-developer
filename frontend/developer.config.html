@@ -41,46 +41,33 @@
         <!-- actions -->
         <md-list>
 
-            <!-- reload backend -->
+            <!-- reload application -->
             <md-list-item class="md-2-line">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
-                    <h3>Restart CleepOS to reload changes on backend</h3>
-                    <p>Due to python2.7 restriction it's not possible to reload for sure a python module.</p>
+                    <h3>Restart Cleep backend/frontend to reload your recent changes</h3>
+                    <p>This app should restart automatically Cleep if your editor pushes correctly changes on the device</p>
                 </div>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.restartBackend()">
                     <md-icon md-svg-icon="restart"></md-icon>
-                    Reload backend changes
+                    Restart backend
                 </md-button>
-            </md-list-item>
-
-            <!-- reload frontend -->
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Reload frontend changes</h3>
-                    <p>It is simply a page refresh you can do pressing CTRL-R or F5.</p>
-                </div>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.restartFrontend()">
                     <md-icon md-svg-icon="restart"></md-icon>
-                    Reload frontend changes
+                    Restart frontend
                 </md-button>
             </md-list-item>
 
-            <!-- remotedev -->
+            <!-- create new application -->
             <md-list-item class="md-2-line">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
-                    <h3>Remotedev ({{ devCtl.raspiotService.devices[devCtl.remotedevUuid].running ? 'service is running' : 'service is not running' }})</h3>
-                    <p>Removedev is a service installed on your device that synchronises sources from your dev env and your device (<a href="https://github.com/tangb/cleepmod-developer/wiki/Remotedev" target="_blank">more infos</a>).</p>
+                    <h3>Create default application skeleton</h3>
+                    <p>After click, download module files on your editor</p>
                 </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.startRemotedev()">
-                    <md-icon md-svg-icon="play"></md-icon>
-                    Start
-                </md-button>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.stopRemotedev()">
-                    <md-icon md-svg-icon="stop"></md-icon>
-                    Stop
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApp()">
+                    <md-icon md-svg-icon="plus"></md-icon>
+                    Create app
                 </md-button>
             </md-list-item>
 
@@ -89,7 +76,7 @@
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
                     <h3>Load device log messages on viewer below</h3>
-                    <p>Note that an automatically updated "remote_[device-ip].log" file should be available on your repository root.</p>
+                    <p>Note logs are also available on <a href="http://{{devCtl.deviceIp}}/log" target="_blank">http://{{devCtl.deviceIp}}/log</a></p>
                 </div>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.loadLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="file-download"></md-icon>
@@ -97,7 +84,7 @@
                 </md-button>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.clearLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="close"></md-icon>
-                    clear logs
+                    Clear logs
                 </md-button>
             </md-list-item>
 

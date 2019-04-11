@@ -22,6 +22,7 @@ from raspiot.libs.drivers import __all__ as drivers_libs
 from raspiot.libs.configs import __all__ as configs_libs
 from raspiot.libs.commands import __all__ as commands_libs
 import raspiot.libs.internals.tools as Tools
+from raspiot.libs.internals.console import EndlessConsole
 
 
 __all__ = ['Developer']
@@ -36,12 +37,16 @@ class Developer(RaspIotModule):
         https://github.com/tangb/remotedev
     """
     MODULE_AUTHOR = u'Cleep'
-    MODULE_VERSION = u'1.0.2'
+    MODULE_VERSION = u'2.0.0'
     MODULE_PRICE = 0
     MODULE_DEPS = []
-    MODULE_DESCRIPTION = u'Helps you to develop on CleepOS.'
-    MODULE_LONGDESCRIPTION = u'Developer module helps you to develop on CleepOS installing and preconfiguring remote sync tools. It also provides a full page that helps you to check and build your own module.<br/>This module will provide the official way to publish your module on CleepOS market.<br/><br/>Lot of resources are available on developer module wiki, have a look and start enjoying CleepOS!'
-    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs']
+    MODULE_DESCRIPTION = u'Helps you to develop Cleep applications.'
+    MODULE_LONGDESCRIPTION = u'Developer module helps you to develop on Cleep installing \
+        and preconfiguring sync tools. It also provides a full page that helps you to \
+        check and build your own application.<br/>This module will provide the official way to \
+        publish your module on Cleep market.<br/><br/>Lot of resources are available \
+        on developer module wiki, have a look and start enjoying Cleep!'
+    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs', 'cleep', 'cli']
     MODULE_CATEGORY = u'APPLICATION'
     MODULE_COUNTRY = None
     MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
@@ -54,19 +59,7 @@ class Developer(RaspIotModule):
         u'moduleindev': None
     }
 
-    CLEEPOS_PROFILE = u"""{
-    "cleepos": {
-        "modules/(?P<modulename>.*?)/backend/": "/usr/lib/python2.7/dist-packages/raspiot/modules/%(modulename)s/",
-        "modules/(?P<modulename>.*?)/frontend/": "/opt/raspiot/html/js/modules/%(modulename)s/",
-        "modules/(?P<modulename>.*?)/scripts/": "/opt/raspiot/scripts/%(modulename)s/",
-        "html/": "/opt/raspiot/html/",
-        "raspiot/": "/usr/lib/python2.7/dist-packages/raspiot/",
-        "bin/": "/usr/bin/",
-        "log_file_path": "/var/log/raspiot.log"
-    }
-}
-"""
-    CLEEPOS_PROFILE_FILE = u'/root/.local/share/remotedev/execenv.conf'
+    WATCHER_CMD = u'/usr/local/bin/cleep-cli watch --loglevel=40'
 
     FRONT_FILE_TYPE_DROP = u'Do not include file'
     FRONT_FILE_TYPE_SERVICE_JS = u'service-js'
@@ -78,7 +71,6 @@ class Developer(RaspIotModule):
     FRONT_FILE_TYPE_CONFIG_CSS = u'config-css'
     FRONT_FILE_TYPE_RESOURCE = u'resource'
     FRONT_FILE_TYPES = [FRONT_FILE_TYPE_DROP, FRONT_FILE_TYPE_SERVICE_JS, FRONT_FILE_TYPE_WIDGET_JS, FRONT_FILE_TYPE_WIDGET_HTML, FRONT_FILE_TYPE_WIDGET_CSS, FRONT_FILE_TYPE_CONFIG_JS, FRONT_FILE_TYPE_CONFIG_HTML, FRONT_FILE_TYPE_CONFIG_CSS, FRONT_FILE_TYPE_RESOURCE]
-
 
     CATEGORY_APPLICATION = u'APPLICATION'
     CATEGORY_MOBILE = u'MOBILE'
@@ -101,13 +93,11 @@ class Developer(RaspIotModule):
 
         #members
         self.__developer_uuid = None
-        self.console = Console()
-        self.remotedev_is_running = False
-        self.status_task = None
         self.raspiot_path = os.path.dirname(inspect.getfile(RaspIotModule))
         self.__module_name = None
         self.__module_archive = None
         self.__module_version = None
+        self.__watcher_task = None
 
         #events
         self.frontend_restart_event = self._get_event('developer.frontend.restart')
@@ -133,29 +123,48 @@ class Developer(RaspIotModule):
             if devices[uuid][u'type']==u'developer':
                 self.__developer_uuid = uuid
 
-        #write default remotedev profile
-        if not os.path.exists(self.CLEEPOS_PROFILE_FILE):
-            #create dir tree
-            if not self.cleep_filesystem.mkdirs(os.path.dirname(self.CLEEPOS_PROFILE_FILE)):
-                self.logger.error('Unable to create pyremote config dir tree. Unable to run developer module properly.')
+        #start watcher task
+        self.__launch_watcher()
 
-            else:
-                #create default profile file
-                if not self.cleep_filesystem.write_data(self.CLEEPOS_PROFILE_FILE, self.CLEEPOS_PROFILE):
-                    self.logger.error(u'Unable to write remotedev config. Unable to run developer module properly.')
+    def __launch_watcher(self):
+        """
+        Launch cleep-cli watch command
+        """
+        self.logger.info(u'Launch watcher task')
+        self.__watcher_task = EndlessConsole(self.WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
+        self.__watcher_task.start()
 
-        #start remotedev status task
-        self.status_task = Task(10.0, self.status_remotedev, self.logger)
-        self.status_task.start()
+    def __watcher_callback(self, stdout, stderr):
+        """
+        Callback when watcher receives messages on stdXXX
+
+        Args:
+            stdout (string): message from stdout
+            stderr (string): message from stderr
+        """
+        if self.__watcher_task:
+            self.logger.error('Error on watcher: %s' % stderr)
+
+    def __watcher_end_callback(self, return_code, killed):
+        """
+        Callback when watcher task ends
+
+        Args:
+            return_code (int): command return code
+            killed (bool): True if watcher killed
+        """
+        if self.__watcher_task:
+            self.logger.error('Watcher stops while it should not with return code "%s" (killed? %s)' % (return_code, killed))
+
+        #start new instance
+        self.__launch_watcher()
 
     def get_module_devices(self):
         """
         Return module devices
         """
         devices = super(Developer, self).get_module_devices()
-        data = {
-            u'running': self.remotedev_is_running
-        }
+        data = {}
         self.__developer_uuid = devices.keys()[0]
         devices[self.__developer_uuid].update(data)
 
@@ -165,8 +174,8 @@ class Developer(RaspIotModule):
         """
         Custom stop: stop remotedev thread
         """
-        if self.status_task:
-            self.status_task.stop()
+        if self.__watcher_task:
+            self.__watcher_task.stop()
 
     def set_module_in_development(self, module):
         """
@@ -194,65 +203,6 @@ class Developer(RaspIotModule):
             self.set_debug(True)
         elif len(module)>0:
             self.send_command(u'set_module_debug', u'system', {u'module': module, u'debug': True})
-
-    def start_remotedev(self):
-        """
-        Start remotedev task
-        """
-        res = self.console.command(u'/bin/systemctl start remotedev', timeout=15.0)
-        self.logger.debug(u'Remotedev console res: %s' % res)
-        if not res[u'killed']:
-            #no problem
-            self.remotedev_is_running = True
-            self.logger.info(u'Remotedev started')
-            return True
-
-        else:
-            #unable to stop remotedev
-            self.logger.error(u'Unable to start remotedev: %s' % u' '.join(res[u'stdout']).join(res[u'stderr']))
-            self.remotedev_is_running = False
-            return False
-
-    def stop_remotedev(self):
-        """
-        Stop remotedev process
-        """
-        res = self.console.command(u'/bin/systemctl stop remotedev', timeout=15.0)
-        self.logger.debug(u'Remotedev console res: %s' % res)
-        if not res[u'killed']:
-            #no problem
-            self.remotedev_is_running = False
-            self.logger.info(u'Remotedev stopped')
-            return True
-
-        else:
-            #unable to stop remotedev
-            self.logger.error(u'Unable to stop remotedev: %s' % u' '.join(res[u'stdout']).join(res[u'stderr']))
-            self.remotedev_is_running = False
-            return False
-
-    def status_remotedev(self):
-        """
-        Get remotedev status
-        """
-        res = self.console.command(u'/bin/systemctl status remotedev')
-        if not res[u'error'] and not res[u'killed']:
-            output = u''.join(res[u'stdout'])
-            if output.find(u'active (running)')>=0:
-                #remotedev is running
-                if not self.remotedev_is_running:
-                    #send is running event
-                    #self.remotedevStartedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
-                    pass
-                self.remotedev_is_running = True
-
-            else:
-                #remotedev is not running
-                if self.remotedev_is_running:
-                    #send is not running event
-                    #self.remotedevStoppedEvent.send(to=u'rpc', device_id=self.__developer_uuid)
-                    pass
-                self.remotedev_is_running = False
 
     def restart_frontend(self):
         """

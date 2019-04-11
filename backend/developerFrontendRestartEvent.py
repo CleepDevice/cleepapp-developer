@@ -5,14 +5,14 @@ from raspiot.events.event import Event
 
 class DeveloperFrontendRestartEvent(Event):
     """
-    developer.frontend.restart event 
+    developer.frontend.restart event
     """
 
     EVENT_NAME = u'developer.frontend.restart'
     EVENT_SYSTEM = True
 
     def __init__(self, bus, formatters_factory, events_factory):
-        """ 
+        """
         Constructor
 
         Args:
@@ -34,4 +34,3 @@ class DeveloperFrontendRestartEvent(Event):
         """
         #no params
         return True
-

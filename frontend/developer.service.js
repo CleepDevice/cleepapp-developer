@@ -65,9 +65,9 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     /**
      * Restart CleepOS
      */
-    self.restartCleepOs = function()
+    self.restartCleepBackend = function()
     {
-        raspiotService.restart(1);
+        raspiotService.restart(0);
     };
 
     /**
@@ -83,7 +83,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
 
         if( config.moduleindev && !self.restartButtonId )
         {
-            self.restartButtonId = appToolbarService.addButton('Dev: restart backend', 'restart', self.restartCleepOs, 'md-accent');
+            self.restartButtonId = appToolbarService.addButton('Dev: restart backend', 'restart', self.restartCleepBackend, 'md-accent');
         }
         else if( !config.moduleindev && self.restartButtonId )
         {
@@ -108,7 +108,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      * Catch remotedev stoped events
      */
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
-        $window.location.reload();
+        $window.location.reload(true);
     });
 
 };

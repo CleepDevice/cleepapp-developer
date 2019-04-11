@@ -2,7 +2,7 @@
  * Developer configuration directive
  * Helps developer to analyze and publish module to cleep store
  */
-var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService, $sce)
+var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService, $sce, $location)
 {
 
     // konami code: ssuperr
@@ -14,6 +14,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         };
         self.selectedModule = null;
         self.modules = [];
+        self.deviceIp = '0.0.0.0';
         self.data = null;
         self.selectedNav = 'buildmodule';
         self.selectedMainNav = 'devtools';
@@ -39,7 +40,10 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         self.init = function()
         {
 			//set remotedev device
-			self.setRemotedevDevice();
+            self.setRemotedevDevice();
+            
+            //get device ip
+            self.deviceIp = $location.host();
 
             //load module configuration
             raspiotService.getModuleConfig('developer')
@@ -135,7 +139,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             self.resetAnalysis();
 
             //restart cleepos
-            developerService.restartCleepOs();
+            developerService.restartCleepBackend();
         };
 
         /**
@@ -383,5 +387,5 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
 
 var RaspIot = angular.module('RaspIot');
 RaspIot.directive('developerConfigDirective', ['$rootScope', 'toastService', 'raspiotService', 'developerService', 'systemService', '$timeout',
-                    'appToolbarService', '$sce', developerConfigDirective]);
+                    'appToolbarService', '$sce', '$location', developerConfigDirective]);
 
