@@ -62,13 +62,16 @@
             <md-list-item class="md-2-line">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
-                    <h3>Create default application skeleton</h3>
-                    <p>After click, download module files on your editor</p>
+                    <h3>Create new application skeleton</h3>
+                    <p>After click, don't forget to download module files on your editor</p>
                 </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApp()">
-                    <md-icon md-svg-icon="plus"></md-icon>
-                    Create app
-                </md-button>
+                <md-input-container class="md-secondary no-margin no-md-error">
+                    <input ng-model="devCtl.newApplicationName" placeholder="New application name">
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApplication()">
+                        <md-icon md-svg-icon="plus"></md-icon>
+                        Create app
+                    </md-button>
+                </md-input>
             </md-list-item>
 
             <!-- load logs -->
@@ -76,7 +79,7 @@
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
                     <h3>Load device log messages on viewer below</h3>
-                    <p>Note logs are also available on <a href="http://{{devCtl.deviceIp}}/log" target="_blank">http://{{devCtl.deviceIp}}/log</a></p>
+                    <p>Note logs are also available on <a href="http://{{devCtl.deviceIp}}/logs" target="_blank">http://{{devCtl.deviceIp}}/logs</a></p>
                 </div>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.loadLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="file-download"></md-icon>
@@ -84,7 +87,7 @@
                 </md-button>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.clearLogs()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="close"></md-icon>
-                    Clear logs
+                    Clear logs file
                 </md-button>
             </md-list-item>
 
@@ -96,6 +99,10 @@
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
                         <h2 flex md-truncate>Log viewer</h2>
+                        <md-button class="md-primary md-raised" ng-click="devCtl.clearLogsOutput()" aria-label="Clear output">
+                            <md-icon class="toolbar-white-icon" md-svg-icon="close"></md-icon>
+                            Clear
+                        </md-button>
                         <md-button class="md-primary md-raised" ng-click="devCtl.gotoLogsTop()" aria-label="Goto top">
                             <md-icon class="toolbar-white-icon" md-svg-icon="format-vertical-align-top"></md-icon>
                             Top
@@ -151,7 +158,7 @@
         <!-- navigation -->
         <md-nav-bar md-selected-nav-item="devCtl.selectedNav" nav-bar-aria-label="Tabs" ng-if="devCtl.data">
             <md-nav-item name="buildmodule" md-nav-click="devCtl.showTab('buildmodule')">
-                Build application
+                Build release
             </md-nav-item>
             <md-nav-item name="moduledesc" md-nav-click="devCtl.showTab('moduledesc')">
                 App description
@@ -164,6 +171,12 @@
             </md-nav-item>
             <md-nav-item name="frontendfiles" md-nav-click="devCtl.showTab('frontendfiles')">
                 Frontend files
+            </md-nav-item>
+            <md-nav-item name="unittests" md-nav-click="devCtl.showTab('unittests')">
+                Unit tests
+            </md-nav-item>
+            <md-nav-item name="documentation" md-nav-click="devCtl.showTab('documentation')">
+                Documentation
             </md-nav-item>
         </md-nav-bar>
     
@@ -201,13 +214,23 @@
                     <p>No warning</p>
                 </md-list-item>
 
-                <!-- release changelog -->
-                <md-subheader class="md-no-sticky">Release changelog</md-subheader>
+                <!-- release infos -->
+                <md-subheader class="md-no-sticky">Release informations</md-subheader>
                 <md-list-item>
                     <md-input-container class="md-block" style="width:100%">
-                        <label>Changelog (html format supported during display)</label>
+                        <label>Release changelog (html format supported during display)</label>
                         <textarea ng-model="devCtl.data.changelog" rows="5"></textarea>
                     </md-input-container>
+                </md-list-item>
+                <md-list-item class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Release version</h3>
+                        <p>Please follow semantic versionning available on <a target="_blank" href="https://semver.org/">semver.org</a></p>
+                    </div>
+                    <div class="md-secondary">
+                        <span ng-bind="devCtl.data.metadata.version"></span>
+                    </div>
                 </md-list-item>
     
                 <!-- build actions -->
@@ -239,8 +262,8 @@
                 <md-list-item>
                     <md-icon md-svg-icon="account-box-outline"></md-icon>
                     <p>Choose icon from <a href="https://materialdesignicons.com" target="_blank">MaterialDesignIcons</a> website</p>
-                    <md-input-container class="md-secondary no-margin">
-                        <input ng-model="devCtl.data.icon" ng-model-options="{ debounce:300 }" placeholder="icon">
+                    <md-input-container class="md-secondary no-margin no-md-error">
+                        <input ng-model="devCtl.data.icon" ng-model-options="{ debounce:300 }" placeholder="Application icon">
                         <md-icon md-svg-icon="{{devCtl.data.icon}}"></md-icon>
                     </md-input-container>
                 </md-list-item>
@@ -283,13 +306,6 @@
                         <span ng-if="!devCtl.data.metadata.longdescription">No description</span>
                     </div>
                 </md-list-item>
-                <md-list-item ng-if="devCtl.data.metadata.version" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Version</p>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.data.metadata.version"></span>
-                    </div>
-                </md-list-item>
                 <!-- do not display price info until infrastructure is available for that
                 <md-list-item ng-if="devCtl.data.metadata.price!==undefined" class="md-2-line" ng-click="devCtl.dummyClick()">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
@@ -301,8 +317,7 @@
                         <span ng-if="devCtl.data.metadata.price!==0">{{devCtl.data.metadata.price}}€</span>
                         <span ng-if="devCtl.data.metadata.price===0">Free application</span>
                     </div>
-                </md-list-item>
-                -->
+                </md-list-item> -->
                 <md-list-item ng-if="devCtl.data.metadata.country" class="md-2-line" ng-click="devCtl.dummyClick()">
                     <md-icon md-svg-icon="chevron-right"></md-icon>
                     <div class="md-list-item-text">
@@ -468,17 +483,6 @@
         <!-- frontend files -->
         <div ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.data">
             <md-list>
-                <!-- build desc.json -->
-                <md-subheader class="md-no-sticky">Frontend description file</md-subheader>
-                <md-list-item>
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Generate frontend description file (desc.json) in your app frontend directory</p>
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDescJson()">
-                        <md-icon md-svg-icon="wrench"></md-icon>
-                        Generate file
-                    </md-button>
-                </md-list-item>
-
                 <!-- files list -->
                 <md-subheader class="md-no-sticky">Configure frontend files usage</md-subheader>
                 <md-list-item ng-repeat="file in devCtl.data.js.files">
@@ -493,7 +497,120 @@
                 <md-list-item ng-if="devCtl.data.js.files.length===0">
                     <p>No file found</p>
                 </md-list-item>
+
+                <!-- build desc.json -->
+                <md-subheader class="md-no-sticky">Frontend description file</md-subheader>
+                <md-list-item class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Generate frontend description file according to your configuration above</h3>
+                        <p>This action will generate "desc.json" file in your app frontend directory. Don't forget to download it if you are developing remotely.</p>
+                    </div>
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDescJson()">
+                        <md-icon md-svg-icon="wrench"></md-icon>
+                        Generate file
+                    </md-button>
+                </md-list-item>
             </md-list>
+        </div>
+
+        <!-- unit tests -->
+        <div ng-show="devCtl.selectedNav==='unittests'" ng-if="devCtl.data">
+            <md-list>
+                <!-- note -->
+                <md-subheader class="md-no-sticky">Note on unit tests</md-subheader>
+                <md-list-item>
+                    <p>Unit tests are required to publish an application. This is the minimum that must be done to guarantee a 
+                        certain level of quality of an application.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>At least 60% of your source code must be covered to be able to publish a module.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>You can find documentation on how to make your tests in developer wiki.</p>
+                </md-list-item>
+
+                <!-- run tests -->
+                <md-subheader class="md-no-sticky">Tests execution</md-subheader>
+                <md-list-item>
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <p>Click on button to execute tests available on your "tests" application directory</p>
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.launchTests()">
+                        <md-icon md-svg-icon="wrench"></md-icon>
+                        Launch tests
+                    </md-button>
+                </md-list-item>
+            </md-list>
+
+            <!-- tests result -->
+            <div layout="column" layout-padding>
+                <md-content>
+                    <md-toolbar class="md-hue-3">
+                        <div class="md-toolbar-tools">
+                            <h2 flex md-truncate>Tests execution result</h2>
+                            <md-button class="md-primary md-raised" ng-click="devCtl.getLastCoverageReport()" aria-label="Last coverage report">
+                                <md-icon class="toolbar-white-icon" md-svg-icon="gauge"></md-icon>
+                                Last coverage report
+                            </md-button>
+                        </div>
+                    </md-toolbar>
+                    <pre class="pre-output">
+{{devCtl.developerService.testsOutput.length>0 ? devCtl.developerService.testsOutput.join('\n') : 'No output'}}
+                    </pre>
+                </md-content>
+            </div>
+
+        </div>
+
+        <!-- documentation -->
+        <div ng-show="devCtl.selectedNav==='documentation'" ng-if="devCtl.data">
+            <md-list>
+                <!-- note -->
+                <md-subheader class="md-no-sticky">Note on documentation</md-subheader>
+                <md-list-item>
+                    <p>Developer application gives you an easy way to build and share your application documentation.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>Documentation is really important part of Cleep. It allows other developer to use your application requesting its API and it allows Cleep core
+                       to properly reference all your exposed function to online editors. So make sure your documentation is well formated.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>You can find more informations (about format, ...) in developer wiki.</p>
+                </md-list-item>
+
+                <!-- build documentation -->
+                <md-subheader class="md-no-sticky">Generate documentation</md-subheader>
+                <md-list-item class="md-2-line">
+                    <md-icon md-svg-icon="chevron-right"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>Click on button to build your module documentation</h3>
+                        <p>A text preview will be displayed in output below.</p>
+                    </div>
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDocumentation()">
+                        <md-icon md-svg-icon="wrench"></md-icon>
+                        Generate doc
+                    </md-button>
+                </md-list-item>
+            </md-list>
+
+            <!-- documentation preview -->
+            <div layout="column" layout-padding>
+                <md-content>
+                    <md-toolbar class="md-hue-3">
+                        <div class="md-toolbar-tools">
+                            <h2 flex md-truncate>Documentation preview</h2>
+                            <md-button class="md-primary md-raised" ng-click="devCtl.downloadDocumentation()" aria-label="Html documentation">
+                                <md-icon class="toolbar-white-icon" md-svg-icon="gauge"></md-icon>
+                                Download html
+                            </md-button>
+                        </div>
+                    </md-toolbar>
+                    <pre class="pre-output">
+{{devCtl.developerService.docsOutput.length>0 ? devCtl.developerService.docsOutput.join('\n') : 'No output'}}
+                    </pre>
+                </md-content>
+            </div>
+
         </div>
 
     </div>

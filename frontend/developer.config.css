@@ -1,0 +1,8 @@
+.pre-output {
+    background-color: #eceff1;
+    padding: 15px;
+    margin: 0px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+

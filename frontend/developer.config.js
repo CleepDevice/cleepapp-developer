@@ -9,6 +9,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
 
     var developerController = ['$scope', function($scope) {
         var self = this;
+        self.developerService = developerService;
         self.config = {
             moduleInDev: null
         };
@@ -18,6 +19,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         self.data = null;
         self.selectedNav = 'buildmodule';
         self.selectedMainNav = 'devtools';
+        self.newApplicationName = '';
         self.loading = false;
         self.analyzeError = null;
         self.logs = '';
@@ -180,7 +182,6 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 });
         };
 
-
         /**
          * Reset analysis
          */
@@ -331,6 +332,14 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         };
 
         /**
+         * Clear logs output
+         */
+        self.clearLogsOutput = function()
+        {
+            self.logs = '';
+        }
+
+        /**
          * Goto top of logs
          */
         self.gotoLogsTop = function()
@@ -347,27 +356,56 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         };
 
         /**
-         * Start remotedev
+         * Create new application skeleton
          */
-        self.startRemotedev = function() {
-            developerService.startRemotedev()
-                .then(function(resp) {
-                    if( resp.data ) {
-                        self.device.running = true;
-                    }
-                }); 
-        };  
+        self.createApplication = function() {
+            developerService.createApplication(self.newApplicationName)
+                .then(function() {
+                    toast.success('Application skeleton created. Download code on your editor.');
+                });
+        };
 
         /**
-         * Stop remotedev
+         * Launch unit tests
          */
-        self.stopRemotedev = function() {
-            developerService.stopRemotedev()
+        self.launchTests = function() {
+            developerService.launchTests(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
-                        self.device.running = false;
+                        toast.success('Unit tests running...');
                     }
-                }); 
+                });
+        };
+
+        /**
+         * Get last coverage report
+         */
+        self.getLastCoverageReport = function() {
+            developerService.getLastCoverageReport(self.config.moduleInDev)
+                .then(function(resp) {
+                    if( resp.data ) {
+                        toast.success('Last report will be displayed in test output in few seconds');
+                    }
+                });
+        };
+
+        /**
+         * Generate documentation
+         */
+        self.generateDocumentation = function() {
+            developerService.generateDocumentation(self.config.moduleInDev)
+                .then(function(resp) {
+                    if( resp.data ) {
+                        toast.success('Generating documentation...');
+                    }
+                });
+        };
+
+        /**
+         * Download documentation (archive)
+         */
+        self.downloadDocumentation = function() {
+            developerService.downloadDocumentation(self.config.moduleInDev);
         };
 
     }];

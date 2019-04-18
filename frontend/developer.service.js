@@ -6,6 +6,8 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
 {
     var self = this;
     self.restartButtonId = null;
+    self.testsOutput = [];
+    self.docsOutput = [];
 
     /**
      * Start remotedev
@@ -26,9 +28,9 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     /**
      * Analyze module
      */
-    self.analyzeModule = function(module)
+    self.analyzeModule = function(moduleName)
     {
-        return rpcService.sendCommand('analyze_module', 'developer', {'module':module}, 30);
+        return rpcService.sendCommand('analyze_module', 'developer', {'module_name':moduleName}, 30);
     };
 
     /**
@@ -42,9 +44,9 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     /**
      * Build module package
      */
-    self.buildPackage = function(module, data)
+    self.buildPackage = function(moduleName, data)
     {
-        return rpcService.sendCommand('build_package', 'developer', {'module': module, 'data': data});
+        return rpcService.sendCommand('build_package', 'developer', {'module_name': moduleName, 'data': data});
     };
 
     /**
@@ -58,8 +60,46 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     /**
      * Set module in development
      */
-    self.setModuleInDev = function(module) {
-        return rpcService.sendCommand('set_module_in_development', 'developer', {'module': module}, 10);
+    self.setModuleInDev = function(moduleName) {
+        return rpcService.sendCommand('set_module_in_development', 'developer', {'module_name': moduleName}, 10);
+    };
+
+    /**
+     * Create new applicatin skeleton
+     */
+    self.createApplication = function(moduleName) {
+        return rpcService.sendCommand('create_application', 'developer', {'module_name': moduleName}, 10);
+    };
+
+    /**
+     * Launch unit tests
+     */
+    self.launchTests = function(moduleName) {
+        self.testsOutput.splice(0, self.testsOutput.length);
+        return rpcService.sendCommand('launch_tests', 'developer', {'module_name': moduleName});
+    };
+
+    /**
+     * Get last coverage report
+     */
+    self.getLastCoverageReport = function(moduleName) {
+        self.testsOutput.splice(0, self.testsOutput.length);
+        return rpcService.sendCommand('get_last_coverage_report', 'developer', {'module_name': moduleName});
+    };
+
+    /**
+     * Generate documentation
+     */
+    self.generateDocumentation = function(moduleName) {
+        self.docsOutput.splice(0, self.testsOutput.length);
+        return rpcService.sendCommand('generate_documentation', 'developer', {'module_name': moduleName});
+    };
+
+    /**
+     * Download html documentation
+     */
+    self.downloadDocumentation = function(moduleName) {
+        return rpcService.sendCommand('download_documentation', 'developer', {'module_name': moduleName});
     };
 
     /**
@@ -105,10 +145,24 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
     });
 
     /**
-     * Catch remotedev stoped events
+     * Catch cleep-cli stoped events
      */
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
         $window.location.reload(true);
+    });
+
+    /**
+     * Catch tests events
+     */
+    $rootScope.$on('developer.tests.output', function(event, uuid, params) {
+        self.testsOutput.push(params.message);
+    });
+
+    /**
+     * Catch docs events
+     */
+    $rootScope.$on('developer.docs.output', function(event, uuid, params) {
+        self.docsOutput.push(params.message);
     });
 
 };

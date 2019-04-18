@@ -1,12 +1,12 @@
 {
     "icon": "worker",
     "global": {
-        "js": ["developer.service.js", "developer.widget.js"],
-        "html": ["developer.widget.html"]
+        "js": ["developer.service.js"]
     },
     "config": {
         "html": ["developer.config.html"],
-        "js": ["developer.config.js"]
+        "js": ["developer.config.js"],
+        "css": ["developer.config.css"]
     }
 }
 

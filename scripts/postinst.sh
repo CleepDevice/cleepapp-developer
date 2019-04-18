@@ -1,14 +1,13 @@
 #!/bin/sh
 
-#install remotedev
-/usr/local/bin/pip install --trusted-host pypi.org "remotedev==0.0.15"
+#make sure remotedev is uninstalled
+/usr/local/bin/pip2 uninstall --yes remotedev
+
+#install cleep-cli
+/usr/local/bin/pip2 install --trusted-host pypi.org "cleepcli==1.0.7"
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
-#set cleepos profile as daemon default profile
-/bin/sed -i -E "s/^DAEMON_PROFILE_NAME=.*$/DAEMON_PROFILE_NAME='cleepos'/g" /etc/default/remotedev.conf
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
+#clone cleep core repo
+/usr/local/bin/cleep-cli coreget

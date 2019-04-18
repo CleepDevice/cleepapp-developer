@@ -13,7 +13,7 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from raspiot.raspiot import RaspIotModule
 from raspiot.libs.internals.task import Task
-from raspiot.libs.internals.console import Console
+from raspiot.libs.internals.console import Console, EndlessConsole
 from raspiot.utils import CommandError, MissingParameter, InvalidParameter
 from raspiot.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, SCRIPTS_DIR, PATH_FRONTEND, PATH_SCRIPTS
 from raspiot.libs.internals import __all__ as internals_libs
@@ -59,7 +59,12 @@ class Developer(RaspIotModule):
         u'moduleindev': None
     }
 
-    WATCHER_CMD = u'/usr/local/bin/cleep-cli watch --loglevel=40'
+    CLI = u'/usr/local/bin/cleep-cli'
+    CLI_WATCHER_CMD = u'%s watch --loglevel=40' % CLI
+    CLI_TESTS_CMD = u'%s modtest --module "%s" --coverage'
+    CLI_TESTS_COV_CMD = u'%s modtestcov --module "%s" --missing'
+    CLI_NEW_APPLICATION_CMD = u'%s modcreate --module "%s"'
+    CLI_DOCS_CMD = u'%s moddocs --module "%s"'
 
     FRONT_FILE_TYPE_DROP = u'Do not include file'
     FRONT_FILE_TYPE_SERVICE_JS = u'service-js'
@@ -98,9 +103,15 @@ class Developer(RaspIotModule):
         self.__module_archive = None
         self.__module_version = None
         self.__watcher_task = None
+        self.__tests_running = False
+        self.__tests = None
+        self.__docs_running = False
+        self.__docs = None
 
         #events
         self.frontend_restart_event = self._get_event('developer.frontend.restart')
+        self.tests_output_event = self._get_event('developer.tests.output')
+        self.docs_output_event = self._get_event('developer.docs.output')
 
     def _configure(self):
         """
@@ -131,7 +142,7 @@ class Developer(RaspIotModule):
         Launch cleep-cli watch command
         """
         self.logger.info(u'Launch watcher task')
-        self.__watcher_task = EndlessConsole(self.WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
+        self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
         self.__watcher_task.start()
 
     def __watcher_callback(self, stdout, stderr):
@@ -143,7 +154,7 @@ class Developer(RaspIotModule):
             stderr (string): message from stderr
         """
         if self.__watcher_task:
-            self.logger.error('Error on watcher: %s' % stderr)
+            self.logger.error('Error on watcher: %s %s' % (stdout, stderr))
 
     def __watcher_end_callback(self, return_code, killed):
         """
@@ -176,14 +187,18 @@ class Developer(RaspIotModule):
         """
         if self.__watcher_task:
             self.__watcher_task.stop()
+        if self.__tests:
+            self.__tests.stop()
+        if self.__docs:
+            self.__docs.stop()
 
-    def set_module_in_development(self, module):
+    def set_module_in_development(self, module_name):
         """
         Set module in development. It save in config the module, and enable debug.
         It also disable debug on old module in debug if any.
 
         Args:
-            module (string): module to enable development on
+            module_name (string): module to enable development on
         """
         #disable debug on old module
         old_module = self._get_config_field(u'moduleindev')
@@ -198,11 +213,11 @@ class Developer(RaspIotModule):
                 pass
             
         #save new module in dev
-        self._set_config_field(u'moduleindev', module)
-        if module==u'developer':
+        self._set_config_field(u'moduleindev', module_name)
+        if module_name==u'developer':
             self.set_debug(True)
-        elif len(module)>0:
-            self.send_command(u'set_module_debug', u'system', {u'module': module, u'debug': True})
+        elif len(module_name)>0:
+            self.send_command(u'set_module_debug', u'system', {u'module': module_name, u'debug': True})
 
     def restart_frontend(self):
         """
@@ -211,12 +226,30 @@ class Developer(RaspIotModule):
         self.logger.info(u'Sending restart event to frontend')
         self.frontend_restart_event.send(to=u'rpc')
 
-    def __analyze_module_python(self, module):
+    def create_application(self, module_name):
+        """
+        Create new application skel
+
+        Args:
+            module_name (string): module name
+        """
+        cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
+        self.logger.debug(u'Create app cmd: %s' % cmd)
+
+        c = Console()
+        res = c.command(cmd, 10.0)
+        self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
+        if res['error'] or res['killed'] or c.get_last_return_code()!=0:
+            raise CommandError(u'Error during application creation. Consult the logs.')
+
+        return True
+
+    def __analyze_module_python(self, module_name):
         """
         Analyze package python part
 
         Args:
-            module (string): module name
+            module_name (string): module name
 
         Return:
             dict: python package data::
@@ -233,11 +266,11 @@ class Developer(RaspIotModule):
 
         #get module instance
         try:
-            module_ = importlib.import_module(u'raspiot.modules.%s.%s' % (module, module))
-            class_ = getattr(module_, module.capitalize())
+            module_ = importlib.import_module(u'raspiot.modules.%s.%s' % (module_name, module_name))
+            class_ = getattr(module_, module_name.capitalize())
         except:
-            self.logger.exception(u'Unable to load module "%s". Please check your code' % module) 
-            raise InvalidParameter(u'Unable to load module "%s". Please check your code' % module)
+            self.logger.exception(u'Unable to load module "%s". Please check your code' % module_name) 
+            raise InvalidParameter(u'Unable to load module "%s". Please check your code' % module_name)
 
         #check module metadata
         #MODULE_DESCRIPTION
@@ -351,7 +384,7 @@ class Developer(RaspIotModule):
             u'price': price,
             u'author': author
         }
-        self.logger.debug('Module "%s" metadata: %s' % (module, metadata))
+        self.logger.debug('Module "%s" metadata: %s' % (module_name, metadata))
 
         #add main module file
         files = {
@@ -373,7 +406,8 @@ class Developer(RaspIotModule):
             for filename in filenames:
                 fullpath = os.path.join(root, filename)
                 (file_no_ext, ext) = os.path.splitext(filename)
-                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') and filename not in (module_main_filename) and ext==u'.py':
+                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') \
+                    and filename not in (module_main_filename) and ext==u'.py':
                     self.logger.debug('File to import: %s' % fullpath)
                     paths.append(os.path.split(fullpath)[0])
                     files[u'libs'].append({
@@ -463,27 +497,25 @@ class Developer(RaspIotModule):
         """
         #use desc.json content if possible
         if desc_json:
-            #set service-js
-            if u'system' in desc_json and u'services' in desc_json[u'system']:
-                for key in desc_json[u'system'][u'services']:
-                    if key in files:
+            #set widget-js and service-js
+            if u'global' in desc_json and u'js' in desc_json[u'global']:
+                for key in desc_json[u'global'][u'js']:
+                    if key not in files:
+                        continue
+                    if key.find('.service.js')>=0:
                         files[key][u'type'] = self.FRONT_FILE_TYPE_SERVICE_JS
-
-            #set widget-js
-            if u'system' in desc_json and u'widgets' in desc_json[u'system'] and u'js' in desc_json[u'system'][u'widgets']:
-                for key in desc_json[u'system'][u'widgets'][u'js']:
-                    if key in files:
+                    else:
                         files[key][u'type'] = self.FRONT_FILE_TYPE_WIDGET_JS
 
-            #set widget-js
-            if u'system' in desc_json and u'widgets' in desc_json[u'system'] and u'html' in desc_json[u'system'][u'widgets']:
-                for key in desc_json[u'system'][u'widgets'][u'html']:
+            #set widget-html
+            if u'global' in desc_json and u'html' in desc_json[u'global']:
+                for key in desc_json[u'global'][u'html']:
                     if key in files:
                         files[key][u'type'] = self.FRONT_FILE_TYPE_WIDGET_HTML
 
-            #set widget-js
-            if u'system' in desc_json and u'widgets' in desc_json[u'system'] and u'css' in desc_json[u'system'][u'widgets']:
-                for key in desc_json[u'system'][u'widgets'][u'css']:
+            #set widget-css
+            if u'global' in desc_json and u'css' in desc_json[u'global']:
+                for key in desc_json[u'global'][u'css']:
                     if key in files:
                         files[key][u'type'] = self.FRONT_FILE_TYPE_WIDGET_CSS
 
@@ -491,7 +523,7 @@ class Developer(RaspIotModule):
             if u'config' in desc_json and u'js' in desc_json[u'config']:
                 for key in desc_json[u'config'][u'js']:
                     if key in files:
-                        files[key][u'type'] =self.FRONT_FILE_TYPE_CONFIG_JS
+                        files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
 
             #set config-html
             if u'config' in desc_json and u'html' in desc_json[u'config']:
@@ -590,12 +622,12 @@ class Developer(RaspIotModule):
 
         return warnings
 
-    def __analyze_module_js(self, module):
+    def __analyze_module_js(self, module_name):
         """
        Analyze module js part
 
         Args:
-            module (string): module name
+            module_name (string): module name
 
         Returns:
             tuple (dict, string): js data adn changelog
@@ -605,7 +637,7 @@ class Developer(RaspIotModule):
 
         #iterate over files in supposed js module directory
         all_files = {}
-        module_path = os.path.join(PATH_FRONTEND, u'js/modules/', module)
+        module_path = os.path.join(PATH_FRONTEND, u'js/modules/', module_name)
         self.logger.info('module_path=%s' % module_path)
         if not os.path.exists(module_path):
             raise CommandError(u'Module "%s" has no javascript' % module_path)
@@ -643,7 +675,7 @@ class Developer(RaspIotModule):
 
         #load existing description file
         desc_json = u''
-        desc_json_path = os.path.join(PATH_FRONTEND, u'js/modules/', module, u'desc.json')
+        desc_json_path = os.path.join(PATH_FRONTEND, u'js/modules/', module_name, u'desc.json')
         self.logger.debug(u'desc.json path: %s' % desc_json_path)
         if os.path.exists(desc_json_path):
             desc_json = self.cleep_filesystem.read_json(desc_json_path)
@@ -675,20 +707,20 @@ class Developer(RaspIotModule):
             u'changelog': changelog
         }
 
-    def __analyze_scripts(self, module):
+    def __analyze_scripts(self, module_name):
         """
         Analyze scripts for specified module
 
         Args:
-            module (string): module to search scripts for
+            module_name (string): module name to search scripts for
 
         Returns:
             tuple (dict, string): js data adn changelog
         """
-        script_preinst = os.path.join(PATH_SCRIPTS, module, u'preinst.sh')
-        script_postinst = os.path.join(PATH_SCRIPTS, module, u'postinst.sh')
-        script_preuninst = os.path.join(PATH_SCRIPTS, module, u'preuninst.sh')
-        script_postuninst = os.path.join(PATH_SCRIPTS, module, u'postuninst.sh')
+        script_preinst = os.path.join(PATH_SCRIPTS, module_name, u'preinst.sh')
+        script_postinst = os.path.join(PATH_SCRIPTS, module_name, u'postinst.sh')
+        script_preuninst = os.path.join(PATH_SCRIPTS, module_name, u'preuninst.sh')
+        script_postuninst = os.path.join(PATH_SCRIPTS, module_name, u'postuninst.sh')
 
         return {
             u'preinst': {
@@ -709,12 +741,12 @@ class Developer(RaspIotModule):
             }
         }
 
-    def analyze_module(self, module):
+    def analyze_module(self, module_name):
         """
         Analyze specified module package and return archive name and filename to download it
 
         Args:
-            module (string): module name
+            module_name (string): module name
 
         Returns:
             dict: archive infos::
@@ -724,20 +756,20 @@ class Developer(RaspIotModule):
                 }
         """
         #check parameters
-        if module is None or len(module)==0:
-            raise MissingParameter(u'Parameter "module" is missing')
-        module_path = os.path.join(self.raspiot_path, u'modules', module, u'%s.py' % module)
+        if module_name is None or len(module_name)==0:
+            raise MissingParameter(u'Parameter "module_name" is missing')
+        module_path = os.path.join(self.raspiot_path, u'modules', module_name, u'%s.py' % module_name)
         if not os.path.exists(module_path):
-            raise InvalidParameter(u'Module "%s" does not exist' % module)
+            raise InvalidParameter(u'Module "%s" does not exist' % module_name)
 
         #analyze python part
-        analyze_python = self.__analyze_module_python(module)
+        analyze_python = self.__analyze_module_python(module_name)
 
         #analyze front part
-        analyze_js = self.__analyze_module_js(module)
+        analyze_js = self.__analyze_module_js(module_name)
 
         #analyze scripts part
-        analyze_scripts = self.__analyze_scripts(module)
+        analyze_scripts = self.__analyze_scripts(module_name)
 
         return {
             u'python': analyze_python[u'data'],
@@ -761,13 +793,10 @@ class Developer(RaspIotModule):
         """
         content = {
             u'icon': icon,
-            u'system': {
-                u'services': [],
-                u'widgets': {
-                    u'js': [],
-                    u'html': [],
-                    u'css': []
-                }
+            u'global': {
+                u'js': [],
+                u'html': [],
+                u'css': []
             },
             u'config': {
                 u'js': [],
@@ -780,13 +809,13 @@ class Developer(RaspIotModule):
         #iterates over files
         for f in js_files:
             if f[u'type']==self.FRONT_FILE_TYPE_SERVICE_JS:
-                content[u'system'][u'services'].append(f[u'path'])
+                content[u'global'][u'js'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_WIDGET_JS:
-                content[u'system'][u'widgets'][u'js'].append(f[u'path'])
+                content[u'global'][u'js'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_WIDGET_HTML:
-                content[u'system'][u'widgets'][u'html'].append(f[u'path'])
+                content[u'global'][u'html'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_WIDGET_CSS:
-                content[u'system'][u'widgets'][u'css'].append(f[u'path'])
+                content[u'global'][u'css'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_JS:
                 content[u'config'][u'js'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_HTML:
@@ -807,12 +836,13 @@ class Developer(RaspIotModule):
             self.logger.warning(u'Nothing to write to desc.json file')
             return False
 
-    def build_package(self, module, data):
+    def build_package(self, module_name, data):
         """
         Build module package archive in zip format.
         Archive is not protected by password
 
         Args:
+            module_name (string): module name
             data (dict): data returned by analyze_module command
 
         Return:
@@ -845,7 +875,7 @@ class Developer(RaspIotModule):
         #add js files
         for f in data[u'js'][u'files']:
             if f[u'type']!=self.FRONT_FILE_TYPE_DROP:
-                archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module, f['path']))
+                archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module_name, f['path']))
 
         #add python files
         path_in = data[u'python'][u'files'][u'module'][u'fullpath']
@@ -889,7 +919,7 @@ class Developer(RaspIotModule):
 
         #save now related package infos to make sure everything is completed successfully
         self.__module_archive = module_archive
-        self.__module_name = module
+        self.__module_name = module_name
         self.__module_version = data[u'metadata'][u'version']
 
         return True
@@ -898,14 +928,16 @@ class Developer(RaspIotModule):
         """
         Download latest generated package
 
-        Return:
+        Returns:
             dict: archive infos::
+
                 {
                     data: filepath
                     filename: new filename
                 }
+
         """
-        self.logger.debug(u'Download_package')
+        self.logger.debug(u'Download package')
         if self.__module_name is None or self.__module_archive is None or self.__module_version is None:
             raise CommandError(u'No module package generated')
 
@@ -913,4 +945,130 @@ class Developer(RaspIotModule):
             u'filepath': self.__module_archive,
             u'filename': u'cleepmod_%s_%s.zip' % (self.__module_name, self.__module_version)
         }
+
+    def __tests_callback(self, stdout, stderr):
+        """
+        Tests cli outputs
+
+        Args:
+            stdout (string): stdout message
+            stderr (string): stderr message
+        """
+        message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
+        self.logger.info(u'Receive tests cmd message: "%s"' % message)
+        self.tests_output_event.send(params={u'message': message}, render=False)
+
+    def __tests_end_callback(self, return_code, killed):
+        """
+        Tests cli ended
+
+        Args:
+            return_code (int): command return code
+            killed (bool): True if command killed
+        """
+        self.logger.info(u'Tests command terminated with return code "%s" (killed=%s)' % (return_code, killed))
+        self.__tests_running = False
+
+    def launch_tests(self, module_name):
+        """
+        Launch unit tests
+
+        Args:
+            module_name (string): module name
+        """
+        if self.__tests_running:
+            raise CommandError(u'Tests are already running')
+
+        cmd = self.CLI_TESTS_CMD % (self.CLI, module_name)
+        self.logger.debug(u'Test cmd: %s' % cmd)
+        self.__tests = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
+        self.__tests_running = True
+        self.__tests.start()
+
+        return True
+
+    def get_last_coverage_report(self, module_name):
+        """
+        Return last coverage report
+
+        Args:
+            module_name (string): module name
+        """
+        if self.__tests_running:
+            raise CommandError(u'Tests are running. Please wait end of it')
+
+        cmd = self.CLI_TESTS_COV_CMD % (self.CLI, module_name)
+        self.logger.debug(u'Test cov cmd: %s' % cmd)
+        self.__tests = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
+        self.__tests_running = True
+        self.__tests.start()
+
+        return True
+
+    def __docs_callback(self, stdout, stderr):
+        """
+        Docs cli outputs
+
+        Args:
+            stdout (string): stdout message
+            stderr (string): stderr message
+        """
+        message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
+        self.logger.info(u'Receive docs cmd message: "%s"' % message)
+        self.docs_output_event.send(params={u'message': message}, render=False)
+
+    def __docs_end_callback(self, return_code, killed):
+        """
+        Docs cli ended
+
+        Args:
+            return_code (int): command return code
+            killed (bool): True if command killed
+        """
+        self.logger.info(u'Docs command terminated with return code "%s" (killed=%s)' % (return_code, killed))
+        self.__docs_running = False
+
+    def generate_documentation(self, module_name):
+        """
+        Generate documentation
+
+        Args:
+            module_name (string): module name
+        """
+        if self.__docs_running:
+            raise CommandError(u'Doc generation is running. Please wait end of it')
+
+        cmd = self.CLI_DOCS_CMD % (self.CLI, module_name)
+        self.logger.debug(u'Doc generation cmd: %s' % cmd)
+        self.__docs = EndlessConsole(cmd, self.__docs_callback, self.__docs_end_callback)
+        self.__docs_running = True
+        self.__docs.start()
+
+        return True
+
+    def download_documentation(self, module_name):
+        """
+        Download documentation (html as archive tar.gz)
+
+        Args:
+            module_name (string): module name
+
+        Returns:
+            dict: archive infos::
+
+                {
+                    data: filepath
+                    filename: new filename
+                }
+
+        """
+        self.logger.debug(u'Download documentation')
+        if self.__module_name is None or self.__module_archive is None or self.__module_version is None:
+            raise CommandError(u'No module package generated')
+
+        return {
+            u'filepath': self.__module_archive,
+            u'filename': u'cleepmod_%s_%s.zip' % (module_name, self.__module_version)
+        }
+
 

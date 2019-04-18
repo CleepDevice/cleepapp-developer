@@ -1,4 +1,4 @@
 #!/bin/sh
 
-/usr/local/bin/pip uninstall --yes "remotedev"
+/usr/local/bin/pip uninstall --yes "cleepcli"
 
