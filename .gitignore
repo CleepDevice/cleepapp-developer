@@ -105,3 +105,10 @@ venv.bak/
 
 # editor
 /.vscode
+
+# docs
+docs/_build
+docs/source
+docs/*.zip
+docs/*.txt
+
