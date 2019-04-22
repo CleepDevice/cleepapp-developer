@@ -1,4 +1,4 @@
 #!/bin/sh
 
-/usr/local/bin/pip uninstall --yes "cleepcli"
+/usr/local/bin/pip2 uninstall --yes "cleepcli"
 

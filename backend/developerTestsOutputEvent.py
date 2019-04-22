@@ -33,6 +33,6 @@ class DeveloperTestsOutputEvent(Event):
             bool: True if params are valid, False otherwise
         """
         keys = [
-            u'message'
+            u'messages'
         ]
         return all(key in keys for key in params.keys())

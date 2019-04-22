@@ -4,10 +4,11 @@
 /usr/local/bin/pip2 uninstall --yes remotedev
 
 #install cleep-cli
-/usr/local/bin/pip2 install --trusted-host pypi.org "cleepcli==1.0.7"
+/usr/local/bin/pip2 install --trusted-host pypi.org "cleepcli>=1.3.1"
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
 #clone cleep core repo
-/usr/local/bin/cleep-cli coreget
+/usr/local/bin/cleep-cli coreget; /bin/true
+

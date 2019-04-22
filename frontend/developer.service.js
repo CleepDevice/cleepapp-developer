@@ -91,7 +91,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      * Generate documentation
      */
     self.generateDocumentation = function(moduleName) {
-        self.docsOutput.splice(0, self.testsOutput.length);
+        self.docsOutput.splice(0, self.docsOutput.length);
         return rpcService.sendCommand('generate_documentation', 'developer', {'module_name': moduleName});
     };
 
@@ -99,7 +99,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      * Download html documentation
      */
     self.downloadDocumentation = function(moduleName) {
-        return rpcService.sendCommand('download_documentation', 'developer', {'module_name': moduleName});
+        return rpcService.download('download_documentation', 'developer', {'module_name': moduleName});
     };
 
     /**
@@ -155,14 +155,14 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      * Catch tests events
      */
     $rootScope.$on('developer.tests.output', function(event, uuid, params) {
-        self.testsOutput.push(params.message);
+        self.testsOutput = self.testsOutput.concat(params.messages);
     });
 
     /**
      * Catch docs events
      */
     $rootScope.$on('developer.docs.output', function(event, uuid, params) {
-        self.docsOutput.push(params.message);
+        self.docsOutput = self.docsOutput.concat(params.messages);
     });
 
 };
