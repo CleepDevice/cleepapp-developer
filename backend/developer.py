@@ -46,7 +46,7 @@ class Developer(RaspIotModule):
         check and build your own application.<br/>This module will provide the official way to \
         publish your module on Cleep market.<br/><br/>Lot of resources are available \
         on developer module wiki, have a look and start enjoying Cleep!'
-    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs', 'cleep', 'cli']
+    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs', 'cleep', 'cli', 'test', 'documentation']
     MODULE_CATEGORY = u'APPLICATION'
     MODULE_COUNTRY = None
     MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
