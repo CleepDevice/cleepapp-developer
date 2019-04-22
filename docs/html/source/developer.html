@@ -1,0 +1,1011 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>developer package &mdash; Developer 2.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/cleep.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="developer" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Developer
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">developer</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">developer package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-developer.developer">developer.developer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-developer.developerDocsOutputEvent">developer.developerDocsOutputEvent module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-developer.developerFrontendRestartEvent">developer.developerFrontendRestartEvent module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-developer.developerTestsOutputEvent">developer.developerTestsOutputEvent module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-developer">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Developer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">developer</a> &raquo;</li>
+        
+      <li>developer package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/developer.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developer-package">
+<h1>developer package<a class="headerlink" href="#developer-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-developer.developer">
+<span id="developer-developer-module"></span><h2>developer.developer module<a class="headerlink" href="#module-developer.developer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="developer.developer.Developer">
+<em class="property">class </em><code class="descclassname">developer.developer.</code><code class="descname">Developer</code><span class="sig-paren">(</span><em>bootstrap</em>, <em>debug_enabled</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">raspiot.raspiot.RaspIotModule</span></code></p>
+<p>Developer module: this module is dedicated only for developers.
+It allows implements and configures remotedev in raspiot ()</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="https://github.com/tangb/remotedev">https://github.com/tangb/remotedev</a></p>
+</div>
+<dl class="attribute">
+<dt id="developer.developer.Developer.BUFFER_SIZE">
+<code class="descname">BUFFER_SIZE</code><em class="property"> = 10</em><a class="headerlink" href="#developer.developer.Developer.BUFFER_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORIES">
+<code class="descname">CATEGORIES</code><em class="property"> = [u'APPLICATION', u'MOBILE', u'DRIVER', u'HOMEAUTOMATION', u'MEDIA', u'SERVICE']</em><a class="headerlink" href="#developer.developer.Developer.CATEGORIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_APPLICATION">
+<code class="descname">CATEGORY_APPLICATION</code><em class="property"> = u'APPLICATION'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_APPLICATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_DRIVER">
+<code class="descname">CATEGORY_DRIVER</code><em class="property"> = u'DRIVER'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_DRIVER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_HOMEAUTOMATION">
+<code class="descname">CATEGORY_HOMEAUTOMATION</code><em class="property"> = u'HOMEAUTOMATION'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_HOMEAUTOMATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_MEDIA">
+<code class="descname">CATEGORY_MEDIA</code><em class="property"> = u'MEDIA'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_MEDIA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_MOBILE">
+<code class="descname">CATEGORY_MOBILE</code><em class="property"> = u'MOBILE'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_MOBILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CATEGORY_SERVICE">
+<code class="descname">CATEGORY_SERVICE</code><em class="property"> = u'SERVICE'</em><a class="headerlink" href="#developer.developer.Developer.CATEGORY_SERVICE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI">
+<code class="descname">CLI</code><em class="property"> = u'/usr/local/bin/cleep-cli'</em><a class="headerlink" href="#developer.developer.Developer.CLI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_DOCS_CMD">
+<code class="descname">CLI_DOCS_CMD</code><em class="property"> = u'%s moddocs --module &quot;%s&quot; --preview'</em><a class="headerlink" href="#developer.developer.Developer.CLI_DOCS_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_DOCS_ZIP_PATH_CMD">
+<code class="descname">CLI_DOCS_ZIP_PATH_CMD</code><em class="property"> = u'%s moddocspath --module &quot;%s&quot;'</em><a class="headerlink" href="#developer.developer.Developer.CLI_DOCS_ZIP_PATH_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_NEW_APPLICATION_CMD">
+<code class="descname">CLI_NEW_APPLICATION_CMD</code><em class="property"> = u'%s modcreate --module &quot;%s&quot;'</em><a class="headerlink" href="#developer.developer.Developer.CLI_NEW_APPLICATION_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_TESTS_CMD">
+<code class="descname">CLI_TESTS_CMD</code><em class="property"> = u'%s modtest --module &quot;%s&quot; --coverage'</em><a class="headerlink" href="#developer.developer.Developer.CLI_TESTS_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_TESTS_COV_CMD">
+<code class="descname">CLI_TESTS_COV_CMD</code><em class="property"> = u'%s modtestcov --module &quot;%s&quot; --missing'</em><a class="headerlink" href="#developer.developer.Developer.CLI_TESTS_COV_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.CLI_WATCHER_CMD">
+<code class="descname">CLI_WATCHER_CMD</code><em class="property"> = u'/usr/local/bin/cleep-cli watch --loglevel=40'</em><a class="headerlink" href="#developer.developer.Developer.CLI_WATCHER_CMD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.DEFAULT_CONFIG">
+<code class="descname">DEFAULT_CONFIG</code><em class="property"> = {u'moduleindev': None}</em><a class="headerlink" href="#developer.developer.Developer.DEFAULT_CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPES">
+<code class="descname">FRONT_FILE_TYPES</code><em class="property"> = [u'Do not include file', u'service-js', u'component-js', u'component-html', u'component-css', u'config-js', u'config-html', u'config-css', u'resource']</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_CSS">
+<code class="descname">FRONT_FILE_TYPE_COMPONENT_CSS</code><em class="property"> = u'component-css'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_CSS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_HTML">
+<code class="descname">FRONT_FILE_TYPE_COMPONENT_HTML</code><em class="property"> = u'component-html'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_HTML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_JS">
+<code class="descname">FRONT_FILE_TYPE_COMPONENT_JS</code><em class="property"> = u'component-js'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_COMPONENT_JS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_CSS">
+<code class="descname">FRONT_FILE_TYPE_CONFIG_CSS</code><em class="property"> = u'config-css'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_CSS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_HTML">
+<code class="descname">FRONT_FILE_TYPE_CONFIG_HTML</code><em class="property"> = u'config-html'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_HTML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_JS">
+<code class="descname">FRONT_FILE_TYPE_CONFIG_JS</code><em class="property"> = u'config-js'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_CONFIG_JS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_DROP">
+<code class="descname">FRONT_FILE_TYPE_DROP</code><em class="property"> = u'Do not include file'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_DROP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_RESOURCE">
+<code class="descname">FRONT_FILE_TYPE_RESOURCE</code><em class="property"> = u'resource'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_RESOURCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.FRONT_FILE_TYPE_SERVICE_JS">
+<code class="descname">FRONT_FILE_TYPE_SERVICE_JS</code><em class="property"> = u'service-js'</em><a class="headerlink" href="#developer.developer.Developer.FRONT_FILE_TYPE_SERVICE_JS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_AUTHOR">
+<code class="descname">MODULE_AUTHOR</code><em class="property"> = u'Cleep'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_AUTHOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_CATEGORY">
+<code class="descname">MODULE_CATEGORY</code><em class="property"> = u'APPLICATION'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_CATEGORY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_CONFIG_FILE">
+<code class="descname">MODULE_CONFIG_FILE</code><em class="property"> = u'developer.conf'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_CONFIG_FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_COUNTRY">
+<code class="descname">MODULE_COUNTRY</code><em class="property"> = None</em><a class="headerlink" href="#developer.developer.Developer.MODULE_COUNTRY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_DEPS">
+<code class="descname">MODULE_DEPS</code><em class="property"> = []</em><a class="headerlink" href="#developer.developer.Developer.MODULE_DEPS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_DESCRIPTION">
+<code class="descname">MODULE_DESCRIPTION</code><em class="property"> = u'Helps you to develop Cleep applications.'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_LONGDESCRIPTION">
+<code class="descname">MODULE_LONGDESCRIPTION</code><em class="property"> = u'Developer module helps you to develop on Cleep installing         and preconfiguring sync tools. It also provides a full page that helps you to         check and build your own application.&lt;br/&gt;This module will provide the official way to         publish your module on Cleep market.&lt;br/&gt;&lt;br/&gt;Lot of resources are available         on developer module wiki, have a look and start enjoying Cleep!'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_LONGDESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_PRICE">
+<code class="descname">MODULE_PRICE</code><em class="property"> = 0</em><a class="headerlink" href="#developer.developer.Developer.MODULE_PRICE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_TAGS">
+<code class="descname">MODULE_TAGS</code><em class="property"> = [u'developer', u'python', u'cleepos', u'module', 'angularjs', 'cleep', 'cli', 'test', 'documentation']</em><a class="headerlink" href="#developer.developer.Developer.MODULE_TAGS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_URLBUGS">
+<code class="descname">MODULE_URLBUGS</code><em class="property"> = u'https://github.com/tangb/cleepmod-developer/issues'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_URLBUGS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_URLHELP">
+<code class="descname">MODULE_URLHELP</code><em class="property"> = u'https://github.com/tangb/cleepmod-developer/wiki'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_URLHELP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_URLINFO">
+<code class="descname">MODULE_URLINFO</code><em class="property"> = u'https://github.com/tangb/cleepmod-developer'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_URLINFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_URLSITE">
+<code class="descname">MODULE_URLSITE</code><em class="property"> = None</em><a class="headerlink" href="#developer.developer.Developer.MODULE_URLSITE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.MODULE_VERSION">
+<code class="descname">MODULE_VERSION</code><em class="property"> = u'2.0.0'</em><a class="headerlink" href="#developer.developer.Developer.MODULE_VERSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developer.Developer.PATH_MODULE_TESTS">
+<code class="descname">PATH_MODULE_TESTS</code><em class="property"> = u'/root/cleep/modules/%(MODULE_NAME)s/tests/'</em><a class="headerlink" href="#developer.developer.Developer.PATH_MODULE_TESTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__analyze_module_js">
+<code class="descname">_Developer__analyze_module_js</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__analyze_module_js" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze module js part</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd>module_name (string): module name</dd>
+<dt>Returns:</dt>
+<dd>tuple (dict, string): js data adn changelog</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__analyze_module_python">
+<code class="descname">_Developer__analyze_module_python</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__analyze_module_python" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze package python part</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>python package data::</dt>
+<dd><dl class="first docutils">
+<dt>{</dt>
+<dd>metadata (dict): module metadata,
+files (list): list of python files (libs, module…)</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__analyze_scripts">
+<code class="descname">_Developer__analyze_scripts</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__analyze_scripts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze scripts for specified module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name to search scripts for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">scripts infos:<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="n">preinst</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">found</span> <span class="p">(</span><span class="nb">bool</span><span class="p">):</span> <span class="n">pre</span><span class="o">-</span><span class="n">install</span> <span class="n">script</span> <span class="n">found</span> <span class="ow">or</span> <span class="ow">not</span>
+        <span class="n">fullpath</span> <span class="p">(</span><span class="n">string</span><span class="p">):</span> <span class="n">script</span> <span class="n">fullpath</span>
+    <span class="p">},</span>
+    <span class="n">postinst</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">found</span> <span class="p">(</span><span class="nb">bool</span><span class="p">):</span> <span class="n">pre</span><span class="o">-</span><span class="n">install</span> <span class="n">script</span> <span class="n">found</span> <span class="ow">or</span> <span class="ow">not</span>
+        <span class="n">fullpath</span> <span class="p">(</span><span class="n">string</span><span class="p">):</span> <span class="n">script</span> <span class="n">fullpath</span>
+    <span class="p">},</span>
+    <span class="n">preuninst</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">found</span> <span class="p">(</span><span class="nb">bool</span><span class="p">):</span> <span class="n">pre</span><span class="o">-</span><span class="n">install</span> <span class="n">script</span> <span class="n">found</span> <span class="ow">or</span> <span class="ow">not</span>
+        <span class="n">fullpath</span> <span class="p">(</span><span class="n">string</span><span class="p">):</span> <span class="n">script</span> <span class="n">fullpath</span>
+    <span class="p">},</span>
+    <span class="n">postuninst</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">found</span> <span class="p">(</span><span class="nb">bool</span><span class="p">):</span> <span class="n">pre</span><span class="o">-</span><span class="n">install</span> <span class="n">script</span> <span class="n">found</span> <span class="ow">or</span> <span class="ow">not</span>
+        <span class="n">fullpath</span> <span class="p">(</span><span class="n">string</span><span class="p">):</span> <span class="n">script</span> <span class="n">fullpath</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__analyze_tests">
+<code class="descname">_Developer__analyze_tests</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__analyze_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze tests for specified module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name to search tests for</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__check_mdimgsrc_directive">
+<code class="descname">_Developer__check_mdimgsrc_directive</code><span class="sig-paren">(</span><em>js_files</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__check_mdimgsrc_directive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if developer uses md-img-src directive to display its images</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>js_files</strong> (<em>dict</em>) – dict of js files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of warnings</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__docs_callback">
+<code class="descname">_Developer__docs_callback</code><span class="sig-paren">(</span><em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__docs_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Docs cli outputs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stdout</strong> (<em>list</em>) – stdout message</li>
+<li><strong>stderr</strong> (<em>list</em>) – stderr message</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__docs_end_callback">
+<code class="descname">_Developer__docs_end_callback</code><span class="sig-paren">(</span><em>return_code</em>, <em>killed</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__docs_end_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Docs cli ended</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>return_code</strong> (<em>int</em>) – command return code</li>
+<li><strong>killed</strong> (<em>bool</em>) – True if command killed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__fill_js_file_types">
+<code class="descname">_Developer__fill_js_file_types</code><span class="sig-paren">(</span><em>files</em>, <em>desc_json</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__fill_js_file_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill file types as well as possible</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__launch_watcher">
+<code class="descname">_Developer__launch_watcher</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__launch_watcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch cleep-cli watch command</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__tests_callback">
+<code class="descname">_Developer__tests_callback</code><span class="sig-paren">(</span><em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__tests_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests cli outputs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stdout</strong> (<em>list</em>) – stdout message</li>
+<li><strong>stderr</strong> (<em>list</em>) – stderr message</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__tests_end_callback">
+<code class="descname">_Developer__tests_end_callback</code><span class="sig-paren">(</span><em>return_code</em>, <em>killed</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__tests_end_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests cli ended</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>return_code</strong> (<em>int</em>) – command return code</li>
+<li><strong>killed</strong> (<em>bool</em>) – True if command killed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__watcher_callback">
+<code class="descname">_Developer__watcher_callback</code><span class="sig-paren">(</span><em>stdout</em>, <em>stderr</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__watcher_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback when watcher receives messages on stdXXX</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stdout</strong> (<em>string</em>) – message from stdout</li>
+<li><strong>stderr</strong> (<em>string</em>) – message from stderr</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._Developer__watcher_end_callback">
+<code class="descname">_Developer__watcher_end_callback</code><span class="sig-paren">(</span><em>return_code</em>, <em>killed</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._Developer__watcher_end_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback when watcher task ends</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>return_code</strong> (<em>int</em>) – command return code</li>
+<li><strong>killed</strong> (<em>bool</em>) – True if watcher killed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._configure">
+<code class="descname">_configure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure module</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer._stop">
+<code class="descname">_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer._stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom stop: stop remotedev thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.analyze_module">
+<code class="descname">analyze_module</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.analyze_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze specified module package and return archive name and filename to download it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>archive infos::</dt>
+<dd><dl class="first docutils">
+<dt>{</dt>
+<dd>url (string): archive url,
+name (string): archive name (usually name of module)</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.build_package">
+<code class="descname">build_package</code><span class="sig-paren">(</span><em>module_name</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.build_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build module package archive in zip format.
+Archive is not protected by password</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>module_name</strong> (<em>string</em>) – module name</li>
+<li><strong>data</strong> (<em>dict</em>) – data returned by analyze_module command</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">url of archive to download or None if error occured</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.create_application">
+<code class="descname">create_application</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.create_application" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new application skel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.download_documentation">
+<code class="descname">download_documentation</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.download_documentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download documentation (html as archive tar.gz)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">archive infos:<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">filepath</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="n">new</span> <span class="n">filename</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">CommandError</span></code> – command failed error</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.download_package">
+<code class="descname">download_package</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.download_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download latest generated package</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">archive infos:<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">filepath</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="n">new</span> <span class="n">filename</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.generate_desc_json">
+<code class="descname">generate_desc_json</code><span class="sig-paren">(</span><em>js_files</em>, <em>icon</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.generate_desc_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate desc.json file inside module directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>js_files</strong> (<em>dict</em>) – js.files part of data returned by analyze_module command</li>
+<li><strong>icon</strong> (<em>string</em>) – module icon string</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if file generated successfully</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.generate_documentation">
+<code class="descname">generate_documentation</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.generate_documentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate documentation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.get_last_coverage_report">
+<code class="descname">get_last_coverage_report</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.get_last_coverage_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return last coverage report</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.get_module_devices">
+<code class="descname">get_module_devices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.get_module_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return module devices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.launch_tests">
+<code class="descname">launch_tests</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.launch_tests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch unit tests</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.restart_frontend">
+<code class="descname">restart_frontend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.restart_frontend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send event to restart frontend</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="developer.developer.Developer.set_module_in_development">
+<code class="descname">set_module_in_development</code><span class="sig-paren">(</span><em>module_name</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developer.Developer.set_module_in_development" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set module in development. It save in config the module, and enable debug.
+It also disable debug on old module in debug if any.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_name</strong> (<em>string</em>) – module to enable development on</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-developer.developerDocsOutputEvent">
+<span id="developer-developerdocsoutputevent-module"></span><h2>developer.developerDocsOutputEvent module<a class="headerlink" href="#module-developer.developerDocsOutputEvent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="developer.developerDocsOutputEvent.DeveloperDocsOutputEvent">
+<em class="property">class </em><code class="descclassname">developer.developerDocsOutputEvent.</code><code class="descname">DeveloperDocsOutputEvent</code><span class="sig-paren">(</span><em>bus</em>, <em>formatters_factory</em>, <em>events_factory</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerDocsOutputEvent.DeveloperDocsOutputEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">raspiot.events.event.Event</span></code></p>
+<p>developer.docs.output event</p>
+<dl class="attribute">
+<dt id="developer.developerDocsOutputEvent.DeveloperDocsOutputEvent.EVENT_NAME">
+<code class="descname">EVENT_NAME</code><em class="property"> = u'developer.docs.output'</em><a class="headerlink" href="#developer.developerDocsOutputEvent.DeveloperDocsOutputEvent.EVENT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developerDocsOutputEvent.DeveloperDocsOutputEvent.EVENT_SYSTEM">
+<code class="descname">EVENT_SYSTEM</code><em class="property"> = True</em><a class="headerlink" href="#developer.developerDocsOutputEvent.DeveloperDocsOutputEvent.EVENT_SYSTEM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="developer.developerDocsOutputEvent.DeveloperDocsOutputEvent._check_params">
+<code class="descname">_check_params</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerDocsOutputEvent.DeveloperDocsOutputEvent._check_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check event parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) – event parameters</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if params are valid, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-developer.developerFrontendRestartEvent">
+<span id="developer-developerfrontendrestartevent-module"></span><h2>developer.developerFrontendRestartEvent module<a class="headerlink" href="#module-developer.developerFrontendRestartEvent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent">
+<em class="property">class </em><code class="descclassname">developer.developerFrontendRestartEvent.</code><code class="descname">DeveloperFrontendRestartEvent</code><span class="sig-paren">(</span><em>bus</em>, <em>formatters_factory</em>, <em>events_factory</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">raspiot.events.event.Event</span></code></p>
+<p>developer.frontend.restart event</p>
+<dl class="attribute">
+<dt id="developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent.EVENT_NAME">
+<code class="descname">EVENT_NAME</code><em class="property"> = u'developer.frontend.restart'</em><a class="headerlink" href="#developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent.EVENT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent.EVENT_SYSTEM">
+<code class="descname">EVENT_SYSTEM</code><em class="property"> = True</em><a class="headerlink" href="#developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent.EVENT_SYSTEM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent._check_params">
+<code class="descname">_check_params</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerFrontendRestartEvent.DeveloperFrontendRestartEvent._check_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check event parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) – event parameters</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if params are valid, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-developer.developerTestsOutputEvent">
+<span id="developer-developertestsoutputevent-module"></span><h2>developer.developerTestsOutputEvent module<a class="headerlink" href="#module-developer.developerTestsOutputEvent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="developer.developerTestsOutputEvent.DeveloperTestsOutputEvent">
+<em class="property">class </em><code class="descclassname">developer.developerTestsOutputEvent.</code><code class="descname">DeveloperTestsOutputEvent</code><span class="sig-paren">(</span><em>bus</em>, <em>formatters_factory</em>, <em>events_factory</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerTestsOutputEvent.DeveloperTestsOutputEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">raspiot.events.event.Event</span></code></p>
+<p>developer.tests.output event</p>
+<dl class="attribute">
+<dt id="developer.developerTestsOutputEvent.DeveloperTestsOutputEvent.EVENT_NAME">
+<code class="descname">EVENT_NAME</code><em class="property"> = u'developer.tests.output'</em><a class="headerlink" href="#developer.developerTestsOutputEvent.DeveloperTestsOutputEvent.EVENT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="developer.developerTestsOutputEvent.DeveloperTestsOutputEvent.EVENT_SYSTEM">
+<code class="descname">EVENT_SYSTEM</code><em class="property"> = True</em><a class="headerlink" href="#developer.developerTestsOutputEvent.DeveloperTestsOutputEvent.EVENT_SYSTEM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="developer.developerTestsOutputEvent.DeveloperTestsOutputEvent._check_params">
+<code class="descname">_check_params</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#developer.developerTestsOutputEvent.DeveloperTestsOutputEvent._check_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check event parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> (<em>dict</em>) – event parameters</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if params are valid, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-developer">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-developer" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="developer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019 Cleep
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
