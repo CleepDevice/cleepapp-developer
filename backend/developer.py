@@ -14,7 +14,7 @@ from threading import Thread
 from raspiot.raspiot import RaspIotModule
 from raspiot.libs.internals.task import Task
 from raspiot.libs.internals.console import Console, EndlessConsole
-from raspiot.utils import CommandError, MissingParameter, InvalidParameter
+from raspiot.utils import CommandError, MissingParameter, InvalidParameter, CATEGORIES
 from raspiot.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, SCRIPTS_DIR, PATH_FRONTEND, PATH_SCRIPTS, TESTS_DIR
 from raspiot.libs.internals import __all__ as internals_libs
 from raspiot.libs.externals import __all__ as externals_libs
@@ -91,14 +91,6 @@ class Developer(RaspIotModule):
         FRONT_FILE_TYPE_CONFIG_CSS,
         FRONT_FILE_TYPE_RESOURCE
     ]
-
-    CATEGORY_APPLICATION = u'APPLICATION'
-    CATEGORY_MOBILE = u'MOBILE'
-    CATEGORY_DRIVER = u'DRIVER'
-    CATEGORY_HOMEAUTOMATION = u'HOMEAUTOMATION'
-    CATEGORY_MEDIA = u'MEDIA'
-    CATEGORY_SERVICE = u'SERVICE'
-    CATEGORIES = [CATEGORY_APPLICATION, CATEGORY_MOBILE, CATEGORY_DRIVER, CATEGORY_HOMEAUTOMATION, CATEGORY_MEDIA, CATEGORY_SERVICE]
 
     def __init__(self, bootstrap, debug_enabled):
         """
@@ -309,7 +301,7 @@ class Developer(RaspIotModule):
             errors.append(u'Field MODULE_CATEGORY must be an unicode string')
         elif len(getattr(class_, u'MODULE_CATEGORY'))==0:
             errors.append(u'Field MODULE_CATEGORY must be provided')
-        elif getattr(class_, u'MODULE_CATEGORY') not in self.CATEGORIES:
+        elif getattr(class_, u'MODULE_CATEGORY') not in CATEGORIES.ALL:
             errors.append(u'Field MODULE_CATEGORY must be one of possible values (see doc)')
         #MODULE_DEPS
         if not hasattr(class_, u'MODULE_DEPS'):
