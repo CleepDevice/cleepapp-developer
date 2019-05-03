@@ -483,6 +483,19 @@
         <!-- frontend files -->
         <div ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.data">
             <md-list>
+                <!-- documentation -->
+                <md-subheader class="md-no-sticky">Note on description file</md-subheader>
+                <md-list-item>
+                    <p>Description file (desc.json file) describes all your frontend content.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>To optimize loading time, frontend files aren't all loaded during Cleep startup. To allow this you must configure usage for each files.</p>
+                </md-list-item>
+                <md-list-item>
+                    <p>You can find more explanations on developer wiki page
+                    <a href="https://github.com/tangb/cleepmod-developer/wiki/desc.json" target="_blank">https://github.com/tangb/cleepmod-developer/wiki/desc.json</a>.</p>
+                </md-list-item>
+
                 <!-- files list -->
                 <md-subheader class="md-no-sticky">Configure frontend files usage</md-subheader>
                 <md-list-item ng-repeat="file in devCtl.data.js.files">
