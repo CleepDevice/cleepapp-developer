@@ -943,10 +943,6 @@ class Developer(RaspIotModule):
         self.__module_name = None
         self.__module_version = None
 
-        #build desc.json
-        if not self.generate_desc_json(data[u'js'][u'files'], data[u'icon']):
-            raise CommandError(u'Unable to generate desc.json file. Please check logs and sent data')
-
         #build module description file (module.json)
         fd = NamedTemporaryFile(delete=False)
         module_json = fd.name
