@@ -62,6 +62,7 @@ class Developer(RaspIotModule):
     BUFFER_SIZE = 10
 
     PATH_MODULE_TESTS = u'/root/cleep/modules/%(MODULE_NAME)s/tests/'
+    PATH_MODULE_FRONTEND = u'/root/cleep/modules/%(MODULE_NAME)s/frontend/'
 
     CLI = u'/usr/local/bin/cleep-cli'
     CLI_WATCHER_CMD = u'%s watch --loglevel=40' % CLI
@@ -490,8 +491,8 @@ class Developer(RaspIotModule):
         return {
             u'data': {
                 u'files': files,
-                u'events': events,
-                u'formatters': formatters,
+                u'events': sorted(events, key=lambda k:k[u'fullpath']),
+                u'formatters': sorted(formatters, key=lambda k:k[u'fullpath']),
                 u'errors': errors,
                 u'warnings': warnings
             },
@@ -574,7 +575,7 @@ class Developer(RaspIotModule):
                     files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
                 elif key.find(u'.widget.css')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
-                elif files[key][u'ext'] in (u'png', u'jpg', u'jpeg', u'gif'):
+                elif files[key][u'ext'] in (u'png', u'jpg', u'jpeg', u'gif', u'eot', u'woff', u'woff2', u'svg', u'ttf'):
                     files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
                 elif key==u'desc.json':
                     files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
@@ -705,7 +706,7 @@ class Developer(RaspIotModule):
 
         return {
             u'data': {
-                u'files': all_files.values(),
+                u'files': sorted(all_files.values(), key=lambda k:k[u'fullpath']),
                 u'filetypes': self.FRONT_FILE_TYPES,
                 u'errors': errors,
                 u'warnings': warnings
@@ -908,13 +909,15 @@ class Developer(RaspIotModule):
                 content[u'config'][u'html'].append(f[u'path'])
             elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_CSS:
                 content[u'config'][u'css'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_RESOURCE:
+            elif f[u'type']==self.FRONT_FILE_TYPE_RESOURCE and f[u'path']!=u'desc.json':
                 content[u'res'].append(f[u'path'])
         self.logger.debug(u'Generated desc.json content: %s' % content)
 
-        #write json file to js module directory
+        #write json file to js module directory in development env (it will be sync automatically by watcher)
         if len(js_files)>0:
-            js_path = os.path.join(js_files[0][u'fullpath'].replace(js_files[0][u'path'], u''), u'desc.json')
+            module_name = self._get_config_field(u'moduleindev')
+            js_path = os.path.join(self.PATH_MODULE_FRONTEND % {u'MODULE_NAME': module_name}, u'desc.json')
+            #js_path = os.path.join(js_files[0][u'fullpath'].replace(js_files[0][u'path'], u''), u'desc.json')
             self.logger.debug(u'js_path=%s' % js_path)
             return self.cleep_filesystem.write_json(js_path, content)
             
