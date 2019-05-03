@@ -34,10 +34,10 @@ class Developer(RaspIotModule):
     It allows implements and configures remotedev in raspiot ()
 
     Note:
-        https://github.com/tangb/remotedev
+        https://github.com/tangb/cleep-cli
     """
     MODULE_AUTHOR = u'Cleep'
-    MODULE_VERSION = u'2.0.0'
+    MODULE_VERSION = u'2.1.0'
     MODULE_PRICE = 0
     MODULE_DEPS = []
     MODULE_DESCRIPTION = u'Helps you to develop Cleep applications.'
@@ -259,12 +259,14 @@ class Developer(RaspIotModule):
         Args:
             module_name (string): module name
 
-        Return:
+        Returns:
             dict: python package data::
+
                 {
                     metadata (dict): module metadata,
                     files (list): list of python files (libs, module...)
                 }
+
         """
         #init
         errors = []
@@ -875,7 +877,7 @@ class Developer(RaspIotModule):
             js_files (dict): js.files part of data returned by analyze_module command
             icon (string): module icon string
 
-        Return:
+        Returns:
             bool: True if file generated successfully
         """
         content = {
@@ -917,7 +919,6 @@ class Developer(RaspIotModule):
         if len(js_files)>0:
             module_name = self._get_config_field(u'moduleindev')
             js_path = os.path.join(self.PATH_MODULE_FRONTEND % {u'MODULE_NAME': module_name}, u'desc.json')
-            #js_path = os.path.join(js_files[0][u'fullpath'].replace(js_files[0][u'path'], u''), u'desc.json')
             self.logger.debug(u'js_path=%s' % js_path)
             return self.cleep_filesystem.write_json(js_path, content)
             
@@ -934,7 +935,7 @@ class Developer(RaspIotModule):
             module_name (string): module name
             data (dict): data returned by analyze_module command
 
-        Return:
+        Returns:
             string: url of archive to download or None if error occured
         """
         #init
