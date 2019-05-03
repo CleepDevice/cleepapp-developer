@@ -1,12 +1,22 @@
 {
-    "icon": "worker",
+    "res": [], 
     "global": {
-        "js": ["developer.service.js"]
-    },
+        "html": [], 
+        "css": [], 
+        "js": [
+            "developer.service.js"
+        ]
+    }, 
     "config": {
-        "html": ["developer.config.html"],
-        "js": ["developer.config.js"],
-        "css": ["developer.config.css"]
-    }
+        "html": [
+            "developer.config.html"
+        ], 
+        "css": [
+            "developer.config.css"
+        ], 
+        "js": [
+            "developer.config.js"
+        ]
+    }, 
+    "icon": "worker"
 }
-
