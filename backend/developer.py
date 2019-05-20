@@ -125,6 +125,13 @@ class Developer(RaspIotModule):
         """
         Configure module
         """
+        #disable rw if in development
+        module_in_dev = self._get_config_field(u'moduleindev')
+        self.logger.debug(u'Module in development: %s' % module_in_dev)
+        if module_in_dev:
+            self.logger.info(u'Module "%s" is in development, disable RO feature' % module_in_dev)
+            self.cleep_filesystem.enable_write(root=True, boot=True)
+
         #add dummy device
         self.logger.debug('device_count=%d' % self._get_device_count())
         if self._get_device_count()==0:
@@ -226,6 +233,14 @@ class Developer(RaspIotModule):
             self.set_debug(True)
         elif len(module_name)>0:
             self.send_command(u'set_module_debug', u'system', {u'module': module_name, u'debug': True})
+
+        #disable RO feature
+        if len(module_name)>0:
+            self.logger.info(u'Module "%s" is in development, disable RO feature' % module_in_dev)
+            self.cleep_filesystem.enable_write(root=True, boot=True)
+        else:
+            self.logger.info(u'No module in development, enable RO feature')
+            self.cleep_filesystem.disable_write(root=True, boot=True)
 
     def restart_frontend(self):
         """
