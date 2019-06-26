@@ -156,6 +156,10 @@ class Developer(RaspIotModule):
         """
         Launch cleep-cli watch command
         """
+        #kill all previous existing cleep-cli instances
+        c = Console()
+        c.command(u'/usr/bin/pkill -9 -f cleep-cli')
+
         self.logger.info(u'Launch watcher task')
         self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
         self.__watcher_task.start()
