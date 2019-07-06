@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from raspiot.events.event import Event
+from raspiot.libs.internals.event import Event
 
 class DeveloperTestsOutputEvent(Event):
     """
@@ -10,6 +10,7 @@ class DeveloperTestsOutputEvent(Event):
 
     EVENT_NAME = u'developer.tests.output'
     EVENT_SYSTEM = True
+    EVENT_PARAMS = [u'messages']
 
     def __init__(self, bus, formatters_broker, events_broker):
         """
@@ -22,17 +23,3 @@ class DeveloperTestsOutputEvent(Event):
         """
         Event.__init__(self, bus, formatters_broker, events_broker)
 
-    def _check_params(self, params):
-        """
-        Check event parameters
-
-        Args:
-            params (dict): event parameters
-
-        Return:
-            bool: True if params are valid, False otherwise
-        """
-        keys = [
-            u'messages'
-        ]
-        return all(key in keys for key in params.keys())
