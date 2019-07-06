@@ -66,8 +66,8 @@ class Developer(RaspIotModule):
 
     CLI = u'/usr/local/bin/cleep-cli'
     CLI_WATCHER_CMD = u'%s watch --loglevel=40' % CLI
-    CLI_TESTS_CMD = u'%s modtest --module "%s" --coverage'
-    CLI_TESTS_COV_CMD = u'%s modtestcov --module "%s" --missing'
+    CLI_TESTS_CMD = u'%s modtests --module "%s" --coverage'
+    CLI_TESTS_COV_CMD = u'%s modtestscov --module "%s" --missing'
     CLI_NEW_APPLICATION_CMD = u'%s modcreate --module "%s"'
     CLI_DOCS_CMD = u'%s moddocs --module "%s" --preview'
     CLI_DOCS_ZIP_PATH_CMD = u'%s moddocspath --module "%s"'
