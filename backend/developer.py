@@ -129,9 +129,8 @@ class Developer(RaspIotModule):
         module_in_dev = self._get_config_field(u'moduleindev')
         self.logger.debug(u'Module in development: %s' % module_in_dev)
         if module_in_dev:
-            self.logger.info(u'Module "%s" is in development, disable RO feature and RPC cache' % module_in_dev)
+            self.logger.info(u'Module "%s" is in development, disable RO feature' % module_in_dev)
             self.cleep_filesystem.enable_write(root=True, boot=True)
-            self.send_command(u'set_rpc_cache_control', u'inventory', {u'no_cache': True})
 
         #add dummy device
         self.logger.debug('device_count=%d' % self._get_device_count())
