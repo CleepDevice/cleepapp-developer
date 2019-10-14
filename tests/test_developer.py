@@ -11,7 +11,7 @@ LOG_LEVEL = logging.INFO
 class TestDeveloper(unittest.TestCase):
 
     def setUp(self):
-        self.session = session.Session(LOG_LEVEL)
+        self.session = session.TestSession(LOG_LEVEL)
         #next line instanciates your module, overwriting all useful stuff to isolate your module for tests
         self.module = self.session.setup(Developer)
 
