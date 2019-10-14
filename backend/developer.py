@@ -37,7 +37,7 @@ class Developer(RaspIotModule):
         https://github.com/tangb/cleep-cli
     """
     MODULE_AUTHOR = u'Cleep'
-    MODULE_VERSION = u'2.1.0'
+    MODULE_VERSION = u'2.2.0'
     MODULE_PRICE = 0
     MODULE_DEPS = []
     MODULE_DESCRIPTION = u'Helps you to develop Cleep applications.'
@@ -80,6 +80,9 @@ class Developer(RaspIotModule):
     FRONT_FILE_TYPE_CONFIG_JS = u'config-js'
     FRONT_FILE_TYPE_CONFIG_HTML = u'config-html'
     FRONT_FILE_TYPE_CONFIG_CSS = u'config-css'
+    FRONT_FILE_TYPE_PAGES_JS = u'pages-js'
+    FRONT_FILE_TYPE_PAGES_HTML = u'pages-html'
+    FRONT_FILE_TYPE_PAGES_CSS = u'pages-css'
     FRONT_FILE_TYPE_RESOURCE = u'resource'
     FRONT_FILE_TYPES = [
         FRONT_FILE_TYPE_DROP,
@@ -90,6 +93,9 @@ class Developer(RaspIotModule):
         FRONT_FILE_TYPE_CONFIG_JS,
         FRONT_FILE_TYPE_CONFIG_HTML,
         FRONT_FILE_TYPE_CONFIG_CSS,
+        FRONT_FILE_TYPE_PAGES_JS,
+        FRONT_FILE_TYPE_PAGES_HTML,
+        FRONT_FILE_TYPE_PAGES_CSS,
         FRONT_FILE_TYPE_RESOURCE
     ]
 
@@ -526,8 +532,9 @@ class Developer(RaspIotModule):
         """
         #use desc.json content if possible
         if desc_json:
-            #set component-js and service-js
+            #set global
             if u'global' in desc_json and u'js' in desc_json[u'global']:
+                #set service and component-js
                 for key in desc_json[u'global'][u'js']:
                     if key not in files:
                         continue
@@ -536,36 +543,60 @@ class Developer(RaspIotModule):
                     else:
                         files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
 
-            #set component-html
-            if u'global' in desc_json and u'html' in desc_json[u'global']:
-                for key in desc_json[u'global'][u'html']:
-                    if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
+                #set component-html
+                if u'html' in desc_json[u'global']:
+                    for key in desc_json[u'global'][u'html']:
+                        if key in files:
+                            files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
 
-            #set component-css
-            if u'global' in desc_json and u'css' in desc_json[u'global']:
-                for key in desc_json[u'global'][u'css']:
-                    if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
+                #set component-css
+                if u'css' in desc_json[u'global']:
+                    for key in desc_json[u'global'][u'css']:
+                        if key in files:
+                            files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
 
-            #set config-js
-            if u'config' in desc_json and u'js' in desc_json[u'config']:
-                for key in desc_json[u'config'][u'js']:
-                    if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
+            #set config
+            if u'config' in desc_json:
+                #config-js                
+                if u'js' in desc_json[u'config']:
+                    for key in desc_json[u'config'][u'js']:
+                        if key in files:
+                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
 
-            #set config-html
-            if u'config' in desc_json and u'html' in desc_json[u'config']:
-                for key in desc_json[u'config'][u'html']:
-                    if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
+                #config-html
+                if u'html' in desc_json[u'config']:
+                    for key in desc_json[u'config'][u'html']:
+                        if key in files:
+                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
 
-            #set config-css
-            if u'config' in desc_json and u'css' in desc_json[u'config']:
-                for key in desc_json[u'config'][u'css']:
-                    if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
+                #config-css
+                if u'css' in desc_json[u'config']:
+                    for key in desc_json[u'config'][u'css']:
+                        if key in files:
+                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
 
+            #set pages
+            if u'pages' in desc_json and len(desc_json[u'pages'])>0:
+                for page in desc_json[u'pages']:
+                    #pages-js
+                    if u'js' in desc_json[u'pages'][page]:
+                        for key in desc_json[u'pages'][page][u'js']:
+                            if key in files:
+                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_JS
+
+                    #pages-html
+                    if u'html' in desc_json[u'pages'][page]:
+                        for key in desc_json[u'pages'][page][u'html']:
+                            if key in files:
+                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_HTML
+
+                    #pages-css
+                    if u'css' in desc_json[u'pages'][page]:
+                        for key in desc_json[u'pages'][page][u'css']:
+                            if key in files:
+                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_CSS
+
+            #set resources
             if u'res' in desc_json:
                 for key in desc_json[u'res']:
                     if key in files:
@@ -584,11 +615,11 @@ class Developer(RaspIotModule):
                 #try to identify file type
                 if key.find(u'.service.js')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_SERVICE_JS
-                elif key.find(u'.directive.js')>0:
+                elif key.find(u'.config.js')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
-                elif key.find(u'.directive.html')>0:
+                elif key.find(u'.config.html')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
-                elif key.find(u'.directive.css')>0:
+                elif key.find(u'.config.css')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
                 elif key.find(u'.widget.js')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
@@ -596,6 +627,12 @@ class Developer(RaspIotModule):
                     files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
                 elif key.find(u'.widget.css')>0:
                     files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
+                elif key.find(u'.page.js')>0:
+                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_JS
+                elif key.find(u'.page.html')>0:
+                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_HTML
+                elif key.find(u'.page.css')>0:
+                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_CSS
                 elif files[key][u'ext'] in (u'png', u'jpg', u'jpeg', u'gif', u'eot', u'woff', u'woff2', u'svg', u'ttf'):
                     files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
                 elif key==u'desc.json':
