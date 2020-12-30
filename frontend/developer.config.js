@@ -1,9 +1,12 @@
 /**
- * Developer configuration directive
+ * Developer configuration component
  * Helps developer to analyze and publish module to cleep store
  */
-var developerConfigDirective = function($rootScope, toast, raspiotService, developerService, systemService, $timeout, appToolbarService, $sce, $location)
-{
+angular
+.module('Cleep')
+.directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout',
+    'appToolbarService', '$sce', '$location', '$q',
+function($rootScope, toast, cleepService, developerService, systemService, $timeout, appToolbarService, $sce, $location, $q) {
 
     // konami code: ssuperr
 
@@ -34,7 +37,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             }
         };
         self.remotedevUuid = null;
-        self.raspiotService = raspiotService;
+        self.cleepService = cleepService;
 
         /**
          * Init controller
@@ -48,7 +51,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             self.deviceIp = $location.host();
 
             //load module configuration
-            raspiotService.getModuleConfig('developer')
+            cleepService.getModuleConfig('developer')
                 .then(function(config) {
                     self.setConfig(config);
 
@@ -73,11 +76,11 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             }
 
             var temp = [];
-            for( var module in raspiotService.modules )
+            for( var module in cleepService.modules )
             {
                 if( !all )
                 {
-                    if( raspiotService.modules[module].core===true || module==='developer' )
+                    if( cleepService.modules[module].core===true || module==='developer' )
                     {
                         //system module, drop it
                         continue;
@@ -110,11 +113,11 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
          */
         self.setRemotedevDevice = function()
         {
-           	for( var i=0; i<raspiotService.devices.length; i++ )
+           	for( var i=0; i<cleepService.devices.length; i++ )
 	        {
-    	        if( raspiotService.devices[i].type==='developer' )
+    	        if( cleepService.devices[i].type==='developer' )
         	    {
-                    self.remotedevUuid = raspiotService.devices[i].uuid;
+                    self.remotedevUuid = cleepService.devices[i].uuid;
                     break;
 	            }
     	    }
@@ -161,7 +164,7 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
             developerService.setModuleInDev(self.selectedModule)
                 .then(function() {
                     //reload configuration
-                    return raspiotService.reloadModuleConfig('developer');
+                    return cleepService.reloadModuleConfig('developer');
                 })
                 .then(function(config) {
                     //save new config
@@ -274,11 +277,15 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
                 .then(function(resp) {
                     //build generation completed, download package now
                     return developerService.downloadPackage();
+                }, function(err) {
+                    return $q.reject('stop-chain');
                 })
                 .then(function(resp) {
                 }, function(err) {
-                    console.error('Download failed:', err);
-                    toast.error('Download failed');
+                    if (err !== 'stop-chain') {
+                        console.error('Download failed:', err);
+                        toast.error('Download failed');
+                    }
                 })
                 .finally(function() {
                     self.loading = false;
@@ -421,9 +428,5 @@ var developerConfigDirective = function($rootScope, toast, raspiotService, devel
         controllerAs: 'devCtl',
         link: developerLink
     };
-};
-
-var RaspIot = angular.module('RaspIot');
-RaspIot.directive('developerConfigDirective', ['$rootScope', 'toastService', 'raspiotService', 'developerService', 'systemService', '$timeout',
-                    'appToolbarService', '$sce', '$location', developerConfigDirective]);
+}]);
 

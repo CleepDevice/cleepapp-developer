@@ -2,8 +2,10 @@
  * Developer service
  * Handle developer module requests
  */
-var developerService = function($q, $rootScope, rpcService, raspiotService, appToolbarService, $window)
-{
+angular
+.module('Cleep')
+.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', 'appToolbarService', '$window',
+function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
     var self = this;
     self.restartButtonId = null;
     self.testsOutput = [];
@@ -46,7 +48,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      */
     self.buildPackage = function(moduleName, data)
     {
-        return rpcService.sendCommand('build_package', 'developer', {'module_name': moduleName, 'data': data});
+        return rpcService.sendCommand('build_package', 'developer', {'module_name': moduleName, 'data': data}, 30);
     };
 
     /**
@@ -107,7 +109,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      */
     self.restartCleepBackend = function()
     {
-        raspiotService.restart(0);
+        cleepService.restart(0);
     };
 
     /**
@@ -136,7 +138,7 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
      * Watch for config changes
      */
     $rootScope.$watchCollection(function() {
-        return raspiotService.modules['developer'];
+        return cleepService.modules['developer'];
     }, function(newConfig, oldConfig) {
         if( newConfig )
         {
@@ -165,8 +167,5 @@ var developerService = function($q, $rootScope, rpcService, raspiotService, appT
         self.docsOutput = self.docsOutput.concat(params.messages);
     });
 
-};
-    
-var RaspIot = angular.module('RaspIot');
-RaspIot.service('developerService', ['$q', '$rootScope', 'rpcService', 'raspiotService', 'appToolbarService', '$window', developerService]);
+}]);
 

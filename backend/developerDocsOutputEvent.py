@@ -1,25 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from raspiot.libs.internals.event import Event
+from cleep.libs.internals.event import Event
 
 class DeveloperDocsOutputEvent(Event):
     """
     developer.docs.output event
     """
 
-    EVENT_NAME = u'developer.docs.output'
-    EVENT_SYSTEM = True
-    EVENT_PARAMS = [u'messages']
+    EVENT_NAME = 'developer.docs.output'
+    EVENT_PROPAGATE = False
+    EVENT_PARAMS = ['messages']
 
-    def __init__(self, bus, formatters_broker, events_broker):
+    def __init__(self, params):
         """
         Constructor
 
         Args:
-            bus (MessageBus): message bus instance
-            formatters_broker (FormattersBroker): formatters broker instance
-            events_broker (EventsBroker): events broker instance
+            params (dict): event parameters
         """
-        Event.__init__(self, bus, formatters_broker, events_broker)
+        Event.__init__(self, params)
 

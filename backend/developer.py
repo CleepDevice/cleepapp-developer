@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 import os
 import inspect
 import importlib
@@ -10,80 +9,77 @@ import json
 import copy
 from zipfile import ZipFile, ZIP_DEFLATED
 from tempfile import NamedTemporaryFile
-from threading import Thread
-from raspiot.raspiot import RaspIotModule
-from raspiot.libs.internals.task import Task
-from raspiot.libs.internals.console import Console, EndlessConsole
-from raspiot.utils import CommandError, MissingParameter, InvalidParameter, CATEGORIES
-from raspiot.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, SCRIPTS_DIR, PATH_FRONTEND, PATH_SCRIPTS, TESTS_DIR
-from raspiot.libs.internals import __all__ as internals_libs
-from raspiot.libs.externals import __all__ as externals_libs
-from raspiot.libs.drivers import __all__ as drivers_libs
-from raspiot.libs.configs import __all__ as configs_libs
-from raspiot.libs.commands import __all__ as commands_libs
-import raspiot.libs.internals.tools as Tools
-from raspiot.libs.internals.console import EndlessConsole
+from cleep.core import CleepModule
+from cleep.libs.internals.console import Console, EndlessConsole
+from cleep.exception import CommandError, MissingParameter, InvalidParameter
+from cleep.common import CATEGORIES
+from cleep.libs.internals.installmodule import FRONTEND_DIR, BACKEND_DIR, SCRIPTS_DIR, PATH_FRONTEND, PATH_SCRIPTS, TESTS_DIR
+from cleep.libs.internals import __all__ as internals_libs
+from cleep.libs.drivers import __all__ as drivers_libs
+from cleep.libs.configs import __all__ as configs_libs
+from cleep.libs.commands import __all__ as commands_libs
+import cleep.libs.internals.tools as Tools
 
 
 __all__ = ['Developer']
 
 
-class Developer(RaspIotModule):
+class Developer(CleepModule):
     """
     Developer module: this module is dedicated only for developers.
-    It allows implements and configures remotedev in raspiot ()
+    It allows implements and configures remotedev in cleep
 
     Note:
         https://github.com/tangb/cleep-cli
     """
-    MODULE_AUTHOR = u'Cleep'
-    MODULE_VERSION = u'2.2.0'
+    MODULE_AUTHOR = 'Cleep'
+    MODULE_VERSION = '2.2.0'
     MODULE_PRICE = 0
     MODULE_DEPS = []
-    MODULE_DESCRIPTION = u'Helps you to develop Cleep applications.'
-    MODULE_LONGDESCRIPTION = u'Developer module helps you to develop on Cleep installing \
+    MODULE_DESCRIPTION = 'Helps you to develop Cleep applications.'
+    MODULE_LONGDESCRIPTION = 'Developer module helps you to develop on Cleep installing \
         and preconfiguring sync tools. It also provides a full page that helps you to \
         check and build your own application.<br/>This module will provide the official way to \
         publish your module on Cleep market.<br/><br/>Lot of resources are available \
         on developer module wiki, have a look and start enjoying Cleep!'
-    MODULE_TAGS = [u'developer', u'python', u'cleepos', u'module', 'angularjs', 'cleep', 'cli', 'test', 'documentation']
-    MODULE_CATEGORY = u'APPLICATION'
+    MODULE_TAGS = ['developer', 'python', 'cleepos', 'module', 'angularjs', 'cleep', 'cli', 'test', 'documentation']
+    MODULE_CATEGORY = 'APPLICATION'
     MODULE_COUNTRY = None
-    MODULE_URLINFO = u'https://github.com/tangb/cleepmod-developer'
-    MODULE_URLHELP = u'https://github.com/tangb/cleepmod-developer/wiki'
+    MODULE_URLINFO = 'https://github.com/tangb/cleepmod-developer'
+    MODULE_URLHELP = 'https://github.com/tangb/cleepmod-developer/wiki'
     MODULE_URLSITE = None
-    MODULE_URLBUGS = u'https://github.com/tangb/cleepmod-developer/issues'
+    MODULE_URLBUGS = 'https://github.com/tangb/cleepmod-developer/issues'
 
-    MODULE_CONFIG_FILE = u'developer.conf'
+    MODULE_CONFIG_FILE = 'developer.conf'
     DEFAULT_CONFIG = {
-        u'moduleindev': None
+        'moduleindev': None
     }
 
     BUFFER_SIZE = 10
 
-    PATH_MODULE_TESTS = u'/root/cleep/modules/%(MODULE_NAME)s/tests/'
-    PATH_MODULE_FRONTEND = u'/root/cleep/modules/%(MODULE_NAME)s/frontend/'
+    PATH_MODULE_TESTS = '/root/cleep/modules/%(MODULE_NAME)s/tests/'
+    PATH_MODULE_FRONTEND = '/root/cleep/modules/%(MODULE_NAME)s/frontend/'
 
-    CLI = u'/usr/local/bin/cleep-cli'
-    CLI_WATCHER_CMD = u'%s watch --loglevel=40' % CLI
-    CLI_TESTS_CMD = u'%s modtests --module "%s" --coverage'
-    CLI_TESTS_COV_CMD = u'%s modtestscov --module "%s" --missing'
-    CLI_NEW_APPLICATION_CMD = u'%s modcreate --module "%s"'
-    CLI_DOCS_CMD = u'%s moddocs --module "%s" --preview'
-    CLI_DOCS_ZIP_PATH_CMD = u'%s moddocspath --module "%s"'
+    CLI = '/usr/local/bin/cleep-cli'
+    CLI_WATCHER_CMD = '%s watch --loglevel=40' % CLI
+    CLI_TESTS_CMD = '%s modtests --module "%s" --coverage'
+    CLI_TESTS_COV_CMD = '%s modtestscov --module "%s" --missing'
+    CLI_NEW_APPLICATION_CMD = '%s modcreate --module "%s"'
+    CLI_DOCS_CMD = '%s moddocs --module "%s" --preview'
+    CLI_DOCS_ZIP_PATH_CMD = '%s moddocspath --module "%s"'
 
-    FRONT_FILE_TYPE_DROP = u'Do not include file'
-    FRONT_FILE_TYPE_SERVICE_JS = u'service-js'
-    FRONT_FILE_TYPE_COMPONENT_JS = u'component-js'
-    FRONT_FILE_TYPE_COMPONENT_HTML = u'component-html'
-    FRONT_FILE_TYPE_COMPONENT_CSS = u'component-css'
-    FRONT_FILE_TYPE_CONFIG_JS = u'config-js'
-    FRONT_FILE_TYPE_CONFIG_HTML = u'config-html'
-    FRONT_FILE_TYPE_CONFIG_CSS = u'config-css'
-    FRONT_FILE_TYPE_PAGES_JS = u'pages-js'
-    FRONT_FILE_TYPE_PAGES_HTML = u'pages-html'
-    FRONT_FILE_TYPE_PAGES_CSS = u'pages-css'
-    FRONT_FILE_TYPE_RESOURCE = u'resource'
+    FRONT_FILE_TYPE_DROP = 'Do not include file'
+    FRONT_FILE_TYPE_SERVICE_JS = 'service-js'
+    FRONT_FILE_TYPE_COMPONENT_JS = 'component-js'
+    FRONT_FILE_TYPE_COMPONENT_HTML = 'component-html'
+    FRONT_FILE_TYPE_COMPONENT_CSS = 'component-css'
+    FRONT_FILE_TYPE_CONFIG_JS = 'config-js'
+    FRONT_FILE_TYPE_CONFIG_HTML = 'config-html'
+    FRONT_FILE_TYPE_CONFIG_CSS = 'config-css'
+    FRONT_FILE_TYPE_PAGES_JS = 'pages-js'
+    FRONT_FILE_TYPE_PAGES_HTML = 'pages-html'
+    FRONT_FILE_TYPE_PAGES_CSS = 'pages-css'
+    FRONT_FILE_TYPE_RESOURCE = 'resource'
     FRONT_FILE_TYPES = [
         FRONT_FILE_TYPE_DROP,
         FRONT_FILE_TYPE_SERVICE_JS,
@@ -108,11 +104,11 @@ class Developer(RaspIotModule):
             debug_enabled (bool): flag to set debug level to logger
         """
         #init
-        RaspIotModule.__init__(self, bootstrap, debug_enabled)
+        CleepModule.__init__(self, bootstrap, debug_enabled)
 
         #members
         self.__developer_uuid = None
-        self.raspiot_path = os.path.dirname(inspect.getfile(RaspIotModule))
+        self.cleep_path = os.path.dirname(inspect.getfile(CleepModule))
         self.__module_name = None
         self.__module_archive = None
         self.__module_version = None
@@ -132,19 +128,19 @@ class Developer(RaspIotModule):
         Configure module
         """
         #disable rw if in development
-        module_in_dev = self._get_config_field(u'moduleindev')
-        self.logger.debug(u'Module in development: %s' % module_in_dev)
+        module_in_dev = self._get_config_field('moduleindev')
+        self.logger.debug('Module in development: %s' % module_in_dev)
         if module_in_dev:
-            self.logger.info(u'Module "%s" is in development, disable RO feature' % module_in_dev)
+            self.logger.info('Module "%s" is in development, disable RO feature' % module_in_dev)
             self.cleep_filesystem.enable_write(root=True, boot=True)
 
         #add dummy device
         self.logger.debug('device_count=%d' % self._get_device_count())
-        if self._get_device_count()==0:
-            self.logger.debug(u'Add default devices')
+        if self._get_device_count() == 0:
+            self.logger.debug('Add default devices')
             developer = {
-                u'type': 'developer',
-                u'name': 'Developer'
+                'type': 'developer',
+                'name': 'Developer'
             }
             self._add_device(developer)
 
@@ -152,21 +148,36 @@ class Developer(RaspIotModule):
         devices = self.get_module_devices()
         self.logger.debug('devices: %s' % devices)
         for uuid in devices:
-            if devices[uuid][u'type']==u'developer':
+            if devices[uuid]['type'] == 'developer':
                 self.__developer_uuid = uuid
 
+    def _on_start(self):
+        """
+        Module starts
+        """
         #start watcher task
         self.__launch_watcher()
+
+    def _on_stop(self):
+        """
+        Custom stop: stop remotedev thread
+        """
+        if self.__watcher_task:
+            self.__watcher_task.stop()
+        if self.__tests_task:
+            self.__tests_task.stop()
+        if self.__docs_task:
+            self.__docs_task.stop()
 
     def __launch_watcher(self):
         """
         Launch cleep-cli watch command
         """
         #kill all previous existing cleep-cli instances
-        c = Console()
-        c.command(u'/usr/bin/pkill -9 -f cleep-cli')
+        console = Console()
+        console.command('/usr/bin/pkill -9 -f cleep-cli')
 
-        self.logger.info(u'Launch watcher task')
+        self.logger.info('Launch watcher task')
         self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
         self.__watcher_task.start()
 
@@ -201,21 +212,10 @@ class Developer(RaspIotModule):
         """
         devices = super(Developer, self).get_module_devices()
         data = {}
-        self.__developer_uuid = devices.keys()[0]
+        self.__developer_uuid = list(devices.keys())[0]
         devices[self.__developer_uuid].update(data)
 
         return devices
-
-    def _stop(self):
-        """
-        Custom stop: stop remotedev thread
-        """
-        if self.__watcher_task:
-            self.__watcher_task.stop()
-        if self.__tests_task:
-            self.__tests_task.stop()
-        if self.__docs_task:
-            self.__docs_task.stop()
 
     def set_module_in_development(self, module_name):
         """
@@ -226,38 +226,38 @@ class Developer(RaspIotModule):
             module_name (string): module to enable development on
         """
         #disable debug on old module
-        old_module = self._get_config_field(u'moduleindev')
+        old_module = self._get_config_field('moduleindev')
         if old_module:
             try:
                 #module may not exist
-                if old_module==u'developer':
+                if old_module == 'developer':
                     self.set_debug(False)
-                elif len(old_module)>0:
-                    self.send_command(u'set_module_debug', u'system', {u'module': old_module, u'debug': False})
-            except:
+                elif len(old_module) > 0:
+                    self.send_command('set_module_debug', 'system', {'module': old_module, 'debug': False})
+            except Exception:
                 pass
-            
+
         #save new module in dev
-        self._set_config_field(u'moduleindev', module_name)
-        if module_name==u'developer':
+        self._set_config_field('moduleindev', module_name)
+        if module_name == 'developer':
             self.set_debug(True)
-        elif len(module_name)>0:
-            self.send_command(u'set_module_debug', u'system', {u'module': module_name, u'debug': True})
+        elif len(module_name) > 0:
+            self.send_command('set_module_debug', 'system', {'module': module_name, 'debug': True})
 
         #disable RO feature
-        if len(module_name)>0:
-            self.logger.info(u'Module "%s" is in development, disable RO feature' % module_name)
+        if len(module_name) > 0:
+            self.logger.info('Module "%s" is in development, disable RO feature' % module_name)
             self.cleep_filesystem.enable_write(root=True, boot=True)
         else:
-            self.logger.info(u'No module in development, enable RO feature')
+            self.logger.info('No module in development, enable RO feature')
             self.cleep_filesystem.disable_write(root=True, boot=True)
 
     def restart_frontend(self):
         """
         Send event to restart frontend
         """
-        self.logger.info(u'Sending restart event to frontend')
-        self.frontend_restart_event.send(to=u'rpc')
+        self.logger.info('Sending restart event to frontend')
+        self.frontend_restart_event.send(to='rpc')
 
     def create_application(self, module_name):
         """
@@ -267,13 +267,13 @@ class Developer(RaspIotModule):
             module_name (string): module name
         """
         cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
-        self.logger.debug(u'Create app cmd: %s' % cmd)
+        self.logger.debug('Create app cmd: %s' % cmd)
 
-        c = Console()
-        res = c.command(cmd, 10.0)
+        console = Console()
+        res = console.command(cmd, 10.0)
         self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
-        if res['error'] or res['killed'] or c.get_last_return_code()!=0:
-            raise CommandError(u'Error during application creation. Consult the logs.')
+        if res['error'] or res['killed'] or res['returncode'] != 0:
+            raise CommandError('Error during application creation. Consult the logs.')
 
         return True
 
@@ -296,142 +296,144 @@ class Developer(RaspIotModule):
         #init
         errors = []
         warnings = []
-        self.logger.debug(u'Raspiot_path=%s' % self.raspiot_path)
-        modules_path = os.path.join(self.raspiot_path, u'modules')
+        self.logger.debug('Cleep_path=%s' % self.cleep_path)
+        modules_path = os.path.join(self.cleep_path, 'modules')
 
         #get module instance
         try:
-            module_ = importlib.import_module(u'raspiot.modules.%s.%s' % (module_name, module_name))
+            module_ = importlib.import_module('cleep.modules.%s.%s' % (module_name, module_name))
             class_ = getattr(module_, module_name.capitalize())
         except:
-            self.logger.exception(u'Unable to load module "%s". Please check your code' % module_name) 
-            raise InvalidParameter(u'Unable to load module "%s". Please check your code' % module_name)
+            self.logger.exception('Unable to load module "%s". Please check your code' % module_name)
+            raise InvalidParameter('Unable to load module "%s". Please check your code' % module_name)
 
         #check module metadata
         #MODULE_DESCRIPTION
-        if not hasattr(class_, u'MODULE_DESCRIPTION'):
-            errors.append(u'Mandatory field MODULE_DESCRIPTION is missing')
-        elif not isinstance(getattr(class_, u'MODULE_DESCRIPTION'), unicode):
-            errors.append(u'Field MODULE_DESCRIPTION must be an unicode string')
-        elif len(getattr(class_, u'MODULE_DESCRIPTION'))==0:
-            errors.append(u'Field MODULE_DESCRIPTION must be provided')
+        if not hasattr(class_, 'MODULE_DESCRIPTION'):
+            errors.append('Mandatory field MODULE_DESCRIPTION is missing')
+        elif not isinstance(getattr(class_, 'MODULE_DESCRIPTION'), str):
+            errors.append('Field MODULE_DESCRIPTION must be a string')
+        elif len(getattr(class_, 'MODULE_DESCRIPTION')) == 0:
+            errors.append('Field MODULE_DESCRIPTION must be provided')
         #MODULE_LONGDESCRIPTION
-        if not hasattr(class_, u'MODULE_LONGDESCRIPTION'):
-            errors.append(u'Mandatory field MODULE_LONGDESCRIPTION is missing')
-        elif not isinstance(getattr(class_, u'MODULE_LONGDESCRIPTION'), unicode):
-            errors.append(u'Field MODULE_LONGDESCRIPTION must be an unicode string')
-        elif len(getattr(class_, u'MODULE_LONGDESCRIPTION'))==0:
-            errors.append(u'Field MODULE_LONGDESCRIPTION must be provided')
+        if not hasattr(class_, 'MODULE_LONGDESCRIPTION'):
+            errors.append('Mandatory field MODULE_LONGDESCRIPTION is missing')
+        elif not isinstance(getattr(class_, 'MODULE_LONGDESCRIPTION'), str):
+            errors.append('Field MODULE_LONGDESCRIPTION must be a string')
+        elif len(getattr(class_, 'MODULE_LONGDESCRIPTION')) == 0:
+            errors.append('Field MODULE_LONGDESCRIPTION must be provided')
         #MODULE_CATEGORY
-        if not hasattr(class_, u'MODULE_CATEGORY'):
-            errors.append(u'Mandatory field MODULE_CATEGORY is missing')
-        elif not isinstance(getattr(class_, u'MODULE_CATEGORY'), unicode):
-            errors.append(u'Field MODULE_CATEGORY must be an unicode string')
-        elif len(getattr(class_, u'MODULE_CATEGORY'))==0:
-            errors.append(u'Field MODULE_CATEGORY must be provided')
-        elif getattr(class_, u'MODULE_CATEGORY') not in CATEGORIES.ALL:
-            errors.append(u'Field MODULE_CATEGORY must be one of possible values (see doc)')
+        if not hasattr(class_, 'MODULE_CATEGORY'):
+            errors.append('Mandatory field MODULE_CATEGORY is missing')
+        elif not isinstance(getattr(class_, 'MODULE_CATEGORY'), str):
+            errors.append('Field MODULE_CATEGORY must be a string')
+        elif len(getattr(class_, 'MODULE_CATEGORY')) == 0:
+            errors.append('Field MODULE_CATEGORY must be provided')
+        elif getattr(class_, 'MODULE_CATEGORY') not in CATEGORIES.ALL:
+            errors.append('Field MODULE_CATEGORY must be one of possible values (see doc)')
         #MODULE_DEPS
-        if not hasattr(class_, u'MODULE_DEPS'):
-            errors.append(u'Mandatory field MODULE_DEPS is missing')
-        elif hasattr(class_, u'MODULE_DEPS') and not isinstance(getattr(class_, u'MODULE_DEPS'), list):
-            errors.append(u'Field MODULE_DEPS must be a list')
+        if not hasattr(class_, 'MODULE_DEPS'):
+            errors.append('Mandatory field MODULE_DEPS is missing')
+        elif hasattr(class_, 'MODULE_DEPS') and not isinstance(getattr(class_, 'MODULE_DEPS'), list):
+            errors.append('Field MODULE_DEPS must be a list')
         #MODULE_VERSION
-        version_pattern = re.compile('\d+\.\d+\.\d+')
-        if not hasattr(class_, u'MODULE_VERSION'):
-            errors.append(u'Mandatory field MODULE_VERSION is missing')
-        elif not isinstance(getattr(class_, u'MODULE_VERSION'), unicode):
-            errors.append(u'Field MODULE_VERSION must be an unicode string')
-        elif len(getattr(class_, u'MODULE_VERSION'))==0:
-            errors.append(u'Field MODULE_VERSION must be provided')
-        elif version_pattern.match(getattr(class_, u'MODULE_VERSION')) is None:
-            errors.append(u'Field MODULE_VERSION must match this format <number>.<number>.<number>')
+        version_pattern = re.compile(r'\d+\.\d+\.\d+')
+        if not hasattr(class_, 'MODULE_VERSION'):
+            errors.append('Mandatory field MODULE_VERSION is missing')
+        elif not isinstance(getattr(class_, 'MODULE_VERSION'), str):
+            errors.append('Field MODULE_VERSION must be a string')
+        elif len(getattr(class_, 'MODULE_VERSION')) == 0:
+            errors.append('Field MODULE_VERSION must be provided')
+        elif version_pattern.match(getattr(class_, 'MODULE_VERSION')) is None:
+            errors.append('Field MODULE_VERSION must match this format <number>.<number>.<number>')
         #MODULE_TAGS
-        if not hasattr(class_, u'MODULE_TAGS'):
-            errors.append(u'Mandatory field MODULE_TAGS is missing')
-        elif not isinstance(getattr(class_, u'MODULE_TAGS'), list):
-            errors.append(u'Field MODULE_TAGS must be a list')
-        elif len(getattr(class_, u'MODULE_TAGS'))==0:
+        if not hasattr(class_, 'MODULE_TAGS'):
+            errors.append('Mandatory field MODULE_TAGS is missing')
+        elif not isinstance(getattr(class_, 'MODULE_TAGS'), list):
+            errors.append('Field MODULE_TAGS must be a list')
+        elif len(getattr(class_, 'MODULE_TAGS')) == 0:
             warnings.append('Field MODULE_TAGS should contains strings to help finding your module')
         #MODULE_URLINFO
-        if not hasattr(class_, u'MODULE_URLINFO'):
-            errors.append(u'Mandatory field MODULE_URLINFO is missing')
-        elif not isinstance(getattr(class_, u'MODULE_URLINFO'), unicode) and getattr(class_, u'MODULE_URLINFO') is not None:
-            errors.append(u'Field MODULE_URLINFO must be an unicode string or None')
-        elif getattr(class_, u'MODULE_URLINFO') is None or len(getattr(class_, u'MODULE_URLINFO'))==0:
+        if not hasattr(class_, 'MODULE_URLINFO'):
+            errors.append('Mandatory field MODULE_URLINFO is missing')
+        elif not isinstance(getattr(class_, 'MODULE_URLINFO'), str) and getattr(class_, 'MODULE_URLINFO') is not None:
+            errors.append('Field MODULE_URLINFO must be a string or None')
+        elif getattr(class_, 'MODULE_URLINFO') is None or len(getattr(class_, 'MODULE_URLINFO')) == 0:
             warnings.append('Field MODULE_URLINFO should be filled with url that describes your module')
         #MODULE_URLHELP
-        if not hasattr(class_, u'MODULE_URLHELP'):
-            errors.append(u'Mandatory field MODULE_URLHELP is missing')
-        elif not isinstance(getattr(class_, u'MODULE_URLHELP'), unicode) and getattr(class_, u'MODULE_URLHELP') is not None:
-            errors.append(u'Field MODULE_URLHELP must be an unicode string or None')
-        elif getattr(class_, u'MODULE_URLHELP') is None or len(getattr(class_, u'MODULE_URLHELP'))==0:
+        if not hasattr(class_, 'MODULE_URLHELP'):
+            errors.append('Mandatory field MODULE_URLHELP is missing')
+        elif not isinstance(getattr(class_, 'MODULE_URLHELP'), str) and getattr(class_, 'MODULE_URLHELP') is not None:
+            errors.append('Field MODULE_URLHELP must be a string or None')
+        elif getattr(class_, 'MODULE_URLHELP') is None or len(getattr(class_, 'MODULE_URLHELP')) == 0:
             warnings.append('Field MODULE_URLHELP should be filled with url that gives access to your module support page')
         #MODULE_URLSITE
-        if not hasattr(class_, u'MODULE_URLSITE'):
-            errors.append(u'Mandatory field MODULE_URLSITE is missing')
-        elif not isinstance(getattr(class_, u'MODULE_URLSITE'), unicode) and getattr(class_, u'MODULE_URLSITE') is not None:
-            errors.append(u'Field MODULE_URLSITE must be an unicode string or None')
-        elif getattr(class_, u'MODULE_URLSITE') is None or len(getattr(class_, u'MODULE_URLSITE'))==0:
+        if not hasattr(class_, 'MODULE_URLSITE'):
+            errors.append('Mandatory field MODULE_URLSITE is missing')
+        elif not isinstance(getattr(class_, 'MODULE_URLSITE'), str) and getattr(class_, 'MODULE_URLSITE') is not None:
+            errors.append('Field MODULE_URLSITE must be a string or None')
+        elif getattr(class_, 'MODULE_URLSITE') is None or len(getattr(class_, 'MODULE_URLSITE')) == 0:
             warnings.append('Field MODULE_URLSITE should be filled with module website url')
         #MODULE_URLBUGS
-        if not hasattr(class_, u'MODULE_URLBUGS'):
-            errors.append(u'Mandatory field MODULE_URLBUGS is missing')
-        elif not isinstance(getattr(class_, u'MODULE_URLBUGS'), unicode) and getattr(class_, u'MODULE_URLBUGS') is not None:
-            errors.append(u'Field MODULE_URLBUGS must be an unicode string or None')
-        elif getattr(class_, u'MODULE_URLBUGS') is None or len(getattr(class_, u'MODULE_URLBUGS'))==0:
+        if not hasattr(class_, 'MODULE_URLBUGS'):
+            errors.append('Mandatory field MODULE_URLBUGS is missing')
+        elif not isinstance(getattr(class_, 'MODULE_URLBUGS'), str) and getattr(class_, 'MODULE_URLBUGS') is not None:
+            errors.append('Field MODULE_URLBUGS must be a string or None')
+        elif getattr(class_, 'MODULE_URLBUGS') is None or len(getattr(class_, 'MODULE_URLBUGS')) == 0:
             warnings.append('Field MODULE_URLBUGS should be filled with module bugs tracking system url')
         #MODULE_COUNTRY
-        if not hasattr(class_, u'MODULE_COUNTRY'):
-            errors.append(u'Mandatory field MODULE_COUNTRY is missing')
-        elif not isinstance(getattr(class_, u'MODULE_COUNTRY'), unicode) and getattr(class_, u'MODULE_COUNTRY') is not None:
-            errors.append(u'Field MODULE_COUNTRY must be an unicode string or None')
+        if not hasattr(class_, 'MODULE_COUNTRY'):
+            errors.append('Mandatory field MODULE_COUNTRY is missing')
+        elif not isinstance(getattr(class_, 'MODULE_COUNTRY'), str) and getattr(class_, 'MODULE_COUNTRY') is not None:
+            errors.append('Field MODULE_COUNTRY must be a string or None')
 
         #build package metadata
-        description = getattr(class_, u'MODULE_DESCRIPTION', u'')
-        longdescription = getattr(class_, u'MODULE_LONGDESCRIPTION', u'')
-        category = getattr(class_, u'MODULE_CATEGORY', u'')
-        deps = getattr(class_, u'MODULE_DEPS', [])
-        version = getattr(class_, u'MODULE_VERSION', u'')
-        tags = getattr(class_, u'MODULE_TAGS', [])
+        label = getattr(class_, 'MODULE_LABEL', module_name.capitalize())
+        description = getattr(class_, 'MODULE_DESCRIPTION', '')
+        longdescription = getattr(class_, 'MODULE_LONGDESCRIPTION', '')
+        category = getattr(class_, 'MODULE_CATEGORY', '')
+        deps = getattr(class_, 'MODULE_DEPS', [])
+        version = getattr(class_, 'MODULE_VERSION', '')
+        tags = getattr(class_, 'MODULE_TAGS', [])
         urls = {
-            u'info': None,
-            u'help': None,
-            u'bugs': None,
-            u'site': None
+            'info': None,
+            'help': None,
+            'bugs': None,
+            'site': None
         }
-        urls[u'info'] = getattr(class_, u'MODULE_URLINFO', u'')
-        urls[u'help'] = getattr(class_, u'MODULE_URLHELP', u'')
-        urls[u'site'] = getattr(class_, u'MODULE_URLSITE', u'')
-        urls[u'bugs'] = getattr(class_, u'MODULE_URLBUGS', u'')
-        country = getattr(class_, u'MODULE_COUNTRY', u'')
-        price = getattr(class_, u'MODULE_PRICE', 0)
-        author = getattr(class_, u'MODULE_AUTHOR', u'')
+        urls['info'] = getattr(class_, 'MODULE_URLINFO', '')
+        urls['help'] = getattr(class_, 'MODULE_URLHELP', '')
+        urls['site'] = getattr(class_, 'MODULE_URLSITE', '')
+        urls['bugs'] = getattr(class_, 'MODULE_URLBUGS', '')
+        country = getattr(class_, 'MODULE_COUNTRY', '')
+        price = getattr(class_, 'MODULE_PRICE', 0)
+        author = getattr(class_, 'MODULE_AUTHOR', '')
         metadata = {
-            u'description': description,
-            u'longdescription': longdescription,
-            u'category': category,
-            u'deps': deps,
-            u'version': version,
-            u'tags': tags,
-            u'country': country,
-            u'urls': urls,
-            u'price': price,
-            u'author': author
+            'label': label,
+            'description': description,
+            'longdescription': longdescription,
+            'category': category,
+            'deps': deps,
+            'version': version,
+            'tags': tags,
+            'country': country,
+            'urls': urls,
+            'price': price,
+            'author': author
         }
         self.logger.debug('Module "%s" metadata: %s' % (module_name, metadata))
 
         #add main module file
         files = {
-            u'module': None,
-            u'libs': []
+            'module': None,
+            'libs': []
         }
-        module_main_fullpath = inspect.getfile(module_).replace(u'.pyc', u'.py')
+        module_main_fullpath = inspect.getfile(module_).replace('.pyc', '.py')
         (module_path, module_main_filename) = os.path.split(module_main_fullpath)
         files['module'] = {
-            u'fullpath': module_main_fullpath,
-            u'path': module_main_fullpath.replace(modules_path, u'')[1:],
-            u'filename': module_main_filename
+            'fullpath': module_main_fullpath,
+            'path': module_main_fullpath.replace(modules_path, '')[1:],
+            'filename': module_main_filename
         }
         self.logger.debug('Main module file: %s' % module_main_fullpath)
 
@@ -441,89 +443,89 @@ class Developer(RaspIotModule):
             for filename in filenames:
                 fullpath = os.path.join(root, filename)
                 (file_no_ext, ext) = os.path.splitext(filename)
-                if not file_no_ext.lower().endswith(u'formatter') and not file_no_ext.lower().endswith(u'event') \
-                    and filename not in (module_main_filename) and ext==u'.py':
+                if not file_no_ext.lower().endswith('formatter') and not file_no_ext.lower().endswith('event') \
+                    and filename not in (module_main_filename) and ext == '.py':
                     self.logger.debug('File to import: %s' % fullpath)
                     paths.append(os.path.split(fullpath)[0])
-                    files[u'libs'].append({
-                        u'fullpath': fullpath,
-                        u'path': fullpath.replace(modules_path, u'')[1:],
-                        u'filename': os.path.basename(fullpath),
-                        u'selected': True
+                    files['libs'].append({
+                        'fullpath': fullpath,
+                        'path': fullpath.replace(modules_path, '')[1:],
+                        'filename': os.path.basename(fullpath),
+                        'selected': True
                     })
-                    
+
         #check missing __init__.py
-        init_py_path = os.path.join(module_path, u'__init__.py')
+        init_py_path = os.path.join(module_path, '__init__.py')
         if not os.path.exists(init_py_path):
-            errors.append(u'Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
+            errors.append('Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
         for path in paths:
-            init_py_path = os.path.join(path, u'__init__.py')
+            init_py_path = os.path.join(path, '__init__.py')
             if not os.path.exists(init_py_path):
-                errors.append(u'Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
-            
+                errors.append('Mandatory file "%s" is missing. Please add empty file. More infos <a href="https://docs.python.org/2.7/tutorial/modules.html#packages" target="_blank">here</a>.' % init_py_path)
+
         #get events
         events = []
-        for f in os.listdir(module_path):
-            fullpath = os.path.join(module_path, f)
-            (event, ext) = os.path.splitext(f)
-            parts = Tools.full_path_split(fullpath)
-            if event.lower().find(u'event')>=0 and ext==u'.py':
-                self.logger.debug('Loading event "%s"' % u'raspiot.modules.%s.%s' % (parts[-2], event))
+        for afile in os.listdir(module_path):
+            fullpath = os.path.join(module_path, afile)
+            (event, ext) = os.path.splitext(afile)
+            parts = Tools.full_split_path(fullpath)
+            if event.lower().find('event') >= 0 and ext == '.py':
+                self.logger.debug('Loading event "%s"' % 'cleep.modules.%s.%s' % (parts[-2], event))
                 try:
-                    mod_ = importlib.import_module(u'raspiot.modules.%s.%s' % (parts[-2], event))
-                    event_class_name = next((item for item in dir(mod_) if item.lower()==event.lower()), None)
+                    mod_ = importlib.import_module('cleep.modules.%s.%s' % (parts[-2], event))
+                    event_class_name = next((item for item in dir(mod_) if item.lower() == event.lower()), None)
                     if event_class_name:
                         class_ = getattr(mod_, event_class_name)
                         events.append({
-                            u'fullpath': fullpath,
-                            u'path': u'%s.py' % os.path.join(parts[-2], event),
-                            u'filename': os.path.basename(fullpath),
-                            u'name': event_class_name,
-                            u'selected': True
+                            'fullpath': fullpath,
+                            'path': '%s.py' % os.path.join(parts[-2], event),
+                            'filename': os.path.basename(fullpath),
+                            'name': event_class_name,
+                            'selected': True
                         })
                     else:
-                        self.logger.debug(u'Event class must have the same name than filename (%s)' % f)
-                        errors.append(u'Event class must have the same name than filename (%s)' % f)
-                except:
-                    self.logger.exception(u'Unable to load event %s' % f)
-                    errors.append(u'Unable to load event %s' % f)
+                        self.logger.debug('Event class must have the same name than filename (%s)' % afile)
+                        errors.append('Event class must have the same name than filename (%s)' % afile)
+                except Exception:
+                    self.logger.exception('Unable to load event %s' % afile)
+                    errors.append('Unable to load event %s' % afile)
 
         #get formatters
         formatters = []
-        for f in os.listdir(module_path):
-            fullpath = os.path.join(module_path, f)
-            (formatter, ext) = os.path.splitext(f)
-            parts = Tools.full_path_split(fullpath)
-            if formatter.lower().find(u'formatter')>=0 and ext==u'.py':
-                self.logger.debug('Loading formatter "%s"' % u'raspiot.modules.%s.%s' % (parts[-2], formatter))
+        for afile in os.listdir(module_path):
+            fullpath = os.path.join(module_path, afile)
+            (formatter, ext) = os.path.splitext(afile)
+            parts = Tools.full_split_path(fullpath)
+            if formatter.lower().find('formatter') >= 0 and ext == '.py':
+                self.logger.debug('Loading formatter "%s"' % 'cleep.modules.%s.%s' % (parts[-2], formatter))
                 try:
-                    mod_ = importlib.import_module(u'raspiot.modules.%s.%s' % (parts[-2], formatter))
-                    formatter_class_name = next((item for item in dir(mod_) if item.lower()==formatter.lower()), None)
+                    mod_ = importlib.import_module('cleep.modules.%s.%s' % (parts[-2], formatter))
+                    formatter_class_name = next((item for item in dir(mod_) if item.lower() == formatter.lower()), None)
                     if formatter_class_name:
                         class_ = getattr(mod_, formatter_class_name)
                         formatters.append({
-                            u'fullpath': fullpath,
-                            u'path': u'%s.py' % os.path.join(parts[-2], formatter),
-                            u'filename': os.path.basename(fullpath),
-                            u'name': formatter_class_name,
-                            u'selected': True
+                            'fullpath': fullpath,
+                            'path': '%s.py' % os.path.join(parts[-2], formatter),
+                            'filename': os.path.basename(fullpath),
+                            'name': formatter_class_name,
+                            'selected': True
                         })
                     else:
-                        self.logger.debug(u'Formatter class must have the same name than filename (%s)' % f)
-                        errors.append(u'Formatter class must have the same name than filename (%s)' % f)
-                except:
-                    self.logger.exception(u'Unable to load formatter %s' % f)
-                    errors.append(u'Unable to load formatter %s' % f)
+                        self.logger.debug('Formatter class must have the same name than filename (%s)' % afile)
+                        errors.append('Formatter class must have the same name than filename (%s)' % afile)
+                except Exception:
+                    self.logger.exception('Unable to load formatter %s' % afile)
+                    errors.append('Unable to load formatter %s' % afile)
 
         return {
-            u'data': {
-                u'files': files,
-                u'events': sorted(events, key=lambda k:k[u'fullpath']),
-                u'formatters': sorted(formatters, key=lambda k:k[u'fullpath']),
-                u'errors': errors,
-                u'warnings': warnings
+            'data': {
+                'files': files,
+                'events': sorted(events, key=lambda k: k['fullpath']),
+                'formatters': sorted(formatters, key=lambda k: k['fullpath']),
+                'errors': errors,
+                'warnings': warnings
             },
-            u'metadata': metadata,
+            'metadata': metadata,
         }
 
     def __fill_js_file_types(self, files, desc_json):
@@ -533,110 +535,110 @@ class Developer(RaspIotModule):
         #use desc.json content if possible
         if desc_json:
             #set global
-            if u'global' in desc_json and u'js' in desc_json[u'global']:
+            if 'global' in desc_json and 'js' in desc_json['global']:
                 #set service and component-js
-                for key in desc_json[u'global'][u'js']:
+                for key in desc_json['global']['js']:
                     if key not in files:
                         continue
-                    if key.find('.service.js')>=0:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_SERVICE_JS
+                    if key.find('.service.js') >= 0:
+                        files[key]['type'] = self.FRONT_FILE_TYPE_SERVICE_JS
                     else:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
+                        files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
 
                 #set component-html
-                if u'html' in desc_json[u'global']:
-                    for key in desc_json[u'global'][u'html']:
+                if 'html' in desc_json['global']:
+                    for key in desc_json['global']['html']:
                         if key in files:
-                            files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
+                            files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
 
                 #set component-css
-                if u'css' in desc_json[u'global']:
-                    for key in desc_json[u'global'][u'css']:
+                if 'css' in desc_json['global']:
+                    for key in desc_json['global']['css']:
                         if key in files:
-                            files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
+                            files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
 
             #set config
-            if u'config' in desc_json:
-                #config-js                
-                if u'js' in desc_json[u'config']:
-                    for key in desc_json[u'config'][u'js']:
+            if 'config' in desc_json:
+                #config-js
+                if 'js' in desc_json['config']:
+                    for key in desc_json['config']['js']:
                         if key in files:
-                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
+                            files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_JS
 
                 #config-html
-                if u'html' in desc_json[u'config']:
-                    for key in desc_json[u'config'][u'html']:
+                if 'html' in desc_json['config']:
+                    for key in desc_json['config']['html']:
                         if key in files:
-                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
+                            files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
 
                 #config-css
-                if u'css' in desc_json[u'config']:
-                    for key in desc_json[u'config'][u'css']:
+                if 'css' in desc_json['config']:
+                    for key in desc_json['config']['css']:
                         if key in files:
-                            files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
+                            files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
 
             #set pages
-            if u'pages' in desc_json and len(desc_json[u'pages'])>0:
-                for page in desc_json[u'pages']:
+            if 'pages' in desc_json and len(desc_json['pages']) > 0:
+                for page in desc_json['pages']:
                     #pages-js
-                    if u'js' in desc_json[u'pages'][page]:
-                        for key in desc_json[u'pages'][page][u'js']:
+                    if 'js' in desc_json['pages'][page]:
+                        for key in desc_json['pages'][page]['js']:
                             if key in files:
-                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_JS
+                                files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_JS
 
                     #pages-html
-                    if u'html' in desc_json[u'pages'][page]:
-                        for key in desc_json[u'pages'][page][u'html']:
+                    if 'html' in desc_json['pages'][page]:
+                        for key in desc_json['pages'][page]['html']:
                             if key in files:
-                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_HTML
+                                files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_HTML
 
                     #pages-css
-                    if u'css' in desc_json[u'pages'][page]:
-                        for key in desc_json[u'pages'][page][u'css']:
+                    if 'css' in desc_json['pages'][page]:
+                        for key in desc_json['pages'][page]['css']:
                             if key in files:
-                                files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_CSS
+                                files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_CSS
 
             #set resources
-            if u'res' in desc_json:
-                for key in desc_json[u'res']:
+            if 'res' in desc_json:
+                for key in desc_json['res']:
                     if key in files:
-                        files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
+                        files[key]['type'] = self.FRONT_FILE_TYPE_RESOURCE
 
         else:
             #no desc.json file, try to guess empty types
             for key in files:
-                if key==u'icon':
+                if key == 'icon':
                     #icon field, drop
                     continue
-                if files[key][u'type']!=self.FRONT_FILE_TYPE_DROP:
+                if files[key]['type'] != self.FRONT_FILE_TYPE_DROP:
                     #drop already found type
                     continue
 
                 #try to identify file type
-                if key.find(u'.service.js')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_SERVICE_JS
-                elif key.find(u'.config.js')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_JS
-                elif key.find(u'.config.html')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
-                elif key.find(u'.config.css')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
-                elif key.find(u'.widget.js')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
-                elif key.find(u'.widget.html')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
-                elif key.find(u'.widget.css')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
-                elif key.find(u'.page.js')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_JS
-                elif key.find(u'.page.html')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_HTML
-                elif key.find(u'.page.css')>0:
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_PAGES_CSS
-                elif files[key][u'ext'] in (u'png', u'jpg', u'jpeg', u'gif', u'eot', u'woff', u'woff2', u'svg', u'ttf'):
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
-                elif key==u'desc.json':
-                    files[key][u'type'] = self.FRONT_FILE_TYPE_RESOURCE
+                if key.find('.service.js') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_SERVICE_JS
+                elif key.find('.config.js') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_JS
+                elif key.find('.config.html') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_HTML
+                elif key.find('.config.css') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_CONFIG_CSS
+                elif key.find('.widget.js') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_JS
+                elif key.find('.widget.html') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_HTML
+                elif key.find('.widget.css') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_COMPONENT_CSS
+                elif key.find('.page.js') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_JS
+                elif key.find('.page.html') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_HTML
+                elif key.find('.page.css') > 0:
+                    files[key]['type'] = self.FRONT_FILE_TYPE_PAGES_CSS
+                elif files[key]['ext'] in ('png', 'jpg', 'jpeg', 'gif', 'eot', 'woff', 'woff2', 'svg', 'ttf'):
+                    files[key]['type'] = self.FRONT_FILE_TYPE_RESOURCE
+                elif key == 'desc.json':
+                    files[key]['type'] = self.FRONT_FILE_TYPE_RESOURCE
 
         return files
 
@@ -646,7 +648,7 @@ class Developer(RaspIotModule):
 
         Args:
             js_files (dict): dict of js files
-          
+
         Returns:
             list: list of warnings
         """
@@ -658,33 +660,33 @@ class Developer(RaspIotModule):
 
         #get images
         for js_file in js_files:
-            ext = js_files[js_file][u'ext'].lower()
-            if ext in (u'jpg', u'jpeg', u'png', u'gif'):
+            ext = js_files[js_file]['ext'].lower()
+            if ext in ('jpg', 'jpeg', 'png', 'gif'):
                 images.append(js_files[js_file])
-            if ext in (u'html'):
+            if ext == 'html':
                 htmls.append(js_files[js_file])
 
         #no image, no need to go further
-        if len(images)==0:
+        if len(images) == 0:
             return warnings
 
         #cache html files content
         for html in htmls:
-            fd = self.cleep_filesystem.open(html[u'fullpath'], u'r')
-            cacheds.append(u'\n'.join(fd.readlines()))
-            self.cleep_filesystem.close(fd)
+            fdesc = self.cleep_filesystem.open(html['fullpath'], 'r')
+            cacheds.append('\n'.join(fdesc.readlines()))
+            self.cleep_filesystem.close(fdesc)
 
         #check directive usage for found images
         for image in images:
-            pattern = r"mod-img-src\s*=\s*[\"']\s*%s\s*[\"']" % image[u'path']
-            self.logger.debug(u'Mod-img-src pattern: %s' % pattern)
+            pattern = r"mod-img-src\s*=\s*[\"']\s*%s\s*[\"']" % image['path']
+            self.logger.debug('Mod-img-src pattern: %s' % pattern)
             found = False
             for cached in cacheds:
                 matches = re.finditer(pattern, cached, re.MULTILINE)
-                if len(list(matches))>0:
+                if len(list(matches)) > 0:
                     found = True
             if not found:
-                warnings.append(u'Image "%s" may not be displayed properly because mod-img-src directive wasn\'t used' % image[u'filename'])
+                warnings.append('Image "%s" may not be displayed properly because mod-img-src directive wasn\'t used' % image['filename'])
 
         return warnings
 
@@ -703,74 +705,74 @@ class Developer(RaspIotModule):
 
         #iterate over files in supposed js module directory
         all_files = {}
-        module_path = os.path.join(PATH_FRONTEND, u'js/modules/', module_name)
+        module_path = os.path.join(PATH_FRONTEND, 'js/modules/', module_name)
         self.logger.debug('module_path=%s' % module_path)
         if not os.path.exists(module_path):
-            raise CommandError(u'Module "%s" has no javascript' % module_name)
+            raise CommandError('Module "%s" has no javascript' % module_name)
         for root, _, filenames in os.walk(module_path):
-            for f in filenames:
-                self.logger.debug('root=%s f=%s' % (root, f))
+            for afile in filenames:
+                self.logger.debug('root=%s f=%s' % (root, afile))
                 #drop some files
-                if f.startswith(u'.') or f.startswith(u'~') or f.endswith(u'.tmp'):
+                if afile.startswith('.') or afile.startswith('~') or afile.endswith('.tmp'):
                     continue
 
                 #get file values
-                fullpath = os.path.join(root, f)
-                filepath = os.path.join(root.replace(module_path, u''), f)
-                if filepath[0]==os.path.sep:
+                fullpath = os.path.join(root, afile)
+                filepath = os.path.join(root.replace(module_path, ''), afile)
+                if filepath[0] == os.path.sep:
                     filepath = filepath[1:]
-                filename = f
+                filename = afile
 
                 #mandatory field
                 mandatory = False
                 type_ = self.FRONT_FILE_TYPE_DROP
-                if filename==u'desc.json':
+                if filename == 'desc.json':
                     mandatory = True
                     type_ = self.FRONT_FILE_TYPE_RESOURCE
 
                 #append file infos
                 all_files[filepath] = {
-                    u'fullpath': fullpath,
-                    u'path': filepath,
-                    u'filename': filename,
-                    u'ext': os.path.splitext(fullpath)[1].replace(u'.', u''),
-                    u'mandatory': mandatory,
-                    u'type': type_
+                    'fullpath': fullpath,
+                    'path': filepath,
+                    'filename': filename,
+                    'ext': os.path.splitext(fullpath)[1].replace('.', ''),
+                    'mandatory': mandatory,
+                    'type': type_
                 }
         self.logger.debug('all_files: %s' % all_files)
 
         #load existing description file
-        desc_json = u''
-        desc_json_path = os.path.join(PATH_FRONTEND, u'js/modules/', module_name, u'desc.json')
-        self.logger.debug(u'desc.json path: %s' % desc_json_path)
+        desc_json = ''
+        desc_json_path = os.path.join(PATH_FRONTEND, 'js/modules/', module_name, 'desc.json')
+        self.logger.debug('desc.json path: %s' % desc_json_path)
         if os.path.exists(desc_json_path):
             desc_json = self.cleep_filesystem.read_json(desc_json_path)
 
         #fill file types if possible
         all_files = self.__fill_js_file_types(all_files, desc_json)
-        
+
         #fill changelog
-        changelog = u''
-        if desc_json and u'changelog' in desc_json:
-            changelog = desc_json[u'changelog']
+        changelog = ''
+        if desc_json and 'changelog' in desc_json:
+            changelog = desc_json['changelog']
 
         #set icon
-        icon = u'bookmark'
-        if desc_json and u'icon' in desc_json:
-            icon = desc_json[u'icon']
+        icon = 'bookmark'
+        if desc_json and 'icon' in desc_json:
+            icon = desc_json['icon']
 
         #check usage of mod-img-src directive in front source code
         warnings = self.__check_mdimgsrc_directive(all_files)
 
         return {
-            u'data': {
-                u'files': sorted(all_files.values(), key=lambda k:k[u'fullpath']),
-                u'filetypes': self.FRONT_FILE_TYPES,
-                u'errors': errors,
-                u'warnings': warnings
+            'data': {
+                'files': sorted(all_files.values(), key=lambda k: k['fullpath']),
+                'filetypes': self.FRONT_FILE_TYPES,
+                'errors': errors,
+                'warnings': warnings
             },
-            u'icon': icon,
-            u'changelog': changelog
+            'icon': icon,
+            'changelog': changelog
         }
 
     def __analyze_scripts(self, module_name):
@@ -803,27 +805,27 @@ class Developer(RaspIotModule):
                 }
 
         """
-        script_preinst = os.path.join(PATH_SCRIPTS, module_name, u'preinst.sh')
-        script_postinst = os.path.join(PATH_SCRIPTS, module_name, u'postinst.sh')
-        script_preuninst = os.path.join(PATH_SCRIPTS, module_name, u'preuninst.sh')
-        script_postuninst = os.path.join(PATH_SCRIPTS, module_name, u'postuninst.sh')
+        script_preinst = os.path.join(PATH_SCRIPTS, module_name, 'preinst.sh')
+        script_postinst = os.path.join(PATH_SCRIPTS, module_name, 'postinst.sh')
+        script_preuninst = os.path.join(PATH_SCRIPTS, module_name, 'preuninst.sh')
+        script_postuninst = os.path.join(PATH_SCRIPTS, module_name, 'postuninst.sh')
 
         return {
-            u'preinst': {
-                u'found': os.path.exists(script_preinst),
-                u'fullpath': script_preinst
+            'preinst': {
+                'found': os.path.exists(script_preinst),
+                'fullpath': script_preinst
             },
-            u'postinst': {
-                u'found': os.path.exists(script_postinst),
-                u'fullpath': script_postinst
+            'postinst': {
+                'found': os.path.exists(script_postinst),
+                'fullpath': script_postinst
             },
-            u'preuninst': {
-                u'found': os.path.exists(script_preuninst),
-                u'fullpath': script_preuninst
+            'preuninst': {
+                'found': os.path.exists(script_preuninst),
+                'fullpath': script_preuninst
             },
-            u'postuninst': {
-                u'found': os.path.exists(script_postuninst),
-                u'fullpath': script_postuninst
+            'postuninst': {
+                'found': os.path.exists(script_postuninst),
+                'fullpath': script_postuninst
             }
         }
 
@@ -835,51 +837,51 @@ class Developer(RaspIotModule):
             module_name (string): module name to search tests for
 
         Returns:
-            
+
         """
         errors = []
         warnings = []
 
         #iterate over files in supposed tests module directory
         all_files = {}
-        tests_path = self.PATH_MODULE_TESTS % {u'MODULE_NAME':module_name}
+        tests_path = self.PATH_MODULE_TESTS % {'MODULE_NAME':module_name}
         self.logger.debug('tests_path=%s' % tests_path)
         if not os.path.exists(tests_path):
-            raise CommandError(u'Module "%s" has no tests directory' % module_name)
+            raise CommandError('Module "%s" has no tests directory' % module_name)
         for root, _, filenames in os.walk(tests_path):
-            for f in filenames:
-                self.logger.debug('root=%s f=%s' % (root, f))
+            for afile in filenames:
+                self.logger.debug('root=%s f=%s' % (root, afile))
                 #drop some files
-                if f.startswith(u'.') or f.startswith(u'~') or f.endswith(u'.tmp'):
+                if afile.startswith('.') or afile.startswith('~') or afile.endswith('.tmp') or root.find('__pycache__') >= 0:
+                    self.logger.debug('===> drop file')
                     continue
 
                 #get file values
-                fullpath = os.path.join(root, f)
-                filepath = os.path.join(root.replace(tests_path, u''), f)
-                if filepath[0]==os.path.sep:
+                fullpath = os.path.join(root, afile)
+                filepath = os.path.join(root.replace(tests_path, ''), afile)
+                if filepath[0] == os.path.sep:
                     filepath = filepath[1:]
-                filename = f
+                filename = afile
 
-                ext = os.path.splitext(fullpath)[1].replace(u'.', u'')
+                ext = os.path.splitext(fullpath)[1].replace('.', '')
+                self.logger.debug('Extension: %s' % ext)
                 #keep only python files
-                if ext==u'py':
+                if ext == 'py':
                     all_files[filepath] = {
-                        u'fullpath': fullpath,
-                        u'path': filepath,
-                        u'filename': filename,
-                        u'ext': ext
+                        'fullpath': fullpath,
+                        'path': filepath,
+                        'filename': filename,
+                        'ext': ext
                     }
-        
+
         #check for errors and warnings
-        initpy_found = False
-        if u'__init__.py' not in all_files:
-            initpy_found = True
-            errors.append(u'__init__.py files is mandatory in tests directory. Please add it.')
-    
+        if '__init__.py' not in all_files:
+            errors.append('__init__.py files is mandatory in tests directory. Please add it.')
+
         return {
-            u'files': all_files.values(),
-            u'errors': errors,
-            u'warnings': warnings
+            'files': list(all_files.values()),
+            'errors': errors,
+            'warnings': warnings
         }
 
     def analyze_module(self, module_name):
@@ -897,32 +899,36 @@ class Developer(RaspIotModule):
                 }
         """
         #check parameters
-        if module_name is None or len(module_name)==0:
-            raise MissingParameter(u'Parameter "module_name" is missing')
-        module_path = os.path.join(self.raspiot_path, u'modules', module_name, u'%s.py' % module_name)
+        if module_name is None or len(module_name) == 0:
+            raise MissingParameter('Parameter "module_name" is missing')
+        module_path = os.path.join(self.cleep_path, 'modules', module_name, '%s.py' % module_name)
         if not os.path.exists(module_path):
-            raise InvalidParameter(u'Module "%s" does not exist' % module_name)
+            raise InvalidParameter('Module "%s" does not exist' % module_name)
 
         #analyze python part
         analyze_python = self.__analyze_module_python(module_name)
+        self.logger.debug('analyze_python: %s' % analyze_python)
 
         #analyze front part
         analyze_js = self.__analyze_module_js(module_name)
+        self.logger.debug('analyze_js: %s' % analyze_js)
 
         #analyze scripts part
         analyze_scripts = self.__analyze_scripts(module_name)
+        self.logger.debug('analyze_scripts: %s' % analyze_scripts)
 
         #analyze tests part
         analyze_tests = self.__analyze_tests(module_name)
+        self.logger.debug('analyze_tests: %s' % analyze_tests)
 
         return {
-            u'python': analyze_python[u'data'],
-            u'js': analyze_js[u'data'],
-            u'scripts': analyze_scripts,
-            u'tests': analyze_tests,
-            u'changelog': analyze_js[u'changelog'],
-            u'icon': analyze_js[u'icon'],
-            u'metadata': analyze_python[u'metadata']
+            'python': analyze_python['data'],
+            'js': analyze_js['data'],
+            'scripts': analyze_scripts,
+            'tests': analyze_tests,
+            'changelog': analyze_js['changelog'],
+            'icon': analyze_js['icon'],
+            'metadata': analyze_python['metadata']
         }
 
     def generate_desc_json(self, js_files, icon):
@@ -937,50 +943,49 @@ class Developer(RaspIotModule):
             bool: True if file generated successfully
         """
         content = {
-            u'icon': icon,
-            u'global': {
-                u'js': [],
-                u'html': [],
-                u'css': []
+            'icon': icon,
+            'global': {
+                'js': [],
+                'html': [],
+                'css': []
             },
-            u'config': {
-                u'js': [],
-                u'html': [],
-                u'css': []
+            'config': {
+                'js': [],
+                'html': [],
+                'css': []
             },
-            u'res': []
+            'res': []
         }
-        
+
         #iterates over files
-        for f in js_files:
-            if f[u'type']==self.FRONT_FILE_TYPE_SERVICE_JS:
-                content[u'global'][u'js'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_COMPONENT_JS:
-                content[u'global'][u'js'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_COMPONENT_HTML:
-                content[u'global'][u'html'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_COMPONENT_CSS:
-                content[u'global'][u'css'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_JS:
-                content[u'config'][u'js'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_HTML:
-                content[u'config'][u'html'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_CONFIG_CSS:
-                content[u'config'][u'css'].append(f[u'path'])
-            elif f[u'type']==self.FRONT_FILE_TYPE_RESOURCE and f[u'path']!=u'desc.json':
-                content[u'res'].append(f[u'path'])
-        self.logger.debug(u'Generated desc.json content: %s' % content)
+        for afile in js_files:
+            if afile['type'] == self.FRONT_FILE_TYPE_SERVICE_JS:
+                content['global']['js'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_COMPONENT_JS:
+                content['global']['js'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_COMPONENT_HTML:
+                content['global']['html'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_COMPONENT_CSS:
+                content['global']['css'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_CONFIG_JS:
+                content['config']['js'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_CONFIG_HTML:
+                content['config']['html'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_CONFIG_CSS:
+                content['config']['css'].append(afile['path'])
+            elif afile['type'] == self.FRONT_FILE_TYPE_RESOURCE and afile['path'] != 'desc.json':
+                content['res'].append(afile['path'])
+        self.logger.debug('Generated desc.json content: %s' % content)
 
         #write json file to js module directory in development env (it will be sync automatically by watcher)
-        if len(js_files)>0:
-            module_name = self._get_config_field(u'moduleindev')
-            js_path = os.path.join(self.PATH_MODULE_FRONTEND % {u'MODULE_NAME': module_name}, u'desc.json')
-            self.logger.debug(u'js_path=%s' % js_path)
+        if len(js_files) > 0:
+            module_name = self._get_config_field('moduleindev')
+            js_path = os.path.join(self.PATH_MODULE_FRONTEND % {'MODULE_NAME': module_name}, 'desc.json')
+            self.logger.debug('js_path=%s' % js_path)
             return self.cleep_filesystem.write_json(js_path, content)
-            
-        else:
-            self.logger.warning(u'Nothing to write to desc.json file')
-            return False
+
+        self.logger.warning('Nothing to write to desc.json file')
+        return False
 
     def build_package(self, module_name, data):
         """
@@ -1000,63 +1005,63 @@ class Developer(RaspIotModule):
         self.__module_version = None
 
         #build module description file (module.json)
-        fd = NamedTemporaryFile(delete=False)
-        module_json = fd.name
-        metadata = copy.deepcopy(data[u'metadata'])
-        metadata[u'icon'] = data[u'icon']
-        metadata[u'changelog'] = data[u'changelog']
-        fd.write(json.dumps(metadata))
-        fd.close()
+        fdesc = NamedTemporaryFile(delete=False, encoding='utf-8', mode='w')
+        module_json = fdesc.name
+        metadata = copy.deepcopy(data['metadata'])
+        metadata['icon'] = data['icon']
+        metadata['changelog'] = data['changelog']
+        fdesc.write(str(json.dumps(metadata, indent=4, ensure_ascii=False, sort_keys=True)))
+        fdesc.close()
 
         #build zip archive
-        fd = NamedTemporaryFile(delete=False)
-        module_archive = fd.name
+        fdesc = NamedTemporaryFile(delete=False)
+        module_archive = fdesc.name
         self.logger.debug('Archive filepath: %s' % module_archive)
-        archive = ZipFile(fd, u'w', ZIP_DEFLATED)
+        archive = ZipFile(fdesc, 'w', ZIP_DEFLATED)
 
         #add js files
-        for f in data[u'js'][u'files']:
-            if f[u'type']!=self.FRONT_FILE_TYPE_DROP:
-                archive.write(f[u'fullpath'], os.path.join(FRONTEND_DIR, u'js', u'modules', module_name, f['path']))
+        for afile in data['js']['files']:
+            if afile['type'] != self.FRONT_FILE_TYPE_DROP:
+                archive.write(afile['fullpath'], os.path.join(FRONTEND_DIR, 'js', 'modules', module_name, afile['path']))
 
         #add python files
-        path_in = data[u'python'][u'files'][u'module'][u'fullpath']
-        path_out = os.path.join(BACKEND_DIR, u'modules', data[u'python'][u'files'][u'module'][u'path'])
+        path_in = data['python']['files']['module']['fullpath']
+        path_out = os.path.join(BACKEND_DIR, 'modules', data['python']['files']['module']['path'])
         archive.write(path_in, path_out)
-        for f in data[u'python'][u'files'][u'libs']:
-            if f[u'selected']:
-                path_in = f[u'fullpath']
-                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+        for afile in data['python']['files']['libs']:
+            if afile['selected']:
+                path_in = afile['fullpath']
+                path_out = os.path.join(BACKEND_DIR, 'modules', afile['path'])
                 archive.write(path_in, path_out)
-        for f in data[u'python'][u'events']:
-            if f[u'selected']:
-                path_in = f[u'fullpath']
-                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+        for afile in data['python']['events']:
+            if afile['selected']:
+                path_in = afile['fullpath']
+                path_out = os.path.join(BACKEND_DIR, 'modules', afile['path'])
                 archive.write(path_in, path_out)
-        for f in data[u'python'][u'formatters']:
-            if f[u'selected']:
-                path_in = f[u'fullpath']
-                path_out = os.path.join(BACKEND_DIR, u'modules', f[u'path'])
+        for afile in data['python']['formatters']:
+            if afile['selected']:
+                path_in = afile['fullpath']
+                path_out = os.path.join(BACKEND_DIR, 'modules', afile['path'])
                 archive.write(path_in, path_out)
 
         #add tests
-        for f in data[u'tests'][u'files']:
-            path_in = f[u'fullpath']
-            path_out = os.path.join(TESTS_DIR, f[u'path'])
+        for afile in data['tests']['files']:
+            path_in = afile['fullpath']
+            path_out = os.path.join(TESTS_DIR, afile['path'])
             archive.write(path_in, path_out)
 
         #add scripts
-        if data[u'scripts'][u'preinst'][u'found']:
-            archive.write(data[u'scripts'][u'preinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preinst.sh'))
-        if data[u'scripts'][u'postinst'][u'found']:
-            archive.write(data[u'scripts'][u'postinst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'postinst.sh'))
-        if data[u'scripts'][u'preuninst'][u'found']:
-            archive.write(data[u'scripts'][u'preuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'preuninst.sh'))
-        if data[u'scripts'][u'postuninst'][u'found']:
-            archive.write(data[u'scripts'][u'postuninst'][u'fullpath'], os.path.join(SCRIPTS_DIR, u'postuninst.sh'))
+        if data['scripts']['preinst']['found']:
+            archive.write(data['scripts']['preinst']['fullpath'], os.path.join(SCRIPTS_DIR, 'preinst.sh'))
+        if data['scripts']['postinst']['found']:
+            archive.write(data['scripts']['postinst']['fullpath'], os.path.join(SCRIPTS_DIR, 'postinst.sh'))
+        if data['scripts']['preuninst']['found']:
+            archive.write(data['scripts']['preuninst']['fullpath'], os.path.join(SCRIPTS_DIR, 'preuninst.sh'))
+        if data['scripts']['postuninst']['found']:
+            archive.write(data['scripts']['postuninst']['fullpath'], os.path.join(SCRIPTS_DIR, 'postuninst.sh'))
 
         #add module.json
-        archive.write(module_json, u'module.json')
+        archive.write(module_json, 'module.json')
 
         #close archive
         archive.close()
@@ -1068,7 +1073,8 @@ class Developer(RaspIotModule):
         #save now related package infos to make sure everything is completed successfully
         self.__module_archive = module_archive
         self.__module_name = module_name
-        self.__module_version = data[u'metadata'][u'version']
+        self.__module_version = data['metadata']['version']
+        self.logger.info('Package for app "%s" has been built into "%s"' % (self.__module_name, self.__module_archive))
 
         return True
 
@@ -1085,14 +1091,14 @@ class Developer(RaspIotModule):
                 }
 
         """
-        self.logger.debug(u'Download package')
+        self.logger.debug('Download package')
         if self.__module_name is None or self.__module_archive is None or self.__module_version is None:
-            raise CommandError(u'No module package generated')
+            raise CommandError('No module package generated')
 
-        self.logger.debug(u'Download file path "%s" for module "%s"' % (self.__module_archive, self.__module_name))
+        self.logger.debug('Download file path "%s" for module "%s"' % (self.__module_archive, self.__module_name))
         return {
-            u'filepath': self.__module_archive,
-            u'filename': u'cleepmod_%s_%s.zip' % (self.__module_name, self.__module_version)
+            'filepath': self.__module_archive,
+            'filename': 'cleepmod_%s_%s.zip' % (self.__module_name, self.__module_version)
         }
 
     def __tests_callback(self, stdout, stderr):
@@ -1104,12 +1110,12 @@ class Developer(RaspIotModule):
             stderr (list): stderr message
         """
         message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
-        self.logger.debug(u'Receive tests cmd message: "%s"' % message)
+        self.logger.debug('Receive tests cmd message: "%s"' % message)
         self.__tests_buffer.append(message)
         #send every 10 lines to prevent bus from dropping messages
         if len(self.__tests_buffer) % self.BUFFER_SIZE == 0:
-            self.logger.debug(u'Send tests output event')
-            self.tests_output_event.send(params={u'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
+            self.logger.debug('Send tests output event')
+            self.tests_output_event.send(params={'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
             del self.__tests_buffer[:self.BUFFER_SIZE]
 
     def __tests_end_callback(self, return_code, killed):
@@ -1120,8 +1126,8 @@ class Developer(RaspIotModule):
             return_code (int): command return code
             killed (bool): True if command killed
         """
-        self.logger.info(u'Tests command terminated with return code "%s" (killed=%s)' % (return_code, killed))
-        self.tests_output_event.send(params={u'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
+        self.logger.info('Tests command terminated with return code "%s" (killed=%s)' % (return_code, killed))
+        self.tests_output_event.send(params={'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
         del self.__tests_buffer[:self.BUFFER_SIZE]
         self.__tests_task = None
 
@@ -1133,10 +1139,10 @@ class Developer(RaspIotModule):
             module_name (string): module name
         """
         if self.__tests_task:
-            raise CommandError(u'Tests are already running')
+            raise CommandError('Tests are already running')
 
         cmd = self.CLI_TESTS_CMD % (self.CLI, module_name)
-        self.logger.debug(u'Test cmd: %s' % cmd)
+        self.logger.debug('Test cmd: %s' % cmd)
         self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
         self.__tests_task.start()
 
@@ -1150,10 +1156,10 @@ class Developer(RaspIotModule):
             module_name (string): module name
         """
         if self.__tests_task:
-            raise CommandError(u'Tests are running. Please wait end of it')
+            raise CommandError('Tests are running. Please wait end of it')
 
         cmd = self.CLI_TESTS_COV_CMD % (self.CLI, module_name)
-        self.logger.debug(u'Test cov cmd: %s' % cmd)
+        self.logger.debug('Test cov cmd: %s' % cmd)
         self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
         self.__tests_task.start()
 
@@ -1168,12 +1174,12 @@ class Developer(RaspIotModule):
             stderr (list): stderr message
         """
         message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
-        self.logger.debug(u'Receive docs cmd message: "%s"' % message)
+        self.logger.debug('Receive docs cmd message: "%s"' % message)
         self.__docs_buffer.append(message)
         #send every 10 lines to prevent bus from dropping messages
         if len(self.__docs_buffer) % self.BUFFER_SIZE == 0:
-            self.logger.debug(u'Send docs output event')
-            self.docs_output_event.send(params={u'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
+            self.logger.debug('Send docs output event')
+            self.docs_output_event.send(params={'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
             del self.__docs_buffer[:self.BUFFER_SIZE]
 
     def __docs_end_callback(self, return_code, killed):
@@ -1184,8 +1190,8 @@ class Developer(RaspIotModule):
             return_code (int): command return code
             killed (bool): True if command killed
         """
-        self.logger.info(u'Docs command terminated with return code "%s" (killed=%s)' % (return_code, killed))
-        self.docs_output_event.send(params={u'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
+        self.logger.info('Docs command terminated with return code "%s" (killed=%s)' % (return_code, killed))
+        self.docs_output_event.send(params={'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
         del self.__docs_buffer[:self.BUFFER_SIZE]
         self.__docs_task = None
 
@@ -1197,10 +1203,10 @@ class Developer(RaspIotModule):
             module_name (string): module name
         """
         if self.__docs_task:
-            raise CommandError(u'Doc generation is running. Please wait end of it')
+            raise CommandError('Doc generation is running. Please wait end of it')
 
         cmd = self.CLI_DOCS_CMD % (self.CLI, module_name)
-        self.logger.debug(u'Doc generation cmd: %s' % cmd)
+        self.logger.debug('Doc generation cmd: %s' % cmd)
         self.__docs_task = EndlessConsole(cmd, self.__docs_callback, self.__docs_end_callback)
         self.__docs_task.start()
 
@@ -1225,20 +1231,20 @@ class Developer(RaspIotModule):
             CommandError: command failed error
 
         """
-        self.logger.info(u'Download documentation html archive')
+        self.logger.info('Download documentation html archive')
 
         cmd = self.CLI_DOCS_ZIP_PATH_CMD % (self.CLI, module_name)
-        self.logger.debug(u'Doc zip path cmd: %s' % cmd)
-        c = Console()
-        res = c.command(cmd)
-        if c.get_last_return_code()!=0:
-            raise CommandError(u''.join(res['stdout']))
+        self.logger.debug('Doc zip path cmd: %s' % cmd)
+        console = Console()
+        res = console.command(cmd)
+        if res['returncode'] != 0:
+            raise CommandError(''.join(res['stdout']))
 
-        zip_path = res['stdout'][0].split(u'=')[1]
+        zip_path = res['stdout'][0].split('=')[1]
         self.logger.debug('Module "%s" docs path "%s"' % (module_name, zip_path))
         return {
-            u'filepath': zip_path,
-            u'filename': os.path.basename(zip_path)
+            'filepath': zip_path,
+            'filename': os.path.basename(zip_path)
         }
 
 
