@@ -1,2 +1,2 @@
-# cleepos-developer
-Developer module for CleepOS
+# cleepapp-developer
+Developer module for Cleep
