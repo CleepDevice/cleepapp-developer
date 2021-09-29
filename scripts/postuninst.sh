@@ -1,4 +1,4 @@
 #!/bin/sh
 
-/usr/local/bin/pip2 uninstall --yes "cleepcli"
+python3 -m pip uninstall --yes "cleepcli"; /bin/true
 
