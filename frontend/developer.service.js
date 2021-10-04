@@ -7,63 +7,49 @@ angular
 .service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', 'appToolbarService', '$window',
 function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
     var self = this;
-    self.restartButtonId = null;
     self.testsOutput = [];
     self.docsOutput = [];
 
     /**
      * Start remotedev
      */
-    self.startRemotedev = function()
-    {
+    self.startRemotedev = function() {
         return rpcService.sendCommand('start_remotedev', 'developer', 15);
     };
 
     /**
      * Stop remotedev
      */
-    self.stopRemotedev = function()
-    {
+    self.stopRemotedev = function() {
         return rpcService.sendCommand('stop_remotedev', 'developer', 15);
     };
 
     /**
-     * Analyze module
+     * Check application
      */
-    self.analyzeModule = function(moduleName)
-    {
-        return rpcService.sendCommand('analyze_module', 'developer', {'module_name':moduleName}, 30);
+    self.checkApplication = function(moduleName) {
+        return rpcService.sendCommand('check_application', 'developer', {'module_name':moduleName}, 30);
     };
 
     /**
-     * Generate desc.json file
+     * Build application package
      */
-    self.generateDescJson = function(jsFiles, icon)
-    {
-        return rpcService.sendCommand('generate_desc_json', 'developer', {'js_files': jsFiles, 'icon':icon});
+    self.buildApplication = function(moduleName, data) {
+        return rpcService.sendCommand('build_application', 'developer', {'module_name': moduleName}, 30);
     };
 
     /**
-     * Build module package
+     * Download application package
      */
-    self.buildPackage = function(moduleName, data)
-    {
-        return rpcService.sendCommand('build_package', 'developer', {'module_name': moduleName, 'data': data}, 30);
+    self.downloadApplication = function() {
+        return rpcService.download('download_application', 'developer');
     };
 
     /**
-     * Download module package
+     * Select application for development
      */
-    self.downloadPackage = function()
-    {
-        return rpcService.download('download_package', 'developer');
-    };
-
-    /**
-     * Set module in development
-     */
-    self.setModuleInDev = function(moduleName) {
-        return rpcService.sendCommand('set_module_in_development', 'developer', {'module_name': moduleName}, 10);
+    self.selectApplicationForDevelopment = function(moduleName) {
+        return rpcService.sendCommand('select_application_for_development', 'developer', {'module_name': moduleName}, 10);
     };
 
     /**
@@ -105,50 +91,18 @@ function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
     };
 
     /**
-     * Restart CleepOS
-     */
-    self.restartCleepBackend = function()
-    {
-        cleepService.restart(0);
-    };
-
-    /**
-     * Handle restart cleepos toobar button
-     */
-    self.handleRestartButton = function(config)
-    {
-        //drop invalid config
-        if( config===undefined || config===null )
-        {
-            return;
-        }
-
-        if( config.moduleindev && !self.restartButtonId )
-        {
-            self.restartButtonId = appToolbarService.addButton('Dev: restart backend', 'restart', self.restartCleepBackend, 'md-accent');
-        }
-        else if( !config.moduleindev && self.restartButtonId )
-        {
-            appToolbarService.removeButton(self.restartButtonId);
-            self.restartButtonId = null;
-        }
-    };
-
-    /**
      * Watch for config changes
      */
-    $rootScope.$watchCollection(function() {
+    /*$rootScope.$watchCollection(function() {
         return cleepService.modules['developer'];
     }, function(newConfig, oldConfig) {
-        if( newConfig )
-        {
-            self.handleRestartButton(newConfig.config);
+        if( newConfig ) {
         }
-    });
+    });*/
 
     /**
      * Catch cleep-cli stoped events
-     */
+     **/
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
         $window.location.reload(true);
     });
@@ -166,6 +120,5 @@ function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
     $rootScope.$on('developer.docs.output', function(event, uuid, params) {
         self.docsOutput = self.docsOutput.concat(params.messages);
     });
-
 }]);
 

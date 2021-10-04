@@ -112,7 +112,9 @@ never-returning-functions=optparse.Values,sys.exit
 
 [TYPECHECK]
 contextmanager-decorators=contextlib.contextmanager
-generated-members=
+# zmq.{LINGER,REQ,ROUTER,NOBLOCK} are dynamically generated and so pylint
+# doesn't see them, causing false positives.
+generated-members=PAIR,RCVHWM,SNDHWM,SNDTIMEO,RCVTIMEO,netifaces.*
 ignore-mixin-members=yes
 ignore-on-opaque-inference=yes
 ignored-classes=optparse.Values,thread._local,_thread._local

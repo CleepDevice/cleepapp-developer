@@ -5,8 +5,8 @@
 angular
 .module('Cleep')
 .directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout',
-    'appToolbarService', '$sce', '$location', '$q',
-function($rootScope, toast, cleepService, developerService, systemService, $timeout, appToolbarService, $sce, $location, $q) {
+    'appToolbarService', '$sce', '$location', '$q', '$sce',
+function($rootScope, toast, cleepService, developerService, systemService, $timeout, appToolbarService, $sce, $location, $q, $sce) {
 
     // konami code: ssuperr
 
@@ -19,7 +19,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.selectedModule = null;
         self.modules = [];
         self.deviceIp = '0.0.0.0';
-        self.data = null;
+        self.checkData = null;
         self.selectedNav = 'buildmodule';
         self.selectedMainNav = 'devtools';
         self.newApplicationName = '';
@@ -42,25 +42,23 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Init controller
          */
-        self.init = function()
-        {
-			//set remotedev device
+        self.$onInit = function() {
+			// set remotedev device
             self.setRemotedevDevice();
             
-            //get device ip
+            // get device ip
             self.deviceIp = $location.host();
 
-            //load module configuration
+            // load module configuration
             cleepService.getModuleConfig('developer')
                 .then(function(config) {
                     self.setConfig(config);
 
-                    //get list of module names
+                    // get list of module names
                     self.modules = self.__modulesList(false);
 
-                    //make sure god mode wasn't enabled before
-                    if( self.config.moduleInDev && self.modules.indexOf(self.config.moduleInDev)===-1 )
-                    {
+                    // make sure god mode wasn't enabled before
+                    if( self.config.moduleInDev && self.modules.indexOf(self.config.moduleInDev)===-1 ) {
                         self.modules = self.__modulesList(true);
                     }
                 });
@@ -69,25 +67,21 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Load modules that can be developed
          */
-        self.__modulesList = function(all)
-        {
+        self.__modulesList = function(all) {
             if( all===undefined ) {
                 all = false;
             }
 
             var temp = [];
-            for( var module in cleepService.modules )
-            {
-                if( !all )
-                {
-                    if( cleepService.modules[module].core===true || module==='developer' )
-                    {
-                        //system module, drop it
+            for( var module in cleepService.modules ) {
+                if( !all ) {
+                    if( cleepService.modules[module].core===true || module==='developer' ) {
+                        // system module, drop it
                         continue;
                     }
                 }
     
-                //append module name
+                // append module name
                 temp.push(module);
             }
             return temp.sort();
@@ -96,27 +90,22 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Dummy click for line hover
          */
-        self.dummyClick = function()
-        {};
+        self.dummyClick = function() {};
 
         /**
          * Godmode
          */
-        self.godMode = function()
-        {
-            toast.info('God mode activated, all modules are available in list');
+        self.godMode = function() {
+            toast.info('God mode activated, all applications are available in list');
             self.modules = self.__modulesList(true);
         };
 
 		/**
          * Set remotedev device
          */
-        self.setRemotedevDevice = function()
-        {
-           	for( var i=0; i<cleepService.devices.length; i++ )
-	        {
-    	        if( cleepService.devices[i].type==='developer' )
-        	    {
+        self.setRemotedevDevice = function() {
+           	for( var i=0; i<cleepService.devices.length; i++ ) {
+    	        if( cleepService.devices[i].type==='developer' ) {
                     self.remotedevUuid = cleepService.devices[i].uuid;
                     break;
 	            }
@@ -126,116 +115,62 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Set module configuration internally
          */
-        self.setConfig = function(config) 
-        {
-            if( config )
-            {
+        self.setConfig = function(config) {
+            if( config ) {
                 self.config.moduleInDev = config.moduleindev;
                 self.selectedModule = config.moduleindev || '';
             }
         };
 
         /**
-         * Reload backend
-         */
-        self.restartBackend = function()
-        {
-            //clear last analysis
-            self.resetAnalysis();
-
-            //restart cleepos
-            developerService.restartCleepBackend();
-        };
-
-        /**
-         * Restart frontend
-         */
-        self.restartFrontend = function()
-        {
-            window.location.reload();
-        }
-
-        /**
          * Select module turns on debug on it and enable module analyze in build helper tab
          */
-        self.selectModule = function()
-        {
-            //set module in development
-            developerService.setModuleInDev(self.selectedModule)
+        self.selectModule = function() {
+            // set module in development
+            developerService.selectApplicationForDevelopment(self.selectedModule)
                 .then(function() {
-                    //reload configuration
+                    // reload configuration
                     return cleepService.reloadModuleConfig('developer');
                 })
                 .then(function(config) {
-                    //save new config
+                    // save new config
                     self.setConfig(config);
 
-                    //clear previous analysis
-                    self.resetAnalysis();
-
-                    //user message
-                    if( config.moduleindev )
-                    {
-                        toast.success('Module "' + self.selectedModule + '" in development');
-                    }
-                    else
-                    {
-                        toast.success('No module in development');
+                    // user message
+                    if( config.moduleindev ) {
+                        toast.success('App "' + self.selectedModule + '" selected for development');
+                    } else {
+                        toast.success('Development disabled');
                     }
                 });
         };
 
         /**
-         * Reset analysis
+         * Check selected app
          */
-        self.resetAnalysis = function()
-        {
-            self.data = null;
-            self.analyzeError = null;
-        };
-
-        /**
-         * Analyze selected module
-         */
-        self.analyzeModule = function()
-        {
-            //reset members
-            self.resetAnalysis();
-
-            //set loading
+        self.analyzeModule = function() {
             self.loading = true;
 
-            //check params
-            if( !self.config.moduleInDev )
-            {
-                toast.error('Please select a module');
+            // check params
+            if( !self.config.moduleInDev ) {
+                toast.error('Please select an application');
                 self.loading = false;
                 return;
             }
 
-            //analyze module
-            developerService.analyzeModule(self.config.moduleInDev)
+            // check app
+            developerService.checkApplication(self.config.moduleInDev)
                 .then(function(resp) {
-                    //save module content
-                    self.data = resp.data;
-                    var items = []
-                    for( var i=0; i<self.data.js.errors.length; i++ )
-                        items.push($sce.trustAsHtml(self.data.js.errors[i]));
-                    self.data.js.errors = items;
-                    items = []
-                    for( var i=0; i<self.data.js.warnings.length; i++ )
-                        items.push($sce.trustAsHtml(self.data.js.warnings[i]));
-                    self.data.js.warnings = items;
-                    items = []
-                    for( var i=0; i<self.data.python.errors.length; i++ )
-                        items.push($sce.trustAsHtml(self.data.python.errors[i]));
-                    self.data.python.errors = items;
-                    items = []
-                    for( var i=0; i<self.data.python.warnings.length; i++ )
-                        items.push($sce.trustAsHtml(self.data.python.warnings[i]));
-                    self.data.python.warnings = items;
-            
-                    //select first nav tab
+                    self.checkData = resp.data;
+                    self.checkData.backend.metadata.longdescription = self.sceLongDescription = $sce.trustAsHtml(self.checkData.backend.metadata.longdescription);
+                    self.checkData.errorsCount = resp.data.backend.errors.length + resp.data.frontend.errors.length + resp.data.tests.errors.length + resp.data.scripts.errors.length
+                    self.checkData.warningsCount = resp.data.backend.warnings.length + resp.data.frontend.warnings.length + resp.data.tests.warnings.length + resp.data.scripts.warnings.length
+                    self.checkData.preinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preinst.sh');
+                    self.checkData.preuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preuninst.sh');
+                    self.checkData.postinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postinst.sh');
+                    self.checkData.postuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postuninst.sh');
+                    self.checkData.versionOk = !resp.data.changelog.unreleased && resp.data.changelog.version === resp.data.backend.metadata.version;
+
                     self.selectedNav = 'buildmodule';
                 }, function(err) {
                     self.analyzeError = err;
@@ -246,36 +181,16 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         };
 
         /**
-         * Generate desc.json file
+         * Build application
          */
-        self.generateDescJson = function()
-        {
-            if( !self.data ) {
-                return;
-            }
-
-            developerService.generateDescJson(self.data.js.files, self.data.icon)
-                .then(function(resp) {
-                    if( resp.data )
-                        toast.success('Desc.json file generated in module directory');
-                    else
-                        toast.error('Problem generating desc.json file. Please check logs');
-                });
-        };
-
-        /**
-         * Build package
-         */
-        self.buildPackage = function()
-        {
-            //check data
+        self.buildApplication = function() {
             if( !self.data )
                 return;
     
             self.loading = true;
-            developerService.buildPackage(self.config.moduleInDev, self.data, 30)
+            developerService.buildApplication(self.config.moduleInDev, 30)
                 .then(function(resp) {
-                    //build generation completed, download package now
+                    // build generation completed, download package now
                     return developerService.downloadPackage();
                 }, function(err) {
                     return $q.reject('stop-chain');
@@ -295,8 +210,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Load logs
          */
-        self.loadLogs = function()
-        {
+        self.loadLogs = function() {
             self.loading = true;
 
             systemService.getLogs()
@@ -304,12 +218,11 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                     self.logs = resp.data.join('');
                     self.codemirrorInstance.refresh();
 
-                    if( self.logs.length===0 )
-                    {
+                    if( self.logs.length===0 ) {
                         toast.info('Log file is empty');
                     }
 
-                    //jump to end of log
+                    // jump to end of log
                     $timeout(function() {
                         self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
                     }, 300);
@@ -341,24 +254,21 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Clear logs output
          */
-        self.clearLogsOutput = function()
-        {
+        self.clearLogsOutput = function() {
             self.logs = '';
         }
 
         /**
          * Goto top of logs
          */
-        self.gotoLogsTop = function()
-        {
+        self.gotoLogsTop = function() {
             self.codemirrorInstance.setCursor(0, 0);
         };
 
         /**
          * Goto bottom of logs
          */
-        self.gotoLogsBottom = function()
-        {
+        self.gotoLogsBottom = function() {
             self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
         };
 
@@ -417,16 +327,11 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
 
     }];
 
-    var developerLink = function(scope, element, attrs, controller) {
-        controller.init();
-    };
-
     return {
         templateUrl: 'developer.config.html',
         replace: true,
         controller: developerController,
-        controllerAs: 'devCtl',
-        link: developerLink
+        controllerAs: 'devCtl'
     };
 }]);
 

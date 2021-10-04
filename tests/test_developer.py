@@ -3,8 +3,8 @@ import logging
 import sys
 sys.path.append('../')
 from backend.developer import Developer
-from raspiot.utils import InvalidParameter, MissingParameter, CommandError, Unauthorized
-from raspiot.libs.tests import session
+from cleep.exception import InvalidParameter, MissingParameter, CommandError, Unauthorized
+from cleep.libs.tests import session
 
 LOG_LEVEL = logging.INFO
 

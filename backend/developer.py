@@ -62,7 +62,7 @@ class Developer(CleepModule):
     CLI_CHECK_FRONTEND_CMD = '%s modcheckfrontend --module "%s" --json'
     CLI_CHECK_SCRIPTS_CMD = '%s modcheckscripts --module "%s" --json'
     CLI_CHECK_TESTS_CMD = '%s modchecktests --module "%s" --json'
-    CLI_CHECK_CODE_CMD = '%s modcheckcode --module "%s" --threshold 7 --json --pylintrc'
+    CLI_CHECK_CODE_CMD = '%s modcheckcode --module "%s" --threshold 7 --json'
     CLI_CHECK_CHANGELOG_CMD = '%s modcheckchangelog --module "%s" --json'
     CLI_BUILD_APP_CMD = '%s modbuild --module "%s"'
 
@@ -74,10 +74,9 @@ class Developer(CleepModule):
             bootstrap (dict): bootstrap objects
             debug_enabled (bool): flag to set debug level to logger
         """
-        #init
         CleepModule.__init__(self, bootstrap, debug_enabled)
 
-        #members
+        # members
         self.__developer_uuid = None
         self.cleep_path = os.path.dirname(inspect.getfile(CleepModule))
         self.__last_application_build = None
@@ -90,19 +89,20 @@ class Developer(CleepModule):
         # events
         self.tests_output_event = self._get_event('developer.tests.output')
         self.docs_output_event = self._get_event('developer.docs.output')
+        self.frontend_restart_event = self._get_event('developer.frontend.restart')
 
     def _configure(self):
         """
         Configure module
         """
-        #disable rw if in development
+        # disable rw if in development
         module_in_dev = self._get_config_field('moduleindev')
         self.logger.debug('Module in development: %s' % module_in_dev)
         if module_in_dev:
             self.logger.info('Module "%s" is in development, disable RO feature' % module_in_dev)
             self.cleep_filesystem.enable_write(root=True, boot=True)
 
-        #add dummy device
+        # add dummy device
         self.logger.debug('device_count=%d' % self._get_device_count())
         if self._get_device_count() == 0:
             self.logger.debug('Add default devices')
@@ -184,9 +184,16 @@ class Developer(CleepModule):
 
         return devices
 
-    def set_application_in_development(self, module_name):
+    def restart_frontend(self):
         """
-        Set application in development. It save in config the module, and enable debug.
+        Send event to restart frontend
+        """
+        self.logger.info('Sending restart event to frontend')
+        self.frontend_restart_event.send(to='rpc')
+
+    def select_application_for_development(self, module_name):
+        """
+        Select application for development. It save in config the module, and enable debug.
         It also disables debug on previous module in debug if any.
 
         Args:
@@ -251,15 +258,14 @@ class Developer(CleepModule):
         """
         console = Console()
         res = console.command(command, timeout)
-        self.logger.debug('Cli command output: %s | %s' % (res['stdout'], res['stderr']))
-        if res['returncode'] != 0:
-            raise CommandError('Error checking application. Check Cleep logs.')
+        self.logger.debug('Cli command "%s" output: %s | %s' % (command, res['stdout'], res['stderr']))
 
         try:
-            return json.loads(res['stdout'])
+            return json.loads(''.join(res['stdout']))
         except Exception as error:
-            self.logger.exception('Error parsing cli command "%s" output' % command)
-            raise CommandError('Error checking application. Check Cleep logs.') from error
+            self.logger.exception('Error parsing command "%s" output' % cmd)
+            raise CommandError('Error parsing check result. Check Cleep logs.') from error
+            
 
     def check_application(self, module_name):
         """
@@ -270,10 +276,12 @@ class Developer(CleepModule):
 
         Returns:
             dict: archive infos::
+
                 {
                     url (string): archive url,
                     name (string): archive name (usually name of module)
                 }
+
         """
         # check parameters
         if module_name is None or len(module_name) == 0:
@@ -287,16 +295,17 @@ class Developer(CleepModule):
         frontend_result = self.__cli_check(self.CLI_CHECK_FRONTEND_CMD % (self.CLI, module_name))
         scripts_result = self.__cli_check(self.CLI_CHECK_SCRIPTS_CMD % (self.CLI, module_name))
         tests_result = self.__cli_check(self.CLI_CHECK_TESTS_CMD % (self.CLI, module_name))
-        code_result = self.__cli_check(self.CLI_CHECK_CODE_CMD % (self.CLI, module_name))
+        # code_result = self.__cli_check(self.CLI_CHECK_CODE_CMD % (self.CLI, module_name))
         changelog_result = self.__cli_check(self.CLI_CHECK_CHANGELOG_CMD % (self.CLI, module_name))
 
         return {
-            'python': backend_result,
-            'js': frontend_result,
+            'backend': backend_result,
+            'frontend': frontend_result,
             'scripts': scripts_result,
             'tests': tests_result,
             'changelog': changelog_result,
-            'quality': code_result,
+            'tang': {},
+            # 'quality': code_result,
         }
 
     def build_application(self, module_name):
@@ -323,9 +332,9 @@ class Developer(CleepModule):
             raise CommandError('Error building application. Check Cleep logs.')
 
         try:
-            self.__last_application_build = json.loads(res['stdout'])
+            self.__last_application_build = json.loads(''.join(res['stdout']))
         except Exception as error:
-            self.logger.exception('Error parsing app build cmd output"%s"' % cmd)
+            self.logger.exception('Error parsing app build command "%s" output' % cmd)
             raise CommandError('Error building application. Check Cleep logs.') from error
 
         return True
@@ -424,7 +433,7 @@ class Developer(CleepModule):
             stdout (list): stdout message
             stderr (list): stderr message
         """
-        message = (stdout if stdout is not None else []) + (stderr if stderr is not None else [])
+        message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
         self.logger.debug('Receive docs cmd message: "%s"' % message)
         self.__docs_buffer.append(message)
         # send every 10 lines to prevent bus from dropping messages
