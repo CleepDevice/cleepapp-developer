@@ -169,6 +169,8 @@ class Developer(CleepModule):
         """
         if self.__watcher_task:
             self.logger.error('Watcher stops while it should not with return code "%s" (killed? %s)' % (return_code, killed))
+        if self.__tests_task:
+            self.tests_output_event.send(params={'messages': '====== Tests crashes. Run tests manually please to check errors ====='}, to='rpc', render=False)
 
         # start new instance
         self.__launch_watcher()
@@ -372,9 +374,8 @@ class Developer(CleepModule):
         message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
         self.logger.debug('Receive tests cmd message: "%s"' % message)
         self.__tests_buffer.append(message)
-        #send every 10 lines to prevent bus from dropping messages
+        # send every 10 lines to prevent bus from dropping messages
         if len(self.__tests_buffer) % self.BUFFER_SIZE == 0:
-            self.logger.debug('Send tests output event')
             self.tests_output_event.send(params={'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
             del self.__tests_buffer[:self.BUFFER_SIZE]
 
@@ -391,6 +392,11 @@ class Developer(CleepModule):
         del self.__tests_buffer[:self.BUFFER_SIZE]
         self.__tests_task = None
 
+        if return_code == 0:
+            self.tests_output_event.send(params={'messages': '===== Done ====='}, to='rpc', render=False)
+        else:
+            self.tests_output_event.send(params={'messages': '===== Tests execution crashes (return code: %s) =====' % return_code}, to='rpc', render=False)
+
     def launch_tests(self, module_name):
         """
         Launch unit tests
@@ -405,8 +411,6 @@ class Developer(CleepModule):
         self.logger.debug('Test cmd: %s' % cmd)
         self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
         self.__tests_task.start()
-
-        return True
 
     def get_last_coverage_report(self, module_name):
         """
