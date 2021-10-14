@@ -151,6 +151,261 @@ class TestDeveloper(unittest.TestCase):
 
         self.session.assert_event_called('developer.frontend.restart')
 
+    def test_select_application_for_development(self):
+        self.init()
+        self.module._get_config_field = Mock(side_effect=self.mock_get_config_field({'moduleindev': 'test'}))
+        self.module._set_config_field = Mock()
+        self.module._Developer__set_module_debug = Mock()
+
+        self.module.select_application_for_development('dummy')
+
+        self.module._Developer__set_module_debug.assert_any_call('test', False)
+        self.module._Developer__set_module_debug.assert_any_call('dummy', True)
+        self.module.cleep_filesystem.enable_write.assert_any_call(root=True, boot=True)
+        self.module.cleep_filesystem.disable_write.assert_not_called()
+
+    def test_select_application_for_development_disable_dev(self):
+        self.init()
+        self.module._get_config_field = Mock(side_effect=self.mock_get_config_field({'moduleindev': 'test'}))
+        self.module._set_config_field = Mock()
+        self.module._Developer__set_module_debug = Mock()
+
+        self.module.select_application_for_development(None)
+
+        self.module._Developer__set_module_debug.assert_called_once()
+        self.module.cleep_filesystem.enable_write.assert_not_called()
+        self.module.cleep_filesystem.disable_write.assert_called_with(root=True, boot=True)
+
+    def test_set_module_debug_enable(self):
+        self.init()
+        set_module_debug_cmd_mock = self.session.make_mock_command('set_module_debug')
+        self.session.add_mock_command(set_module_debug_cmd_mock)
+        self.module.set_debug = Mock()
+
+        self.module._Developer__set_module_debug('test', True)
+
+        self.session.command_called_with('set_module_debug', {'module': 'test', 'debug': True}, 'system')
+        self.module.set_debug.assert_not_called()
+
+    def test_set_module_debug_disable(self):
+        self.init()
+        set_module_debug_cmd_mock = self.session.make_mock_command('set_module_debug')
+        self.session.add_mock_command(set_module_debug_cmd_mock)
+        self.module.set_debug = Mock()
+
+        self.module._Developer__set_module_debug('test', False)
+
+        self.session.command_called_with('set_module_debug', {'module': 'test', 'debug': False}, 'system')
+        self.module.set_debug.assert_not_called()
+
+    def test_set_module_debug_enable_developer(self):
+        self.init()
+        set_module_debug_cmd_mock = self.session.make_mock_command('set_module_debug')
+        self.session.add_mock_command(set_module_debug_cmd_mock)
+        self.module.set_debug = Mock()
+
+        self.module._Developer__set_module_debug('developer', True)
+
+        self.assertFalse(self.session.command_called('set_module_debug'))
+        self.module.set_debug.assert_called()
+
+    def test_set_module_debug_exception(self):
+        self.init()
+        set_module_debug_cmd_mock = self.session.make_mock_command('set_module_debug', no_response=True)
+        self.session.add_mock_command(set_module_debug_cmd_mock)
+        self.module.set_debug = Mock()
+
+        try:
+            self.module._Developer__set_module_debug('test', True)
+        except:
+            self.fail('Should handle exception')
+
+    @patch('backend.developer.Console')
+    def test_create_application(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': 'stdout', 'stderr': 'stderr'}
+
+        self.module.create_application('test')
+
+        console_mock.return_value.command.assert_called()
+
+    @patch('backend.developer.Console')
+    def test_create_application_exception(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 1, 'stdout': 'stdout', 'stderr': 'stderr'}
+
+        with self.assertRaises(Exception) as cm:
+            self.module.create_application('test')
+        self.assertEqual(str(cm.exception), 'Error during application creation. Check Cleep logs.')
+
+    @patch('backend.developer.Console')
+    def test_cli_check(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
+
+        result = self.module._Developer__cli_check('a command')
+        logging.debug('Result: %s' % result)
+
+        self.assertEqual(result, {'hello': 'world'})
+
+    @patch('backend.developer.Console')
+    def test_cli_check_invalid_json(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'stdout': ['{hello: "world"}'], 'stderr': 'stderr'}
+
+        with self.assertRaises(CommandError) as cm:
+            self.module._Developer__cli_check('a command')
+        self.assertEqual(str(cm.exception), 'Error parsing check result. Check Cleep logs.')
+
+    def test_check_application(self):
+        self.init()
+        self.module._Developer__cli_check = Mock(return_value='result')
+
+        with patch('backend.developer.os.path.exists') as os_path_exists:
+            os_path_exists.return_value = True
+            result = self.module.check_application('dummy')
+            logging.debug('Result: %s' % result)
+
+        self.assertEqual(result, {
+            'backend': 'result',
+            'frontend': 'result',
+            'scripts': 'result',
+            'tests': 'result',
+            'changelog': 'result',
+        })
+        self.assertEqual(self.module._Developer__cli_check.call_count, 5)
+
+    def test_check_application_invalid_params(self):
+        self.init()
+
+        with patch('backend.developer.os.path.exists') as os_path_exists:
+            os_path_exists.return_value = False
+            with self.assertRaises(InvalidParameter) as cm:
+                self.module.check_application('dummy')
+            self.assertEqual(str(cm.exception), 'Module "dummy" does not exist')
+
+        with self.assertRaises(MissingParameter) as cm:
+            self.module.check_application('')
+        self.assertEqual(str(cm.exception), 'Parameter "module_name" is missing')
+
+    @patch('backend.developer.Console')
+    def test_build_application(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
+
+        try:
+            self.module.build_application('dummy')
+        except:
+            self.fail('It should not fails')
+
+    @patch('backend.developer.Console')
+    def test_build_application_failed(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 2, 'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.build_application('dummy')
+        self.assertEqual(str(cm.exception), 'Error building application. Check Cleep logs.')
+
+    @patch('backend.developer.Console')
+    def test_build_application_invalid_command_response(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': ['{hello: "world"}'], 'stderr': 'stderr'}
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.build_application('dummy')
+        self.assertEqual(str(cm.exception), 'Error building application. Check Cleep logs.')
+
+    def test_download_application(self):
+        self.init()
+        self.module._Developer__last_application_build = {'package': '/tmp/package/path/cleepapp_dummy.zip'}
+
+        result = self.module.download_application()
+
+        self.assertEqual(result, {
+            'filepath': '/tmp/package/path/cleepapp_dummy.zip',
+            'filename': 'cleepapp_dummy.zip',
+        })
+
+    def test_download_application_no_build(self):
+        self.init()
+        self.module._Developer__last_application_build = None
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.download_application()
+        self.assertEqual(str(cm.exception), 'Please build application first')
+
+    def test_tests_callback(self):
+        self.init()
+        self.module._Developer__tests_task = Mock()
+
+        for i in range(self.module.BUFFER_SIZE):
+            self.module._Developer__tests_callback('stdout', 'stderr')
+        params = self.session.get_last_event_params('developer.tests.output')
+        logging.debug('Params: %s' % params)
+
+        self.assertEqual(self.session.event_call_count('developer.tests.output'), 1)
+        self.assertEqual(params['messages'], ['stdoutstderr'] * 10)
+
+    def test_tests_end_callback(self):
+        self.init()
+        self.module._Developer__tests_task = Mock()
+        self.module._Developer__tests_buffer = ['stdout'] * 5
+
+        self.module._Developer__tests_end_callback(0, False)
+        params = self.session.get_last_event_params('developer.tests.output')
+        logging.debug('Params: %s' % params)
+
+        self.assertEqual(self.session.event_call_count('developer.tests.output'), 2)
+        self.assertEqual(params['messages'], '===== Done =====')
+        self.assertEqual(len(self.module._Developer__tests_buffer), 0)
+
+    def test_tests_end_callback_failed(self):
+        self.init()
+        self.module._Developer__tests_task = Mock()
+        self.module._Developer__tests_buffer = ['stdout'] * 5
+
+        self.module._Developer__tests_end_callback(1, False)
+        params = self.session.get_last_event_params('developer.tests.output')
+        logging.debug('Params: %s' % params)
+
+        self.assertEqual(self.session.event_call_count('developer.tests.output'), 2)
+        self.assertEqual(params['messages'], '===== Tests execution crashes (return code: 1) =====')
+        self.assertEqual(len(self.module._Developer__tests_buffer), 0)
+
+    @patch('backend.developer.EndlessConsole')
+    def test_launch_tests(self, endless_console_mock):
+        self.init()
+
+        self.module.launch_tests('dummy')
+
+        endless_console_mock.return_value.start.assert_called()
+
+    def test_launch_tests_already_running(self):
+        self.init()
+        self.module._Developer__tests_task = Mock()
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.launch_tests('dummy')
+        self.assertEqual(str(cm.exception), 'Tests are already running')
+
+    @patch('backend.developer.EndlessConsole')
+    def test_get_last_coverage_report(self, endless_console_mock):
+        self.init()
+
+        self.module.get_last_coverage_report('dummy')
+
+        endless_console_mock.return_value.start.assert_called()
+
+    def test_get_last_coverage_report_tests_running(self):
+        self.init()
+        self.module._Developer__tests_task = Mock()
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.get_last_coverage_report('dummy')
+        self.assertEqual(str(cm.exception), 'Tests are running. Please wait end of it')
+
+
 if __name__ == '__main__':
     # coverage run --omit="*/lib/python*/*","test_*" --concurrency=thread test_developer.py; coverage report -m -i
     unittest.main()

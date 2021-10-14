@@ -199,36 +199,43 @@ class Developer(CleepModule):
         It also disables debug on previous module in debug if any.
 
         Args:
-            module_name (string): module to enable development on
+            module_name (string): module to enable development on, None to disable development mode
         """
         self.__last_application_build = None
 
         # disable debug on old module
         old_module = self._get_config_field('moduleindev')
         if old_module:
-            try:
-                #module may not exist
-                if old_module == 'developer':
-                    self.set_debug(False)
-                elif len(old_module) > 0:
-                    self.send_command('set_module_debug', 'system', {'module': old_module, 'debug': False})
-            except Exception:
-                pass
+            self.__set_module_debug(old_module, False)
 
         # save new module in dev
         self._set_config_field('moduleindev', module_name)
-        if module_name == 'developer':
-            self.set_debug(True)
-        elif len(module_name) > 0:
-            self.send_command('set_module_debug', 'system', {'module': module_name, 'debug': True})
 
-        # disable RO feature
-        if len(module_name) > 0:
-            self.logger.info('Module "%s" is in development, disable RO feature' % module_name)
+        # enable or disable dev mode
+        if module_name:
+            self.__set_module_debug(module_name, True)
+            self.logger.info('Application "%s" is in development, disable RO feature' % module_name)
             self.cleep_filesystem.enable_write(root=True, boot=True)
         else:
-            self.logger.info('No module in development, enable RO feature')
+            self.logger.info('No application in development, enable RO feature')
             self.cleep_filesystem.disable_write(root=True, boot=True)
+
+    def __set_module_debug(self, module_name, debug):
+        """
+        Enable or disable debug on specified module
+
+        Args:
+            module_name (string): module name
+            debug (bool): True to enable debug, False otherwise
+        """
+        try:
+            if module_name == 'developer':
+                self.set_debug(debug)
+            elif len(module_name) > 0:
+                self.send_command('set_module_debug', 'system', {'module': module_name, 'debug': debug})
+        except Exception:
+            # module may not exists anymore
+            self.logger.exception('Unable to change debug status')
 
     def create_application(self, module_name):
         """
@@ -236,6 +243,9 @@ class Developer(CleepModule):
 
         Args:
             module_name (string): module name
+
+        Raises:
+            CommandError if command failed
         """
         cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
         self.logger.debug('Create app cmd: %s' % cmd)
@@ -245,8 +255,6 @@ class Developer(CleepModule):
         self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
         if res['returncode'] != 0:
             raise CommandError('Error during application creation. Check Cleep logs.')
-
-        return True
 
     def __cli_check(self, command, timeout=15.0):
         """
@@ -265,9 +273,8 @@ class Developer(CleepModule):
         try:
             return json.loads(''.join(res['stdout']))
         except Exception as error:
-            self.logger.exception('Error parsing command "%s" output' % cmd)
+            self.logger.exception('Error parsing command "%s" output' % command)
             raise CommandError('Error parsing check result. Check Cleep logs.') from error
-            
 
     def check_application(self, module_name):
         """
@@ -306,7 +313,6 @@ class Developer(CleepModule):
             'scripts': scripts_result,
             'tests': tests_result,
             'changelog': changelog_result,
-            'tang': {},
             # 'quality': code_result,
         }
 
@@ -317,9 +323,6 @@ class Developer(CleepModule):
 
         Args:
             module_name (string): module name
-
-        Returns:
-            bool: True if application archive generated successfully
 
         Raises:
             Exception if build failed
@@ -338,8 +341,6 @@ class Developer(CleepModule):
         except Exception as error:
             self.logger.exception('Error parsing app build command "%s" output' % cmd)
             raise CommandError('Error building application. Check Cleep logs.') from error
-
-        return True
 
     def download_application(self):
         """
@@ -427,8 +428,6 @@ class Developer(CleepModule):
         self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
         self.__tests_task.start()
 
-        return True
-
     def __docs_callback(self, stdout, stderr):
         """
         Docs cli outputs
@@ -473,8 +472,6 @@ class Developer(CleepModule):
         self.logger.debug('Doc generation cmd: %s' % cmd)
         self.__docs_task = EndlessConsole(cmd, self.__docs_callback, self.__docs_end_callback)
         self.__docs_task.start()
-
-        return True
 
     def download_documentation(self, module_name):
         """
