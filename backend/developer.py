@@ -18,11 +18,11 @@ __all__ = ['Developer']
 
 class Developer(CleepModule):
     """
-    Developer module: this module is dedicated only for developers.
-    It allows implements and configures remotedev in cleep
+    Developer module: this module is only useful for developers.
+    It installs remote Cleep development environment. You can find more information directly on cleepapp-developer github page
 
     Note:
-        https://github.com/tangb/cleep-cli
+        https://github.com/tangb/cleepapp-developer/wiki
     """
     MODULE_AUTHOR = 'Cleep'
     MODULE_VERSION = '3.0.0'
@@ -142,7 +142,7 @@ class Developer(CleepModule):
         """
         # kill all previous existing cleep-cli instances
         console = Console()
-        console.command('/usr/bin/pkill -9 -f cleep-cli')
+        console.command('/usr/bin/pkill -9 -f "cleep-cli watch"')
 
         self.logger.info('Launch watcher task')
         self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)

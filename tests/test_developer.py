@@ -4,6 +4,9 @@ import sys
 import time
 sys.path.append('../')
 from backend.developer import Developer
+from backend.developerdocsoutputevent import DeveloperDocsOutputEvent
+from backend.developertestsoutputevent import DeveloperTestsOutputEvent
+from backend.developerfrontendrestartevent import DeveloperFrontendRestartEvent
 from cleep.exception import InvalidParameter, MissingParameter, CommandError, Unauthorized
 from cleep.libs.tests import session
 from unittest.mock import Mock, DEFAULT, patch
@@ -13,6 +16,8 @@ class TestDeveloper(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.FATAL, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
         self.session = session.TestSession(self)
+        with open('test.log', 'a') as fd:
+            fd.write('%s\n' % self.id())
 
     def tearDown(self):
         self.session.clean()
@@ -467,6 +472,46 @@ class TestDeveloper(unittest.TestCase):
         with self.assertRaises(CommandError) as cm:
             self.module.download_documentation('dummy')
         self.assertEqual(str(cm.exception), 'error')
+
+
+
+
+class TestsDeveloperDocsOutputEvent(unittest.TestCase):
+
+    def setUp(self):
+        logging.basicConfig(level=logging.FATAL, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperDocsOutputEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, ['messages'])
+
+
+
+
+class TestsDeveloperTestsOutputEvent(unittest.TestCase):
+
+    def setUp(self):
+        logging.basicConfig(level=logging.FATAL, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperTestsOutputEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, ['messages'])
+
+
+
+
+class TestsDeveloperFrontendRestartEvent(unittest.TestCase):
+
+    def setUp(self):
+        logging.basicConfig(level=logging.FATAL, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperFrontendRestartEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, [])
+
 
 
 if __name__ == '__main__':
