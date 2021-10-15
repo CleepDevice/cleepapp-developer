@@ -11,7 +11,7 @@ from unittest.mock import Mock, DEFAULT, patch
 class TestDeveloper(unittest.TestCase):
 
     def setUp(self):
-        logging.basicConfig(level=logging.DEBUG, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
+        logging.basicConfig(level=logging.FATAL, format=u'%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s')
         self.session = session.TestSession(self)
 
     def tearDown(self):
@@ -211,14 +211,14 @@ class TestDeveloper(unittest.TestCase):
 
     def test_set_module_debug_exception(self):
         self.init()
-        set_module_debug_cmd_mock = self.session.make_mock_command('set_module_debug', no_response=True)
-        self.session.add_mock_command(set_module_debug_cmd_mock)
-        self.module.set_debug = Mock()
+        self.module.send_command = Mock(side_effect=Exception('Test exception'))
+        self.module.logger = Mock()
 
         try:
             self.module._Developer__set_module_debug('test', True)
         except:
             self.fail('Should handle exception')
+        self.module.logger.exception.assert_called_with('Unable to change debug status')
 
     @patch('backend.developer.Console')
     def test_create_application(self, console_mock):
@@ -404,6 +404,69 @@ class TestDeveloper(unittest.TestCase):
         with self.assertRaises(CommandError) as cm:
             self.module.get_last_coverage_report('dummy')
         self.assertEqual(str(cm.exception), 'Tests are running. Please wait end of it')
+
+    def test_docs_callback(self):
+        self.init()
+        self.module._Developer__docs_task = Mock()
+
+        for i in range(self.module.BUFFER_SIZE):
+            self.module._Developer__docs_callback('stdout', 'stderr')
+        params = self.session.get_last_event_params('developer.docs.output')
+        logging.debug('Params: %s' % params)
+
+        self.assertEqual(self.session.event_call_count('developer.docs.output'), 1)
+        self.assertEqual(params['messages'], ['stdoutstderr'] * 10)
+
+    def test_docs_end_callback(self):
+        self.init()
+        self.module._Developer__docs_task = Mock()
+        self.module._Developer__docs_buffer = ['stdout'] * 5
+
+        self.module._Developer__docs_end_callback(0, False)
+        params = self.session.get_last_event_params('developer.docs.output')
+        logging.debug('Params: %s' % params)
+
+        self.assertEqual(self.session.event_call_count('developer.docs.output'), 1)
+        self.assertEqual(params['messages'], ['stdout'] * 5)
+        self.assertEqual(len(self.module._Developer__docs_buffer), 0)
+
+    @patch('backend.developer.EndlessConsole')
+    def test_generate_documentation(self, endless_console_mock):
+        self.init()
+
+        self.module.generate_documentation('dummy')
+
+        endless_console_mock.return_value.start.assert_called()
+
+    def test_generate_documentation_already_running(self):
+        self.init()
+        self.module._Developer__docs_task = Mock()
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.generate_documentation('dummy')
+        self.assertEqual(str(cm.exception), 'Doc generation is running. Please wait end of it')
+
+    @patch('backend.developer.Console')
+    def test_download_documentation(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': ['DOC_ARCHIVE=/tmp/cleep/documentation/dummy.zip'], 'stderr': ['']}
+
+        result = self.module.download_documentation('dummy')
+        logging.debug('Result: %s' % result)
+
+        self.assertEqual(result, {
+            'filepath': '/tmp/cleep/documentation/dummy.zip',
+            'filename': 'dummy.zip',
+        })
+
+    @patch('backend.developer.Console')
+    def test_download_documentation_failed(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 1, 'stdout': ['error'], 'stderr': ['']}
+
+        with self.assertRaises(CommandError) as cm:
+            self.module.download_documentation('dummy')
+        self.assertEqual(str(cm.exception), 'error')
 
 
 if __name__ == '__main__':
