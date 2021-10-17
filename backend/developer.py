@@ -245,7 +245,7 @@ class Developer(CleepModule):
             module_name (string): module name
 
         Raises:
-            CommandError if command failed
+            CommandError: if command failed
         """
         cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
         self.logger.debug('Create app cmd: %s' % cmd)
@@ -325,19 +325,19 @@ class Developer(CleepModule):
             module_name (string): module name
 
         Raises:
-            Exception if build failed
+            Exception: if build failed
         """
         cmd = self.CLI_BUILD_APP_CMD % (self.CLI, module_name)
         self.logger.debug('Build app cmd: %s' % cmd)
 
         console = Console()
-        res = console.command(cmd, 20.0)
+        res = console.command(cmd, 60.0)
         self.logger.info('Build app result: %s | %s' % (res['stdout'], res['stderr']))
         if res['returncode'] != 0:
             raise CommandError('Error building application. Check Cleep logs.')
 
         try:
-            self.__last_application_build = json.loads(''.join(res['stdout']))
+            self.__last_application_build = json.loads(res['stdout'][0])
         except Exception as error:
             self.logger.exception('Error parsing app build command "%s" output' % cmd)
             raise CommandError('Error building application. Check Cleep logs.') from error
@@ -412,6 +412,7 @@ class Developer(CleepModule):
         self.logger.debug('Test cmd: %s' % cmd)
         self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
         self.__tests_task.start()
+        self.tests_output_event.send(params={'messages': 'Tests execution started. Please wait...'}, to='rpc', render=False)
 
     def get_last_coverage_report(self, module_name):
         """
@@ -472,6 +473,7 @@ class Developer(CleepModule):
         self.logger.debug('Doc generation cmd: %s' % cmd)
         self.__docs_task = EndlessConsole(cmd, self.__docs_callback, self.__docs_end_callback)
         self.__docs_task.start()
+        self.docs_output_event.send(params={'messages': 'Documentation generation started. Please wait...'}, to='rpc', render=False)
 
     def download_documentation(self, module_name):
         """

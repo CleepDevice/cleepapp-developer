@@ -25,17 +25,6 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.newApplicationName = '';
         self.loading = false;
         self.analyzeError = null;
-        self.logs = '';
-        self.codemirrorInstance = null;
-        self.codemirrorOptions = {
-            lineNumbers: true,
-            tabSize: 2,
-            readOnly: true,
-            onLoad: function(cmInstance) {
-                self.codemirrorInstance = cmInstance;
-                cmInstance.focus();
-            }
-        };
         self.remotedevUuid = null;
         self.cleepService = cleepService;
 
@@ -126,7 +115,6 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Select module turns on debug on it and enable module analyze in build helper tab
          */
         self.selectModule = function() {
-            // set module in development
             developerService.selectApplicationForDevelopment(self.selectedModule)
                 .then(function() {
                     // reload configuration
@@ -148,7 +136,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         /**
          * Check selected app
          */
-        self.analyzeModule = function() {
+        self.analyzeApplication = function() {
             self.loading = true;
 
             // check params
@@ -184,48 +172,26 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Build application
          */
         self.buildApplication = function() {
-            if( !self.data )
+            if( !self.checkData ) {
                 return;
-    
+            }
+
             self.loading = true;
+            toast.loading('Building application...');
             developerService.buildApplication(self.config.moduleInDev, 30)
                 .then(function(resp) {
                     // build generation completed, download package now
-                    return developerService.downloadPackage();
+                    return developerService.downloadApplication();
                 }, function(err) {
                     return $q.reject('stop-chain');
                 })
                 .then(function(resp) {
+                    toast.success('Application built successfully');
                 }, function(err) {
                     if (err !== 'stop-chain') {
                         console.error('Download failed:', err);
                         toast.error('Download failed');
                     }
-                })
-                .finally(function() {
-                    self.loading = false;
-                });
-        };
-
-        /**
-         * Load logs
-         */
-        self.loadLogs = function() {
-            self.loading = true;
-
-            systemService.getLogs()
-                .then(function(resp) {
-                    self.logs = resp.data.join('');
-                    self.codemirrorInstance.refresh();
-
-                    if( self.logs.length===0 ) {
-                        toast.info('Log file is empty');
-                    }
-
-                    // jump to end of log
-                    $timeout(function() {
-                        self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
-                    }, 300);
                 })
                 .finally(function() {
                     self.loading = false;
@@ -241,9 +207,6 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
 
             systemService.clearLogs()
                 .then(function() {
-                    self.logs = '';
-                    self.codemirrorInstance.refresh();
-
                     toast.info('Log file is cleared');
                 })
                 .finally(function() {
@@ -252,33 +215,17 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         };
 
         /**
-         * Clear logs output
-         */
-        self.clearLogsOutput = function() {
-            self.logs = '';
-        }
-
-        /**
-         * Goto top of logs
-         */
-        self.gotoLogsTop = function() {
-            self.codemirrorInstance.setCursor(0, 0);
-        };
-
-        /**
-         * Goto bottom of logs
-         */
-        self.gotoLogsBottom = function() {
-            self.codemirrorInstance.setCursor(self.codemirrorInstance.lineCount(), 0);
-        };
-
-        /**
          * Create new application skeleton
          */
         self.createApplication = function() {
+            self.loading = true;
+
             developerService.createApplication(self.newApplicationName)
                 .then(function() {
                     toast.success('Application skeleton created. Download code on your editor.');
+                })
+                .finally(() => {
+                    self.loading = false;
                 });
         };
 
@@ -286,11 +233,17 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Launch unit tests
          */
         self.launchTests = function() {
+            self.loading = true;
+
+            toast.info('Running unit tests. Please follow process in ');
             developerService.launchTests(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
                         toast.success('Unit tests running...');
                     }
+                })
+                .finally(() => {
+                    self.loading = false;
                 });
         };
 
@@ -298,6 +251,9 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Get last coverage report
          */
         self.getLastCoverageReport = function() {
+            self.loading = true;
+
+            toast.info('Getting app coverage. Please follow process in output');
             developerService.getLastCoverageReport(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
@@ -310,11 +266,17 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Generate documentation
          */
         self.generateDocumentation = function() {
+            self.loading = true;
+
+            toast.info('Generating documentation. Please follow process in output');
             developerService.generateDocumentation(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
                         toast.success('Generating documentation...');
                     }
+                })
+                .finally(() => {
+                    self.loading = false;
                 });
         };
 

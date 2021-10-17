@@ -35,7 +35,7 @@ function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
      * Build application package
      */
     self.buildApplication = function(moduleName, data) {
-        return rpcService.sendCommand('build_application', 'developer', {'module_name': moduleName}, 30);
+        return rpcService.sendCommand('build_application', 'developer', {'module_name': moduleName}, 60);
     };
 
     /**

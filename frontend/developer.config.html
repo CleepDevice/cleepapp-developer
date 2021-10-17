@@ -6,7 +6,7 @@
             <md-icon md-svg-icon="chevron-right"></md-icon>
             <div class="md-list-item-text">
                 <h3>Choose application you are developing on</h3>
-                <p>Selected app debug mode will be turned on automatically and "restart CleepOS" button added on app toolbar.</p>
+                <p>Selected app debug mode will be turned on automatically.</p>
             </div>
             <md-input-container class="no-margin" style="padding-top: 10px;">
                 <md-select ng-model="devCtl.selectedModule" ng-disabled="devCtl.loading" aria-label="Select application">
@@ -52,7 +52,7 @@
                 </div>
                 <md-input-container class="md-secondary no-margin no-md-error">
                     <input ng-model="devCtl.newApplicationName" placeholder="New application name">
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApplication()">
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApplication()" ng-disabled="devCtl.loading">
                         <md-icon md-svg-icon="plus"></md-icon>
                         Create app
                     </md-button>
@@ -141,7 +141,7 @@
             <md-list-item>
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <p>Click on button to execute tests available on your "tests" application directory</p>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.launchTests()">
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.launchTests()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="wrench"></md-icon>
                     Launch tests
                 </md-button>
@@ -154,7 +154,7 @@
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
                         <h2 flex md-truncate>Tests execution result</h2>
-                        <md-button class="md-primary md-raised" ng-click="devCtl.getLastCoverageReport()" aria-label="Last coverage report">
+                        <md-button class="md-primary md-raised" ng-click="devCtl.getLastCoverageReport()" aria-label="Last coverage report" ng-disabled="devCtl.loading">
                             <md-icon class="toolbar-white-icon" md-svg-icon="gauge"></md-icon>
                             Last coverage report
                         </md-button>
@@ -188,7 +188,7 @@
                     <h3>Click on button to build your app documentation</h3>
                     <p>A text preview will be displayed in output below.</p>
                 </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDocumentation()">
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDocumentation()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="wrench"></md-icon>
                     Generate doc
                 </md-button>
@@ -201,7 +201,7 @@
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
                         <h2 flex md-truncate>Documentation preview</h2>
-                        <md-button class="md-primary md-raised" ng-click="devCtl.downloadDocumentation()" aria-label="Html documentation">
+                        <md-button class="md-primary md-raised" ng-click="devCtl.downloadDocumentation()" aria-label="Html documentation" ng-disabled="devCtl.loading">
                             <md-icon class="toolbar-white-icon" md-svg-icon="download"></md-icon>
                             Download html
                         </md-button>
@@ -229,7 +229,7 @@
             <md-list-item ng-if="devCtl.config.moduleInDev">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <p>Analyze application to check its content and prepare package build</p>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.analyzeModule()" ng-disabled="devCtl.loading">
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.analyzeApplication()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="cogs"></md-icon>
                     Analyze app
                 </md-button>
@@ -347,7 +347,7 @@
                     <md-icon md-svg-icon="chevron-right"></md-icon>
                     <div class="md-list-item-text">
                         <h3>Build and download application package archive</h3>
-                        <p>Please make sure popups are not blocked by your browser</p>
+                        <p>Please make sure popups <b>are not blocked</b> by your browser</p>
                     </div>
                     <div ng-if="devCtl.checkData.errorsCount>0" class="md-secondary">
                         <span>Build disabled, please fix errors</span>
@@ -355,7 +355,7 @@
                     <div ng-if="devCtl.checkData.errorsCount===0 && !devCtl.checkData.versionOk" class="md-secondary">
                         <span>Build disabled, please fix changelog version</span>
                     </div>
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.buildPackage()" ng-disabled="devCtl.checkData.errorsCount>0 && devCtl.checkData.versionOk">
+                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.buildApplication()" ng-disabled="devCtl.checkData.errorsCount>0 || !devCtl.checkData.versionOk || devCtl.loading">
                         <md-icon md-svg-icon="download"></md-icon>
                         Build application
                     </md-button>
