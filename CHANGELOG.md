@@ -1,4 +1,4 @@
-i# Changelog
+# Changelog
 
 ## [v3.0.0] - 2021-10-16
 
