@@ -16,7 +16,7 @@ Thanks to this cli and the developer application, you can develop remotely witho
 
 ## Features
 
-### Developer helpers
+### Developer helpers
 
 * Create new application: it creates default application with default documentation config, base backend and frontend skeleton and default test file.
 * Access to Cleep logs shortcut
