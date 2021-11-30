@@ -1,4 +1,4 @@
-# Developer
+# Developer [![Coverage Status](https://coveralls.io/repos/github/tangb/cleepapp-developer/badge.svg?branch=master)](https://coveralls.io/github/tangb/cleepapp-developer?branch=master)
 
 Developer application for Cleep
 
