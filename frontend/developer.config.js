@@ -138,6 +138,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          */
         self.analyzeApplication = function() {
             self.loading = true;
+            self.analyzeError = null;
 
             // check params
             if( !self.config.moduleInDev ) {
@@ -160,8 +161,8 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                     self.checkData.versionOk = !resp.data.changelog.unreleased && resp.data.changelog.version === resp.data.backend.metadata.version;
 
                     self.selectedNav = 'buildmodule';
-                }, function(err) {
-                    self.analyzeError = err;
+                }, function(error) {
+                    self.analyzeError = error;
                 })
                 .finally(function() {
                     self.loading = false;

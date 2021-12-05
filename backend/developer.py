@@ -271,6 +271,8 @@ class Developer(CleepModule):
         self.logger.debug('Cli command "%s" output: %s | %s' % (command, res['stdout'], res['stderr']))
 
         try:
+            if res['returncode'] != 0:
+                raise CommandError('Command failed.')
             return json.loads(''.join(res['stdout']))
         except Exception as error:
             self.logger.exception('Error parsing command "%s" output' % command)
