@@ -4,7 +4,10 @@
 
 ### Fixed
 - Handle command failure (return code different from 0)
-- Reset analyze error flag when running new analyze
+- Reset analyze error flag when running new analysis
+
+### Changed
+- Improve app creation: temporarly disable cleep-cli watch and add infos dialog
 
 ## [v3.0.0] - 2021-10-16
 

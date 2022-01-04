@@ -1,0 +1,52 @@
+<md-dialog aria-label="Add sensor dialog" flex="75">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>New application created</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content class="md-dialog-content" layout-padding layout="column" layout-align="center stretch">
+            <div>
+                <h3>Your application skeleton has been successfully created.<h3>
+            </div>
+            <div layout="row" layout-align="start center" layout-padding>
+                <div>
+                    <md-icon md-svg-icon="download-circle-outline" class="icon-md"></md-icon>
+                </div>
+                <div>
+                    If you are developping remotely, please download code from the device to your editor. If you are developing directly on the device, you will find sources in /root/cleep/modules/{{developerCtl.newApplicationName}}
+                </div>
+            </div>
+            <div layout="row" layout-align="start center" layout-padding>
+                <div>
+                    <md-icon md-svg-icon="reload" class="icon-md"></md-icon>
+                </div>
+                <div>
+                    Cleep needs to be restarted to know your application. Closing this dialog will restart Cleep automatically.
+                </div>
+            </div>
+            <div layout="row" layout-align="start center" layout-padding>
+                <div>
+                    <md-icon md-svg-icon="plus-circle-outline" class="icon-md"></md-icon>
+                </div>
+                <div>
+                    After Cleep has restarted, go to "applications market" page and click on your application install button.
+                </div>
+            </div>
+            <div layout="row" layout-align="start center" layout-padding>
+                <div>
+                    <md-icon md-svg-icon="check-circle-outline" class="icon-md"></md-icon>
+                </div>
+                <div>
+                    Then your ready to code your new application. Enjoy ;-)
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <md-button ng-click="developerCtl.restartCleep()">Close</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

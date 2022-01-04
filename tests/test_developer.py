@@ -83,18 +83,18 @@ class TestDeveloper(unittest.TestCase):
 
     def test_on_start(self):
         self.init(False)
-        self.module._Developer__launch_watcher = Mock()
+        self.module._Developer__start_watcher = Mock()
         
         self.session.start_module(self.module)
 
-        self.assertTrue(self.module._Developer__launch_watcher.called)
+        self.assertTrue(self.module._Developer__start_watcher.called)
 
     def test_on_stop(self):
         self.init(False)
         self.module._Developer__watcher_task = Mock()
         self.module._Developer__tests_task = Mock()
         self.module._Developer__docs_task = Mock()
-        self.module._Developer__launch_watcher = Mock()
+        self.module._Developer__start_watcher = Mock()
         self.module._Developer__launch_tests = Mock()
         self.module._Developer__generate_documentation = Mock()
 
@@ -107,10 +107,10 @@ class TestDeveloper(unittest.TestCase):
 
     @patch('backend.developer.Console')
     @patch('backend.developer.EndlessConsole')
-    def test_launch_watcher(self, endless_console_mock, console_mock):
+    def test_start_watcher(self, endless_console_mock, console_mock):
         self.init()
 
-        self.module._Developer__launch_watcher()
+        self.module._Developer__start_watcher()
 
         console_mock.return_value.command.assert_called()
         endless_console_mock.return_value.start.assert_called()
@@ -118,7 +118,7 @@ class TestDeveloper(unittest.TestCase):
     def test_watcher_callback(self):
         self.init(False)
         self.module._Developer__watcher_task = Mock()
-        self.module._Developer__launch_watcher = Mock()
+        self.module._Developer__start_watcher = Mock()
         self.module.logger = Mock()
 
         self.session.start_module(self.module)
@@ -130,7 +130,7 @@ class TestDeveloper(unittest.TestCase):
         self.init(False)
         self.module._Developer__watcher_task = Mock()
         self.module._Developer__tests_task = Mock()
-        self.module._Developer__launch_watcher = Mock()
+        self.module._Developer__start_watcher = Mock()
         self.module.logger = Mock()
 
         self.session.start_module(self.module)
@@ -138,7 +138,7 @@ class TestDeveloper(unittest.TestCase):
         
         self.module.logger.error.assert_called()
         self.session.assert_event_called('developer.tests.output')
-        self.assertEqual(self.module._Developer__launch_watcher.call_count, 2)
+        self.assertEqual(self.module._Developer__start_watcher.call_count, 2)
 
     def test_get_module_devices(self):
         self.init(True)
@@ -246,7 +246,7 @@ class TestDeveloper(unittest.TestCase):
     @patch('backend.developer.Console')
     def test_cli_check(self, console_mock):
         self.init()
-        console_mock.return_value.command.return_value = {'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
 
         result = self.module._Developer__cli_check('a command')
         logging.debug('Result: %s' % result)
@@ -254,13 +254,22 @@ class TestDeveloper(unittest.TestCase):
         self.assertEqual(result, {'hello': 'world'})
 
     @patch('backend.developer.Console')
-    def test_cli_check_invalid_json(self, console_mock):
+    def test_cli_check_invalid_command_failed(self, console_mock):
         self.init()
-        console_mock.return_value.command.return_value = {'stdout': ['{hello: "world"}'], 'stderr': 'stderr'}
+        console_mock.return_value.command.return_value = {'returncode': 1, 'stdout': ['{"hello": "world"}'], 'stderr': 'stderr'}
 
         with self.assertRaises(CommandError) as cm:
             self.module._Developer__cli_check('a command')
-        self.assertEqual(str(cm.exception), 'Error parsing check result. Check Cleep logs.')
+        self.assertEqual(str(cm.exception), 'Command failed')
+
+    @patch('backend.developer.Console')
+    def test_cli_check_invalid_json(self, console_mock):
+        self.init()
+        console_mock.return_value.command.return_value = {'returncode': 0, 'stdout': ['{hello: "world"}'], 'stderr': 'stderr'}
+
+        with self.assertRaises(CommandError) as cm:
+            self.module._Developer__cli_check('a command')
+        self.assertEqual(str(cm.exception), 'Error parsing check result. Check Cleep logs')
 
     def test_check_application(self):
         self.init()

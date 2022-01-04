@@ -4,9 +4,8 @@
  */
 angular
 .module('Cleep')
-.directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout',
-    'appToolbarService', '$sce', '$location', '$q', '$sce',
-function($rootScope, toast, cleepService, developerService, systemService, $timeout, appToolbarService, $sce, $location, $q, $sce) {
+.directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout', '$sce', '$location', '$q', '$mdDialog',
+function($rootScope, toast, cleepService, developerService, systemService, $timeout, $sce, $location, $q, $mdDialog) {
 
     // konami code: ssuperr
 
@@ -223,7 +222,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
 
             developerService.createApplication(self.newApplicationName)
                 .then(function() {
-                    toast.success('Application skeleton created. Download code on your editor.');
+                    self.openDialog();
                 })
                 .finally(() => {
                     self.loading = false;
@@ -286,6 +285,29 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          */
         self.downloadDocumentation = function() {
             developerService.downloadDocumentation(self.config.moduleInDev);
+        };
+
+        /**
+         * Open new app dialog
+         */
+        self.openDialog = function() {
+            return $mdDialog.show({
+                controller: function() { return self; },
+                controllerAs: 'developerCtl',
+                templateUrl: 'new-app.dialog.html',
+                parent: angular.element(document.body),
+                clickOutsideToClose: false,
+                escapeToClose: false,
+                fullscreen: true,
+            });
+        };
+
+        /**
+         * Close dialog and restart cleep
+         */
+        self.restartCleep = function() {
+            $mdDialog.cancel();
+            systemService.restart();
         };
 
     }];

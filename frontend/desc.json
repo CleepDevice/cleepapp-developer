@@ -9,7 +9,7 @@
     }, 
     "config": {
         "html": [
-            "developer.config.html"
+            "developer.config.html", "new-app.dialog.html"
         ], 
         "css": [
             "developer.config.css"

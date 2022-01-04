@@ -53,6 +53,7 @@ class Developer(CleepModule):
 
     CLI = '/usr/local/bin/cleep-cli'
     CLI_WATCHER_CMD = '%s watch --loglevel=40' % CLI
+    CLI_SYNC_MODULE_CMD = CLI + ' modsync --module=%s'
     CLI_TESTS_CMD = '%s modtests --module "%s" --coverage'
     CLI_TESTS_COV_CMD = '%s modtestscov --module "%s" --missing'
     CLI_NEW_APPLICATION_CMD = '%s modcreate --module "%s"'
@@ -123,30 +124,42 @@ class Developer(CleepModule):
         """
         Module starts
         """
-        self.__launch_watcher()
+        self.__start_watcher()
 
     def _on_stop(self):
         """
         Custom stop: stop remotedev thread
         """
-        if self.__watcher_task:
-            self.__watcher_task.stop()
+        self.__stop_watcher()
         if self.__tests_task:
             self.__tests_task.stop()
         if self.__docs_task:
             self.__docs_task.stop()
 
-    def __launch_watcher(self):
+    def __start_watcher(self):
         """
         Launch cleep-cli watch command
         """
-        # kill all previous existing cleep-cli instances
-        console = Console()
-        console.command('/usr/bin/pkill -9 -f "cleep-cli watch"')
+        self.__kill_watchers()
 
         self.logger.info('Launch watcher task')
         self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
         self.__watcher_task.start()
+
+    def __stop_watcher(self):
+        """
+        Stop running watcher instance
+        """
+        if self.__watcher_task:
+            self.__watcher_task.stop()
+        self.__kill_watchers()
+
+    def __kill_watchers(self):
+        """
+        Kill all watchers instances
+        """
+        console = Console()
+        console.command('/usr/bin/pkill -9 -f "cleep-cli watch"')
 
     def __watcher_callback(self, stdout, stderr):
         """
@@ -172,8 +185,7 @@ class Developer(CleepModule):
         if self.__tests_task:
             self.tests_output_event.send(params={'messages': '====== Tests crashes. Run tests manually please to check errors ====='}, to='rpc', render=False)
 
-        # start new instance
-        self.__launch_watcher()
+        self.__start_watcher()
 
     def get_module_devices(self):
         """
@@ -247,14 +259,22 @@ class Developer(CleepModule):
         Raises:
             CommandError: if command failed
         """
+        self.__stop_watcher()
+
         cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
         self.logger.debug('Create app cmd: %s' % cmd)
 
-        console = Console()
-        res = console.command(cmd, 10.0)
-        self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
-        if res['returncode'] != 0:
-            raise CommandError('Error during application creation. Check Cleep logs.')
+        try:
+            console = Console()
+            res = console.command(cmd, 10.0)
+            self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
+            if res['returncode'] != 0:
+                raise CommandError('Error during application creation. Check Cleep logs.')
+
+            # sync new app content
+            console.command(self.CLI_SYNC_MODULE_CMD % module_name)
+        finally:
+            self.__start_watcher()
 
     def __cli_check(self, command, timeout=15.0):
         """
@@ -269,14 +289,14 @@ class Developer(CleepModule):
         console = Console()
         res = console.command(command, timeout)
         self.logger.debug('Cli command "%s" output: %s | %s' % (command, res['stdout'], res['stderr']))
+        if res['returncode'] != 0:
+            raise CommandError('Command failed')
 
         try:
-            if res['returncode'] != 0:
-                raise CommandError('Command failed.')
             return json.loads(''.join(res['stdout']))
         except Exception as error:
             self.logger.exception('Error parsing command "%s" output' % command)
-            raise CommandError('Error parsing check result. Check Cleep logs.') from error
+            raise CommandError('Error parsing check result. Check Cleep logs') from error
 
     def check_application(self, module_name):
         """
