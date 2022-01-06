@@ -202,7 +202,7 @@ class Developer(CleepModule):
         """
         Send event to restart frontend
         """
-        self.logger.info('Sending restart event to frontend')
+        self.logger.debug('Sending restart event to frontend')
         self.frontend_restart_event.send(to='rpc')
 
     def select_application_for_development(self, module_name):
