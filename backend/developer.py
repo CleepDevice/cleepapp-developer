@@ -290,6 +290,7 @@ class Developer(CleepModule):
         res = console.command(command, timeout)
         self.logger.debug('Cli command "%s" output: %s | %s' % (command, res['stdout'], res['stderr']))
         if res['returncode'] != 0:
+            self.logger.exception('Command "%s"', command)
             raise CommandError('Command failed')
 
         try:
