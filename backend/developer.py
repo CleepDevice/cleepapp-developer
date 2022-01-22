@@ -25,7 +25,7 @@ class Developer(CleepModule):
         https://github.com/tangb/cleepapp-developer/wiki
     """
     MODULE_AUTHOR = 'Cleep'
-    MODULE_VERSION = '3.0.0'
+    MODULE_VERSION = '3.1.0'
     MODULE_DEPS = []
     MODULE_DESCRIPTION = 'Helps you to develop Cleep applications.'
     MODULE_LONGDESCRIPTION = 'Developer module helps you to develop on Cleep installing \
