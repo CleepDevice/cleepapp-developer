@@ -1,4 +1,4 @@
-# Developer [![Coverage Status](https://coveralls.io/repos/github/tangb/cleepapp-developer/badge.svg?branch=master)](https://coveralls.io/github/tangb/cleepapp-developer?branch=master)
+# Developer [![Coverage Status](https://coveralls.io/repos/github/tangb/cleepapp-developer/badge.svg?branch=master)](https://coveralls.io/github/tangb/cleepapp-developer?branch=master) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9f7643837f844164b846fd3970cb1633)](https://www.codacy.com/gh/CleepDevice/cleepapp-developer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CleepDevice/cleepapp-developer&amp;utm_campaign=Badge_Grade)
 
 Developer application for Cleep
 
