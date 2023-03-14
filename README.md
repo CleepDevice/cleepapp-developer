@@ -1,14 +1,14 @@
-# Developer [![Coverage Status](https://coveralls.io/repos/github/tangb/cleepapp-developer/badge.svg?branch=master)](https://coveralls.io/github/tangb/cleepapp-developer?branch=master) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9f7643837f844164b846fd3970cb1633)](https://www.codacy.com/gh/CleepDevice/cleepapp-developer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CleepDevice/cleepapp-developer&amp;utm_campaign=Badge_Grade)
+# Developer [![Coverage Status](https://coveralls.io/repos/github/CleepDevice/cleepapp-developer/badge.svg)](https://coveralls.io/github/CleepDevice/cleepapp-developer) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9f7643837f844164b846fd3970cb1633)](https://www.codacy.com/gh/CleepDevice/cleepapp-developer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CleepDevice/cleepapp-developer&amp;utm_campaign=Badge_Grade)
 
 Developer application for Cleep
 
-![](https://github.com/tangb/cleepapp-developer/raw/master/resources/background.jpg)
+![](https://github.com/CleepDevice/cleepapp-developer/raw/master/resources/background.jpg)
 
 ## Presentation
 
 This application allows you to develop as easily as possible new applications in Cleep environement.
 
-It installs [cleep-cli](https://github.com/tangb/cleep-cli) which is a dedicated cli that executes dedicated Cleep commands directly on device.
+It installs [cleep-cli](https://github.com/CleepDevice/cleep-cli) which is a dedicated cli that executes dedicated Cleep commands directly on device.
 
 It allows to create new application, check your application code, execute unit tests...
 
@@ -39,10 +39,10 @@ Finally a build application button is available to create ready to publish archi
 
 ### Remote development
 
-Please follow this [tutorial](https://github.com/tangb/cleep-cli#watch-usage) to configure VSCode to enable remote development. You can use another EDI as long as it allows to push changes to another host (ftp, sftp...).
+Please follow this [tutorial](https://github.com/CleepDevice/cleep-cli#watch-usage) to configure VSCode to enable remote development. You can use another EDI as long as it allows to push changes to another host (ftp, sftp...).
 Cleep-cli will check for changes on frontend or backend files and restart what is needed automatically.
 
-You can also connect with ssh to the device and directly develop on the device. See [here](https://github.com/tangb/cleep-cli#local-developments) for more informations.
+You can also connect with ssh to the device and directly develop on the device. See [here](https://github.com/CleepDevice/cleep-cli#local-developments) for more informations.
 
 ## How it works
 

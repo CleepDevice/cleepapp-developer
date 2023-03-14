@@ -153,10 +153,10 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                     self.checkData.backend.metadata.longdescription = self.sceLongDescription = $sce.trustAsHtml(self.checkData.backend.metadata.longdescription);
                     self.checkData.errorsCount = resp.data.backend.errors.length + resp.data.frontend.errors.length + resp.data.tests.errors.length + resp.data.scripts.errors.length
                     self.checkData.warningsCount = resp.data.backend.warnings.length + resp.data.frontend.warnings.length + resp.data.tests.warnings.length + resp.data.scripts.warnings.length
-                    self.checkData.preinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preinst.sh');
-                    self.checkData.preuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preuninst.sh');
-                    self.checkData.postinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postinst.sh');
-                    self.checkData.postuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postuninst.sh');
+                    //self.checkData.preinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preinst.sh');
+                    //self.checkData.preuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preuninst.sh');
+                    //self.checkData.postinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postinst.sh');
+                    //self.checkData.postuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postuninst.sh');
                     self.checkData.versionOk = !resp.data.changelog.unreleased && resp.data.changelog.version === resp.data.backend.metadata.version;
 
                     self.selectedNav = 'buildmodule';

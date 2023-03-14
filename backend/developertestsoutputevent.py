@@ -3,14 +3,15 @@
 
 from cleep.libs.internals.event import Event
 
+
 class DeveloperTestsOutputEvent(Event):
     """
     developer.tests.output event
     """
 
-    EVENT_NAME = 'developer.tests.output'
+    EVENT_NAME = "developer.tests.output"
     EVENT_PROPAGATE = False
-    EVENT_PARAMS = ['messages']
+    EVENT_PARAMS = ["messages"]
 
     def __init__(self, params):
         """
@@ -20,4 +21,3 @@ class DeveloperTestsOutputEvent(Event):
             params (dict): event parameters
         """
         Event.__init__(self, params)
-

@@ -1,13 +1,14 @@
 # Changelog
 
-## [3.1.0]
+## [3.1.0] - 2023-03-14
 
 ### Fixed
 - Handle command failure (return code different from 0)
 - Reset analyze error flag when running new analysis
+- Improve code quality (black+lint)
 
 ### Changed
-- Improve app creation: temporarly disable cleep-cli watch and add infos dialog
+- Improve app creation: temporarily disable cleep-cli watch and add infos dialog
 - Add some log messages
 
 ## [3.0.0] - 2021-10-16

@@ -13,7 +13,7 @@ from cleep.libs.configs import __all__ as configs_libs
 from cleep.libs.commands import __all__ as commands_libs
 
 
-__all__ = ['Developer']
+__all__ = ["Developer"]
 
 
 class Developer(CleepModule):
@@ -22,38 +22,47 @@ class Developer(CleepModule):
     It installs remote Cleep development environment. You can find more information directly on cleepapp-developer github page
 
     Note:
-        https://github.com/tangb/cleepapp-developer/wiki
+        https://github.com/CleepDevice/cleepapp-developer/wiki
     """
-    MODULE_AUTHOR = 'Cleep'
-    MODULE_VERSION = '3.1.0'
+
+    MODULE_AUTHOR = "Cleep"
+    MODULE_VERSION = "3.1.0"
     MODULE_DEPS = []
-    MODULE_DESCRIPTION = 'Helps you to develop Cleep applications.'
-    MODULE_LONGDESCRIPTION = 'Developer module helps you to develop on Cleep installing \
+    MODULE_DESCRIPTION = "Helps you to develop Cleep applications."
+    MODULE_LONGDESCRIPTION = "Developer module helps you to develop on Cleep installing \
         and preconfiguring sync tools. It also provides a full page that helps you to \
         check and build your own application.<br/>This module will provide the official way to \
         publish your module on Cleep market.<br/><br/>Lot of resources are available \
-        on developer module wiki, have a look and start enjoying Cleep!'
-    MODULE_TAGS = ['developer', 'python', 'cleepos', 'module', 'angularjs', 'cleep', 'cli', 'test', 'documentation']
-    MODULE_CATEGORY = 'APPLICATION'
+        on developer module wiki, have a look and start enjoying Cleep!"
+    MODULE_TAGS = [
+        "developer",
+        "python",
+        "cleepos",
+        "module",
+        "angularjs",
+        "cleep",
+        "cli",
+        "test",
+        "documentation",
+    ]
+    MODULE_CATEGORY = "APPLICATION"
     MODULE_COUNTRY = None
-    MODULE_URLINFO = 'https://github.com/tangb/cleepmod-developer'
-    MODULE_URLHELP = 'https://github.com/tangb/cleepmod-developer/wiki'
+    MODULE_URLINFO = "https://github.com/CleepDevice/cleepmod-developer"
+    MODULE_URLHELP = "https://github.com/CleepDevice/cleepmod-developer/wiki"
     MODULE_URLSITE = None
-    MODULE_URLBUGS = 'https://github.com/tangb/cleepmod-developer/issues'
+    MODULE_URLBUGS = "https://github.com/CleepDevice/cleepmod-developer/issues"
 
-    MODULE_CONFIG_FILE = 'developer.conf'
-    DEFAULT_CONFIG = {
-        'moduleindev': None
-    }
+    MODULE_CONFIG_FILE = "developer.conf"
+    DEFAULT_CONFIG = {"moduleindev": None}
 
     BUFFER_SIZE = 10
 
-    PATH_MODULE_TESTS = '/root/cleep/modules/%(MODULE_NAME)s/tests/'
-    PATH_MODULE_FRONTEND = '/root/cleep/modules/%(MODULE_NAME)s/frontend/'
+    PATH_MODULE_TESTS = "/root/cleep/modules/%(MODULE_NAME)s/tests/"
+    PATH_MODULE_FRONTEND = "/root/cleep/modules/%(MODULE_NAME)s/frontend/"
 
-    CLI = '/usr/local/bin/cleep-cli'
-    CLI_WATCHER_CMD = '%s watch --loglevel=40' % CLI
-    CLI_SYNC_MODULE_CMD = CLI + ' modsync --module=%s'
+    CLI = "/usr/local/bin/cleep-cli"
+    CLI_WATCHER_CMD = CLI + " watch --loglevel=40"
+    CLI_SYNC_MODULE_CMD = CLI + " modsync --module=%s"
     CLI_TESTS_CMD = '%s modtests --module "%s" --coverage'
     CLI_TESTS_COV_CMD = '%s modtestscov --module "%s" --missing'
     CLI_NEW_APPLICATION_CMD = '%s modcreate --module "%s"'
@@ -88,37 +97,36 @@ class Developer(CleepModule):
         self.__docs_buffer = []
 
         # events
-        self.tests_output_event = self._get_event('developer.tests.output')
-        self.docs_output_event = self._get_event('developer.docs.output')
-        self.frontend_restart_event = self._get_event('developer.frontend.restart')
+        self.tests_output_event = self._get_event("developer.tests.output")
+        self.docs_output_event = self._get_event("developer.docs.output")
+        self.frontend_restart_event = self._get_event("developer.frontend.restart")
 
     def _configure(self):
         """
         Configure module
         """
         # disable rw if in development
-        module_in_dev = self._get_config_field('moduleindev')
-        self.logger.debug('Module in development: %s' % module_in_dev)
+        module_in_dev = self._get_config_field("moduleindev")
+        self.logger.debug("Module in development: %s", module_in_dev)
         if module_in_dev:
-            self.logger.info('Module "%s" is in development, disable RO feature' % module_in_dev)
+            self.logger.info(
+                'Module "%s" is in development, disable RO feature', module_in_dev
+            )
             self.cleep_filesystem.enable_write(root=True, boot=True)
 
         # add dummy device
-        self.logger.debug('device_count=%d' % self._get_device_count())
+        self.logger.debug("device_count=%d", self._get_device_count())
         if self._get_device_count() == 0:
-            self.logger.debug('Add default devices')
-            developer = {
-                'type': 'developer',
-                'name': 'Developer'
-            }
+            self.logger.debug("Add default devices")
+            developer = {"type": "developer", "name": "Developer"}
             self._add_device(developer)
 
         # store device uuids for events
         devices = self.get_module_devices()
-        self.logger.debug('devices: %s' % devices)
-        for uuid in devices:
-            if devices[uuid]['type'] == 'developer':
-                self.__developer_uuid = uuid
+        self.logger.debug("devices: %s", devices)
+        for (device_uuid, device) in devices.items():
+            if device["type"] == "developer":
+                self.__developer_uuid = device_uuid
 
     def _on_start(self):
         """
@@ -142,8 +150,10 @@ class Developer(CleepModule):
         """
         self.__kill_watchers()
 
-        self.logger.info('Launch watcher task')
-        self.__watcher_task = EndlessConsole(self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback)
+        self.logger.info("Launch watcher task")
+        self.__watcher_task = EndlessConsole(
+            self.CLI_WATCHER_CMD, self.__watcher_callback, self.__watcher_end_callback
+        )
         self.__watcher_task.start()
 
     def __stop_watcher(self):
@@ -170,7 +180,7 @@ class Developer(CleepModule):
             stderr (string): message from stderr
         """
         if self.__watcher_task:
-            self.logger.error('Error on watcher: %s %s' % (stdout, stderr))
+            self.logger.error("Error on watcher: %s %s", stdout, stderr)
 
     def __watcher_end_callback(self, return_code, killed):
         """
@@ -180,10 +190,18 @@ class Developer(CleepModule):
             return_code (int): command return code
             killed (bool): True if watcher killed
         """
-        if self.__watcher_task:
-            self.logger.error('Watcher stops while it should not with return code "%s" (killed? %s)' % (return_code, killed))
+        if self.__watcher_task and not killed:
+            self.logger.error(
+                'Watcher stops while it should not with return code "%s"', return_code
+            )
         if self.__tests_task:
-            self.tests_output_event.send(params={'messages': '====== Tests crashes. Run tests manually please to check errors ====='}, to='rpc', render=False)
+            self.tests_output_event.send(
+                params={
+                    "messages": "====== Tests crashes. Run tests manually please to check errors ====="
+                },
+                to="rpc",
+                render=False,
+            )
 
         self.__start_watcher()
 
@@ -202,8 +220,8 @@ class Developer(CleepModule):
         """
         Send event to restart frontend
         """
-        self.logger.debug('Sending restart event to frontend')
-        self.frontend_restart_event.send(to='rpc')
+        self.logger.debug("Sending restart event to frontend")
+        self.frontend_restart_event.send(to="rpc")
 
     def select_application_for_development(self, module_name):
         """
@@ -216,20 +234,22 @@ class Developer(CleepModule):
         self.__last_application_build = None
 
         # disable debug on old module
-        old_module = self._get_config_field('moduleindev')
+        old_module = self._get_config_field("moduleindev")
         if old_module:
             self.__set_module_debug(old_module, False)
 
         # save new module in dev
-        self._set_config_field('moduleindev', module_name)
+        self._set_config_field("moduleindev", module_name)
 
         # enable or disable dev mode
         if module_name:
             self.__set_module_debug(module_name, True)
-            self.logger.info('Application "%s" is in development, disable RO feature' % module_name)
+            self.logger.info(
+                'Application "%s" is in development, disable RO feature', module_name
+            )
             self.cleep_filesystem.enable_write(root=True, boot=True)
         else:
-            self.logger.info('No application in development, enable RO feature')
+            self.logger.info("No application in development, enable RO feature")
             self.cleep_filesystem.disable_write(root=True, boot=True)
 
     def __set_module_debug(self, module_name, debug):
@@ -241,13 +261,17 @@ class Developer(CleepModule):
             debug (bool): True to enable debug, False otherwise
         """
         try:
-            if module_name == 'developer':
+            if module_name == "developer":
                 self.set_debug(debug)
             elif len(module_name) > 0:
-                self.send_command('set_module_debug', 'system', {'module': module_name, 'debug': debug})
+                self.send_command(
+                    "set_module_debug",
+                    "system",
+                    {"module": module_name, "debug": debug},
+                )
         except Exception:
             # module may not exists anymore
-            self.logger.exception('Unable to change debug status')
+            self.logger.exception("Unable to change debug status")
 
     def create_application(self, module_name):
         """
@@ -262,14 +286,18 @@ class Developer(CleepModule):
         self.__stop_watcher()
 
         cmd = self.CLI_NEW_APPLICATION_CMD % (self.CLI, module_name)
-        self.logger.debug('Create app cmd: %s' % cmd)
+        self.logger.debug("Create app cmd: %s", cmd)
 
         try:
             console = Console()
             res = console.command(cmd, 10.0)
-            self.logger.info('Create app cmd result: %s %s' % (res['stdout'], res['stderr']))
-            if res['returncode'] != 0:
-                raise CommandError('Error during application creation. Check Cleep logs.')
+            self.logger.info(
+                "Create app cmd result: %s %s", res["stdout"], res["stderr"]
+            )
+            if res["returncode"] != 0:
+                raise CommandError(
+                    "Error during application creation. Check Cleep logs."
+                )
 
             # sync new app content
             console.command(self.CLI_SYNC_MODULE_CMD % module_name)
@@ -288,16 +316,20 @@ class Developer(CleepModule):
         """
         console = Console()
         res = console.command(command, timeout)
-        self.logger.debug('Cli command "%s" output: %s | %s' % (command, res['stdout'], res['stderr']))
-        if res['returncode'] != 0:
+        self.logger.debug(
+            'Cli command "%s" output: %s | %s', command, res["stdout"], res["stderr"]
+        )
+        if res["returncode"] != 0:
             self.logger.exception('Command "%s"', command)
-            raise CommandError('Command failed')
+            raise CommandError("Command failed")
 
         try:
-            return json.loads(''.join(res['stdout']))
+            return json.loads("".join(res["stdout"]))
         except Exception as error:
-            self.logger.exception('Error parsing command "%s" output' % command)
-            raise CommandError('Error parsing check result. Check Cleep logs') from error
+            self.logger.exception('Error parsing command "%s" output', command)
+            raise CommandError(
+                "Error parsing check result. Check Cleep logs"
+            ) from error
 
     def check_application(self, module_name):
         """
@@ -318,24 +350,36 @@ class Developer(CleepModule):
         # check parameters
         if module_name is None or len(module_name) == 0:
             raise MissingParameter('Parameter "module_name" is missing')
-        module_path = os.path.join(self.cleep_path, 'modules', module_name, '%s.py' % module_name)
+        module_path = os.path.join(
+            self.cleep_path, "modules", module_name, module_name + ".py"
+        )
         if not os.path.exists(module_path):
-            raise InvalidParameter('Module "%s" does not exist' % module_name)
+            raise InvalidParameter(f'Module "{module_name}" does not exist')
 
         # execute checks
-        backend_result = self.__cli_check(self.CLI_CHECK_BACKEND_CMD % (self.CLI, module_name))
-        frontend_result = self.__cli_check(self.CLI_CHECK_FRONTEND_CMD % (self.CLI, module_name))
-        scripts_result = self.__cli_check(self.CLI_CHECK_SCRIPTS_CMD % (self.CLI, module_name))
-        tests_result = self.__cli_check(self.CLI_CHECK_TESTS_CMD % (self.CLI, module_name))
+        backend_result = self.__cli_check(
+            self.CLI_CHECK_BACKEND_CMD % (self.CLI, module_name)
+        )
+        frontend_result = self.__cli_check(
+            self.CLI_CHECK_FRONTEND_CMD % (self.CLI, module_name)
+        )
+        scripts_result = self.__cli_check(
+            self.CLI_CHECK_SCRIPTS_CMD % (self.CLI, module_name)
+        )
+        tests_result = self.__cli_check(
+            self.CLI_CHECK_TESTS_CMD % (self.CLI, module_name)
+        )
         # code_result = self.__cli_check(self.CLI_CHECK_CODE_CMD % (self.CLI, module_name))
-        changelog_result = self.__cli_check(self.CLI_CHECK_CHANGELOG_CMD % (self.CLI, module_name))
+        changelog_result = self.__cli_check(
+            self.CLI_CHECK_CHANGELOG_CMD % (self.CLI, module_name)
+        )
 
         return {
-            'backend': backend_result,
-            'frontend': frontend_result,
-            'scripts': scripts_result,
-            'tests': tests_result,
-            'changelog': changelog_result,
+            "backend": backend_result,
+            "frontend": frontend_result,
+            "scripts": scripts_result,
+            "tests": tests_result,
+            "changelog": changelog_result,
             # 'quality': code_result,
         }
 
@@ -351,19 +395,21 @@ class Developer(CleepModule):
             Exception: if build failed
         """
         cmd = self.CLI_BUILD_APP_CMD % (self.CLI, module_name)
-        self.logger.debug('Build app cmd: %s' % cmd)
+        self.logger.debug("Build app cmd: %s", cmd)
 
         console = Console()
         res = console.command(cmd, 60.0)
-        self.logger.info('Build app result: %s | %s' % (res['stdout'], res['stderr']))
-        if res['returncode'] != 0:
-            raise CommandError('Error building application. Check Cleep logs.')
+        self.logger.info("Build app result: %s | %s", res["stdout"], res["stderr"])
+        if res["returncode"] != 0:
+            raise CommandError("Error building application. Check Cleep logs.")
 
         try:
-            self.__last_application_build = json.loads(res['stdout'][0])
+            self.__last_application_build = json.loads(res["stdout"][0])
         except Exception as error:
-            self.logger.exception('Error parsing app build command "%s" output' % cmd)
-            raise CommandError('Error building application. Check Cleep logs.') from error
+            self.logger.exception('Error parsing app build command "%s" output', cmd)
+            raise CommandError(
+                "Error building application. Check Cleep logs."
+            ) from error
 
     def download_application(self):
         """
@@ -378,13 +424,13 @@ class Developer(CleepModule):
                 }
 
         """
-        self.logger.debug('Download application archive')
+        self.logger.debug("Download application archive")
         if not self.__last_application_build:
-            raise CommandError('Please build application first')
+            raise CommandError("Please build application first")
 
         return {
-            'filepath': self.__last_application_build['package'],
-            'filename': os.path.basename(self.__last_application_build['package']),
+            "filepath": self.__last_application_build["package"],
+            "filename": os.path.basename(self.__last_application_build["package"]),
         }
 
     def __tests_callback(self, stdout, stderr):
@@ -395,13 +441,19 @@ class Developer(CleepModule):
             stdout (list): stdout message
             stderr (list): stderr message
         """
-        message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
-        self.logger.debug('Receive tests cmd message: "%s"' % message)
+        message = (stdout if stdout is not None else "") + (
+            stderr if stderr is not None else ""
+        )
+        self.logger.debug('Receive tests cmd message: "%s"', message)
         self.__tests_buffer.append(message)
         # send every 10 lines to prevent bus from dropping messages
         if len(self.__tests_buffer) % self.BUFFER_SIZE == 0:
-            self.tests_output_event.send(params={'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
-            del self.__tests_buffer[:self.BUFFER_SIZE]
+            self.tests_output_event.send(
+                params={"messages": self.__tests_buffer[: self.BUFFER_SIZE]},
+                to="rpc",
+                render=False,
+            )
+            del self.__tests_buffer[: self.BUFFER_SIZE]
 
     def __tests_end_callback(self, return_code, killed):
         """
@@ -411,15 +463,31 @@ class Developer(CleepModule):
             return_code (int): command return code
             killed (bool): True if command killed
         """
-        self.logger.info('Tests command terminated with return code "%s" (killed=%s)' % (return_code, killed))
-        self.tests_output_event.send(params={'messages': self.__tests_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
-        del self.__tests_buffer[:self.BUFFER_SIZE]
+        self.logger.info(
+            'Tests command terminated with return code "%s" (killed=%s)',
+            return_code,
+            killed,
+        )
+        self.tests_output_event.send(
+            params={"messages": self.__tests_buffer[: self.BUFFER_SIZE]},
+            to="rpc",
+            render=False,
+        )
+        del self.__tests_buffer[: self.BUFFER_SIZE]
         self.__tests_task = None
 
         if return_code == 0:
-            self.tests_output_event.send(params={'messages': '===== Done ====='}, to='rpc', render=False)
+            self.tests_output_event.send(
+                params={"messages": "===== Done ====="}, to="rpc", render=False
+            )
         else:
-            self.tests_output_event.send(params={'messages': '===== Tests execution crashes (return code: %s) =====' % return_code}, to='rpc', render=False)
+            self.tests_output_event.send(
+                params={
+                    f"messages": "===== Tests execution crashes (return code: {return_code}) ====="
+                },
+                to="rpc",
+                render=False,
+            )
 
     def launch_tests(self, module_name):
         """
@@ -429,13 +497,19 @@ class Developer(CleepModule):
             module_name (string): module name
         """
         if self.__tests_task:
-            raise CommandError('Tests are already running')
+            raise CommandError("Tests are already running")
 
         cmd = self.CLI_TESTS_CMD % (self.CLI, module_name)
-        self.logger.debug('Test cmd: %s' % cmd)
-        self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
+        self.logger.debug("Test cmd: %s", cmd)
+        self.__tests_task = EndlessConsole(
+            cmd, self.__tests_callback, self.__tests_end_callback
+        )
         self.__tests_task.start()
-        self.tests_output_event.send(params={'messages': 'Tests execution started. Please wait...'}, to='rpc', render=False)
+        self.tests_output_event.send(
+            params={"messages": "Tests execution started. Please wait..."},
+            to="rpc",
+            render=False,
+        )
 
     def get_last_coverage_report(self, module_name):
         """
@@ -445,11 +519,13 @@ class Developer(CleepModule):
             module_name (string): module name
         """
         if self.__tests_task:
-            raise CommandError('Tests are running. Please wait end of it')
+            raise CommandError("Tests are running. Please wait end of it")
 
         cmd = self.CLI_TESTS_COV_CMD % (self.CLI, module_name)
-        self.logger.debug('Test cov cmd: %s' % cmd)
-        self.__tests_task = EndlessConsole(cmd, self.__tests_callback, self.__tests_end_callback)
+        self.logger.debug("Test cov cmd: %s", cmd)
+        self.__tests_task = EndlessConsole(
+            cmd, self.__tests_callback, self.__tests_end_callback
+        )
         self.__tests_task.start()
 
     def __docs_callback(self, stdout, stderr):
@@ -460,14 +536,20 @@ class Developer(CleepModule):
             stdout (list): stdout message
             stderr (list): stderr message
         """
-        message = (stdout if stdout is not None else '') + (stderr if stderr is not None else '')
-        self.logger.debug('Receive docs cmd message: "%s"' % message)
+        message = (stdout if stdout is not None else "") + (
+            stderr if stderr is not None else ""
+        )
+        self.logger.debug('Receive docs cmd message: "%s"', message)
         self.__docs_buffer.append(message)
         # send every 10 lines to prevent bus from dropping messages
         if len(self.__docs_buffer) % self.BUFFER_SIZE == 0:
-            self.logger.debug('Send docs output event')
-            self.docs_output_event.send(params={'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
-            del self.__docs_buffer[:self.BUFFER_SIZE]
+            self.logger.debug("Send docs output event")
+            self.docs_output_event.send(
+                params={"messages": self.__docs_buffer[: self.BUFFER_SIZE]},
+                to="rpc",
+                render=False,
+            )
+            del self.__docs_buffer[: self.BUFFER_SIZE]
 
     def __docs_end_callback(self, return_code, killed):
         """
@@ -477,9 +559,17 @@ class Developer(CleepModule):
             return_code (int): command return code
             killed (bool): True if command killed
         """
-        self.logger.info('Docs command terminated with return code "%s" (killed=%s)' % (return_code, killed))
-        self.docs_output_event.send(params={'messages': self.__docs_buffer[:self.BUFFER_SIZE]}, to='rpc', render=False)
-        del self.__docs_buffer[:self.BUFFER_SIZE]
+        self.logger.info(
+            'Docs command terminated with return code "%s" (killed=%s)',
+            return_code,
+            killed,
+        )
+        self.docs_output_event.send(
+            params={"messages": self.__docs_buffer[: self.BUFFER_SIZE]},
+            to="rpc",
+            render=False,
+        )
+        del self.__docs_buffer[: self.BUFFER_SIZE]
         self.__docs_task = None
 
     def generate_documentation(self, module_name):
@@ -490,13 +580,19 @@ class Developer(CleepModule):
             module_name (string): module name
         """
         if self.__docs_task:
-            raise CommandError('Doc generation is running. Please wait end of it')
+            raise CommandError("Doc generation is running. Please wait end of it")
 
         cmd = self.CLI_DOCS_CMD % (self.CLI, module_name)
-        self.logger.debug('Doc generation cmd: %s' % cmd)
-        self.__docs_task = EndlessConsole(cmd, self.__docs_callback, self.__docs_end_callback)
+        self.logger.debug("Doc generation cmd: %s", cmd)
+        self.__docs_task = EndlessConsole(
+            cmd, self.__docs_callback, self.__docs_end_callback
+        )
         self.__docs_task.start()
-        self.docs_output_event.send(params={'messages': 'Documentation generation started. Please wait...'}, to='rpc', render=False)
+        self.docs_output_event.send(
+            params={"messages": "Documentation generation started. Please wait..."},
+            to="rpc",
+            render=False,
+        )
 
     def download_documentation(self, module_name):
         """
@@ -517,20 +613,15 @@ class Developer(CleepModule):
             CommandError: command failed error
 
         """
-        self.logger.info('Download documentation html archive')
+        self.logger.info("Download documentation html archive")
 
         cmd = self.CLI_DOCS_ZIP_PATH_CMD % (self.CLI, module_name)
-        self.logger.debug('Doc zip path cmd: %s' % cmd)
+        self.logger.debug("Doc zip path cmd: %s", cmd)
         console = Console()
         res = console.command(cmd)
-        if res['returncode'] != 0:
-            raise CommandError(''.join(res['stdout']))
+        if res["returncode"] != 0:
+            raise CommandError("".join(res["stdout"]))
 
-        zip_path = res['stdout'][0].split('=')[1]
-        self.logger.debug('Module "%s" docs path "%s"' % (module_name, zip_path))
-        return {
-            'filepath': zip_path,
-            'filename': os.path.basename(zip_path)
-        }
-
-
+        zip_path = res["stdout"][0].split("=")[1]
+        self.logger.debug('Module "%s" docs path "%s"', module_name, zip_path)
+        return {"filepath": zip_path, "filename": os.path.basename(zip_path)}

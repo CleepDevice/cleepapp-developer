@@ -116,7 +116,7 @@
                     <p>To optimize loading time, all frontend files aren't loaded during Cleep startup. To allow this you must configure usage for each frontend files.</p>
                 </div>
                 <div class="md-secondary">
-                    <a href="https://github.com/tangb/cleepmod-developer/wiki/desc.json" target="_blank">https://github.com/tangb/cleepmod-developer/wiki/desc.json</a>
+                    <a href="https://github.com/CleepDevice/cleepmod-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepmod-developer/wiki/desc.json</a>
                 </div>
             </md-list-item>
         </md-list>
@@ -507,37 +507,9 @@
         <!-- scripts -->
         <div ng-show="devCtl.selectedNav==='scripts'" ng-if="devCtl.checkData">
             <md-list>
-                <md-list-item ng-click="devCtl.dummyClick()">
+                <md-list-item ng-click="devCtl.dummyClick()" ng-repeat="script in devCtl.checkData.scripts.files">
                     <md-icon md-svg-icon="text-box-outline"></md-icon>
-                    <p>Pre-installation script</p>
-                    <div>
-                        <span ng-if="devCtl.checkData.preinstScriptFound">Found</span>
-                        <span ng-if="!devCtl.checkData.preinstScriptFound">Not found</span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="text-box-outline"></md-icon>
-                    <p>Post-installation script</p>
-                    <div>
-                        <span ng-if="devCtl.checkData.postinstScriptFound">Found</span>
-                        <span ng-if="!devCtl.checkData.postinstScriptFound">Not found</span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="text-box-outline"></md-icon>
-                    <p>Pre-uninstallation script</p>
-                    <div>
-                        <span ng-if="devCtl.checkData.preuninstScriptFound">Found</span>
-                        <span ng-if="!devCtl.checkData.preuninstScriptFound">Not found</span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="text-box-outline"></md-icon>
-                    <p>Post-uninstallation script</p>
-                    <div>
-                        <span ng-if="devCtl.checkData.postuninstScriptFound">Found</span>
-                        <span ng-if="!devCtl.checkData.postuninstScriptFound">Not found</span>
-                    </div>
+                    <p>{{ script.filename }}</p>
                 </md-list-item>
             </md-list>
         </div>
