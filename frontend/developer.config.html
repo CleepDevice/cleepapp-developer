@@ -9,7 +9,7 @@
                 <p>Selected app debug mode will be turned on automatically.</p>
             </div>
             <md-input-container class="no-margin" style="padding-top: 10px;">
-                <md-select ng-model="devCtl.selectedModule" ng-disabled="devCtl.loading" aria-label="Select application">
+                <md-select ng-model="devCtl.selectedModule" ng-disabled="devCtl.loading">
                     <md-option value=""><em>No application</em></md-option>
                     <md-option ng-repeat="module in devCtl.modules" ng-value="module">
                         {{module}}
@@ -26,17 +26,20 @@
     </md-list>
 
     <!-- navigation -->
-    <md-nav-bar md-selected-nav-item="devCtl.selectedMainNav" nav-bar-aria-label="Main tabs">
-        <md-nav-item name="devtools" md-nav-click="devCtl.showTab('devtools')">
+    <md-nav-bar md-selected-nav-item="devCtl.selectedMainNav">
+        <md-nav-item name="devtools" md-nav-sref="devtools">
             Development helpers
         </md-nav-item>
-        <md-nav-item name="testtools" md-nav-click="devCtl.showTab('buildtools')">
+        <md-nav-item name="testtools" md-nav-sref="testtools">
             Tests
         </md-nav-item>
-        <md-nav-item name="doctools" md-nav-click="devCtl.showTab('buildtools')">
+        <md-nav-item name="doctools" md-nav-sref="doc">
             Documentation
         </md-nav-item>
-        <md-nav-item name="buildtools" md-nav-click="devCtl.showTab('buildtools')">
+        <md-nav-item name="breakingchanges" md-nav-sref="breakingchanges">
+            Breaking changes
+        </md-nav-item>
+        <md-nav-item name="buildtools" md-nav-sref="buildtools">
             Build app
         </md-nav-item>
     </md-nav-bar>
@@ -116,7 +119,7 @@
                     <p>To optimize loading time, all frontend files aren't loaded during Cleep startup. To allow this you must configure usage for each frontend files.</p>
                 </div>
                 <div class="md-secondary">
-                    <a href="https://github.com/CleepDevice/cleepmod-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepmod-developer/wiki/desc.json</a>
+                    <a href="https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json</a>
                 </div>
             </md-list-item>
         </md-list>
@@ -137,13 +140,21 @@
             <md-list-item>
                 <p>You can find documentation on how to make your tests in developer wiki.</p>
             </md-list-item>
-            <md-subheader class="md-no-sticky">Tests execution</md-subheader>
+            <md-subheader class="md-no-sticky">Actions</md-subheader>
             <md-list-item>
                 <md-icon md-svg-icon="chevron-right"></md-icon>
-                <p>Click on button to execute tests available on your "tests" application directory</p>
+                <p>Click to execute tests available on your "tests" application directory</p>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.launchTests()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="wrench"></md-icon>
                     Launch tests
+                </md-button>
+            </md-list-item>
+            <md-list-item>
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <p>Click to display last coverage report (if available)</p>
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.getLastCoverageReport()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="gauge"></md-icon>
+                    Last coverage report
                 </md-button>
             </md-list-item>
         </md-list>
@@ -153,11 +164,7 @@
             <md-content>
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
-                        <h2 flex md-truncate>Tests execution result</h2>
-                        <md-button class="md-primary md-raised" ng-click="devCtl.getLastCoverageReport()" aria-label="Last coverage report" ng-disabled="devCtl.loading">
-                            <md-icon class="toolbar-white-icon" md-svg-icon="gauge"></md-icon>
-                            Last coverage report
-                        </md-button>
+                        <h2 flex md-truncate>Tests output</h2>
                     </div>
                 </md-toolbar>
                 <pre class="pre-output">
@@ -177,20 +184,47 @@
             <md-list-item>
                 <p>Documentation is really important part of Cleep. It allows others developers to use your application requesting its API and it allows Cleep core
                    to properly reference all your exposed function to online editors.
-                   So make sure your documentation follows <a href="http://www.sphinx-doc.org/en/1.5/ext/example_google.html" target="_blank">Google docstring</a> rules.</p>
+                   So make sure your documentation follows <a href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html" target="_blank">Google docstring</a> rules.</p>
             </md-list-item>
 
-            <!-- build documentation -->
-            <md-subheader class="md-no-sticky">Generate documentation</md-subheader>
+            <md-subheader class="md-no-sticky">Actions</md-subheader>
+
+            <!-- check documentation -->
             <md-list-item class="md-2-line">
                 <md-icon md-svg-icon="chevron-right"></md-icon>
                 <div class="md-list-item-text">
-                    <h3>Click on button to build your app documentation</h3>
-                    <p>A text preview will be displayed in output below.</p>
+                    <h3>Check your application documentation</h3>
+                    <p>This action will check your doc is well written returning errors and warnings</p>
                 </div>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDocumentation()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="check"></md-icon>
+                    Check doc
+                </md-button>
+            </md-list-item>
+
+            <!-- build documentation -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Build your app API documentation</h3>
+                    <p>A text preview will be displayed in output below.</p>
+                </div>
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateApiDocumentation()" ng-disabled="devCtl.loading">
                     <md-icon md-svg-icon="wrench"></md-icon>
-                    Generate doc
+                    Generate API doc
+                </md-button>
+            </md-list-item>
+
+            <!-- download archive -->
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Download app API documentation</h3>
+                    <p>Download zip archive containing html doc. Run index.html on your browser to check content.</p>
+                </div>
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateApiDocumentation()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="download"></md-icon>
+                    Download
                 </md-button>
             </md-list-item>
         </md-list>
@@ -200,15 +234,63 @@
             <md-content>
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
-                        <h2 flex md-truncate>Documentation preview</h2>
-                        <md-button class="md-primary md-raised" ng-click="devCtl.downloadDocumentation()" aria-label="Html documentation" ng-disabled="devCtl.loading">
-                            <md-icon class="toolbar-white-icon" md-svg-icon="download"></md-icon>
-                            Download html
-                        </md-button>
+                        <h2 flex md-truncate>Documentation output</h2>
                     </div>
                 </md-toolbar>
-                <pre class="pre-output">
-{{devCtl.developerService.docsOutput.length>0 ? devCtl.developerService.docsOutput.join('\n') : 'No output'}}
+                <pre class="pre-output" ng-if="devCtl.developerService.docsOutput.length === 0 && devCtl.developerService.docsHtml.length === 0">No output</pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.docsOutput.length > 0">{{ devCtl.developerService.docsOutput.join('\n') }}</pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.docsHtml.length > 0" ng-bind-html="devCtl.developerService.docsHtml"></pre>
+            </md-content>
+        </div>
+    </div>
+
+    <!-- breaking changes -->
+    <div ng-show="devCtl.selectedMainNav==='breakingchanges'">
+        <md-list>
+            <!-- note -->
+            <md-subheader class="md-no-sticky">Note on breaking changes</md-subheader>
+            <md-list-item>
+                <p>This tab allows you to check breaking changes detected from previous version. All detected breaking changes must be fixed before you are able to build and to publish your application</p>
+            </md-list-item>
+            <md-list-item>
+                <p>This detection should guarantee that your application is still usable release after release. So keep in mind this feature is really important and build your code intelligently ;-)</p>
+            </md-list-item>
+
+            <!-- actions -->
+            <md-subheader class="md-no-sticky">Actions</md-subheader>
+            <md-list-item class="md-2-line">
+                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <div class="md-list-item-text">
+                    <h3>Check breaking changes</h3>
+                    <p>Detection result will be displayed in output below.</p>
+                </div>
+                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.detectBreakingChanges()" ng-disabled="devCtl.loading">
+                    <md-icon md-svg-icon="wrench"></md-icon>
+                    Launch detection
+                </md-button>
+            </md-list-item>
+        </md-list>
+
+        <!-- breaking changes preview -->
+        <div layout="column" layout-padding>
+            <md-content>
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <h2 flex md-truncate>Breaking changes output</h2>
+                    </div>
+                </md-toolbar>
+                <pre class="pre-output" ng-if="!devCtl.developerService.breakingChanges.errors">No result</pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length === 0">
+No breaking change detected
+                </pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length > 0">
+Breaking changes detected:<ul><li ng-repeat="error in devCtl.developerService.breakingChanges.errors">{{ error }}</li></ul>
+                </pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length === 0">
+No warning detected
+                </pre>
+                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length > 0">
+Warnings detected:<ul><li ng-repeat="warn in devCtl.developerService.breakingChanges.warnings">{{ warn }}</li></ul>
                 </pre>
             </md-content>
         </div>
@@ -251,7 +333,7 @@
         </md-content>
     
         <!-- navigation -->
-        <md-nav-bar md-selected-nav-item="devCtl.selectedNav" nav-bar-aria-label="Tabs" ng-if="devCtl.checkData">
+        <md-nav-bar md-selected-nav-item="devCtl.selectedNav" ng-if="devCtl.checkData">
             <md-nav-item name="buildmodule" md-nav-click="devCtl.showTab('buildmodule')">
                 Build release
             </md-nav-item>

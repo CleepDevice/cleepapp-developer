@@ -235,11 +235,11 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.launchTests = function() {
             self.loading = true;
 
-            toast.info('Running unit tests. Please follow process in ');
+            toast.info('Running unit tests. Please follow process in output');
             developerService.launchTests(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
-                        toast.success('Unit tests running...');
+                        toast.info('Unit tests running...');
                     }
                 })
                 .finally(() => {
@@ -257,22 +257,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             developerService.getLastCoverageReport(self.config.moduleInDev)
                 .then(function(resp) {
                     if( resp.data ) {
-                        toast.success('Last report will be displayed in test output in few seconds');
-                    }
-                });
-        };
-
-        /**
-         * Generate documentation
-         */
-        self.generateDocumentation = function() {
-            self.loading = true;
-
-            toast.info('Generating documentation. Please follow process in output');
-            developerService.generateDocumentation(self.config.moduleInDev)
-                .then(function(resp) {
-                    if( resp.data ) {
-                        toast.success('Generating documentation...');
+                        toast.info('Last report will be displayed in test output in few seconds');
                     }
                 })
                 .finally(() => {
@@ -281,10 +266,57 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         };
 
         /**
-         * Download documentation (archive)
+         * Generate application API documentation
          */
-        self.downloadDocumentation = function() {
-            developerService.downloadDocumentation(self.config.moduleInDev);
+        self.generateApiDocumentation = function() {
+            self.loading = true;
+
+            toast.info('Generating API documentation. Please follow process in output');
+            developerService.generateApiDocumentation(self.config.moduleInDev)
+                .then(function(resp) {
+                    if( resp.data ) {
+                        toast.info('Generating API documentation...');
+                    }
+                })
+                .finally(() => {
+                    self.loading = false;
+                });
+        };
+
+        /**
+         * Download application API documentation (archive)
+         */
+        self.downloadApiDocumentation = function() {
+            developerService.downloadApiDocumentation(self.config.moduleInDev);
+        };
+
+        /**
+         * Download application documentation
+         */
+        self.generateDocumentation = function() {
+            self.loading = true;
+
+            developerService.generateDocumentation(self.config.moduleInDev)
+                .then((valid) => {
+                    if (!valid) {
+                        toast.error('Documentation is invalid. Please fix it');
+                    }
+                })
+                .finally(() => {
+                    self.loading = false;
+                });
+        };
+
+        /**
+         * Detect breaking changes
+         */
+        self.detectBreakingChanges = function() {
+            self.loading = true;
+
+            developerService.detectBreakingChanges(self.config.moduleInDev)
+                .finally(() => {
+                    self.loading = false;
+                });
         };
 
         /**

@@ -4,8 +4,10 @@
 import os
 import inspect
 import json
+import requests
 from cleep.core import CleepModule
 from cleep.libs.internals.console import Console, EndlessConsole
+from cleep.libs.internals.cleepdoc import CleepDoc
 from cleep.exception import CommandError, MissingParameter, InvalidParameter
 from cleep.libs.internals import __all__ as internals_libs
 from cleep.libs.drivers import __all__ as drivers_libs
@@ -66,14 +68,17 @@ class Developer(CleepModule):
     CLI_TESTS_CMD = '%s modtests --module "%s" --coverage'
     CLI_TESTS_COV_CMD = '%s modtestscov --module "%s" --missing'
     CLI_NEW_APPLICATION_CMD = '%s modcreate --module "%s"'
-    CLI_DOCS_CMD = '%s moddocs --module "%s" --preview'
-    CLI_DOCS_ZIP_PATH_CMD = '%s moddocspath --module "%s"'
+    CLI_API_DOC_CMD = '%s modapidoc --module "%s" --preview'
+    CLI_API_DOC_ZIP_PATH_CMD = '%s modapidocpath --module "%s"'
+    CLI_DOC_CMD = '%s moddoc --module "%s"'
     CLI_CHECK_BACKEND_CMD = '%s modcheckbackend --module "%s" --json'
     CLI_CHECK_FRONTEND_CMD = '%s modcheckfrontend --module "%s" --json'
     CLI_CHECK_SCRIPTS_CMD = '%s modcheckscripts --module "%s" --json'
     CLI_CHECK_TESTS_CMD = '%s modchecktests --module "%s" --json'
     CLI_CHECK_CODE_CMD = '%s modcheckcode --module "%s" --threshold 7 --json'
     CLI_CHECK_CHANGELOG_CMD = '%s modcheckchangelog --module "%s" --json'
+    CLI_CHECK_DOC_CMD = '%s modcheckdoc --module "%s" --json'
+    CLI_CHECK_BREAKING_CHANGES_CMD = '%s modcheckbreakingchanges --module "%s" --json'
     CLI_BUILD_APP_CMD = '%s modbuild --module "%s"'
 
     def __init__(self, bootstrap, debug_enabled):
@@ -304,12 +309,14 @@ class Developer(CleepModule):
         finally:
             self.__start_watcher()
 
-    def __cli_check(self, command, timeout=15.0):
+    def __cli_check(self, command, error_message, timeout=15.0):
         """
         Execute cleep-cli check specified by command
 
         Args:
-            command (string): cli command to execute
+            command (str): cli command to execute
+            error_message (str): error message to throw if error occured
+            timeout (float): timeout value
 
         Returns:
             dict: command output
@@ -320,8 +327,8 @@ class Developer(CleepModule):
             'Cli command "%s" output: %s | %s', command, res["stdout"], res["stderr"]
         )
         if res["returncode"] != 0:
-            self.logger.exception('Command "%s"', command)
-            raise CommandError("Command failed")
+            self.logger.error('Command "%s" failed: %s', command, res)
+            raise CommandError(error_message)
 
         try:
             return json.loads("".join(res["stdout"]))
@@ -358,20 +365,29 @@ class Developer(CleepModule):
 
         # execute checks
         backend_result = self.__cli_check(
-            self.CLI_CHECK_BACKEND_CMD % (self.CLI, module_name)
+            self.CLI_CHECK_BACKEND_CMD % (self.CLI, module_name),
+            "Backend source code check failed",
         )
         frontend_result = self.__cli_check(
-            self.CLI_CHECK_FRONTEND_CMD % (self.CLI, module_name)
+            self.CLI_CHECK_FRONTEND_CMD % (self.CLI, module_name),
+            "Frontend source code check failed",
         )
         scripts_result = self.__cli_check(
-            self.CLI_CHECK_SCRIPTS_CMD % (self.CLI, module_name)
+            self.CLI_CHECK_SCRIPTS_CMD % (self.CLI, module_name),
+            "Scripts check failed",
         )
         tests_result = self.__cli_check(
-            self.CLI_CHECK_TESTS_CMD % (self.CLI, module_name)
+            self.CLI_CHECK_TESTS_CMD % (self.CLI, module_name),
+            "Tests check failed",
         )
         # code_result = self.__cli_check(self.CLI_CHECK_CODE_CMD % (self.CLI, module_name))
         changelog_result = self.__cli_check(
-            self.CLI_CHECK_CHANGELOG_CMD % (self.CLI, module_name)
+            self.CLI_CHECK_CHANGELOG_CMD % (self.CLI, module_name),
+            "Changelog check failed",
+        )
+        breaking_changes_result = self.__cli_check(
+            self.CLI_CHECK_BREAKING_CHANGES_CMD % (self.CLI, module_name),
+            "Breaking changes check failed",
         )
 
         return {
@@ -380,6 +396,7 @@ class Developer(CleepModule):
             "scripts": scripts_result,
             "tests": tests_result,
             "changelog": changelog_result,
+            "breakingChanges": breaking_changes_result,
             # 'quality': code_result,
         }
 
@@ -483,7 +500,7 @@ class Developer(CleepModule):
         else:
             self.tests_output_event.send(
                 params={
-                    f"messages": "===== Tests execution crashes (return code: {return_code}) ====="
+                    "messages": f"===== Tests execution crashes (return code: {return_code}) ====="
                 },
                 to="rpc",
                 render=False,
@@ -572,31 +589,31 @@ class Developer(CleepModule):
         del self.__docs_buffer[: self.BUFFER_SIZE]
         self.__docs_task = None
 
-    def generate_documentation(self, module_name):
+    def generate_api_documentation(self, module_name):
         """
-        Generate documentation
+        Generate API documentation
 
         Args:
             module_name (string): module name
         """
         if self.__docs_task:
-            raise CommandError("Doc generation is running. Please wait end of it")
+            raise CommandError("API doc generation is running. Please wait end of it")
 
-        cmd = self.CLI_DOCS_CMD % (self.CLI, module_name)
+        cmd = self.CLI_API_DOC_CMD % (self.CLI, module_name)
         self.logger.debug("Doc generation cmd: %s", cmd)
         self.__docs_task = EndlessConsole(
             cmd, self.__docs_callback, self.__docs_end_callback
         )
         self.__docs_task.start()
         self.docs_output_event.send(
-            params={"messages": "Documentation generation started. Please wait..."},
+            params={"messages": "API documentation generation started. Please wait..."},
             to="rpc",
             render=False,
         )
 
-    def download_documentation(self, module_name):
+    def download_api_documentation(self, module_name):
         """
-        Download documentation (html as archive tar.gz)
+        Download API documentation (html as archive tar.gz)
 
         Args:
             module_name (string): module name
@@ -613,9 +630,9 @@ class Developer(CleepModule):
             CommandError: command failed error
 
         """
-        self.logger.info("Download documentation html archive")
+        self.logger.info("Download API documentation html archive")
 
-        cmd = self.CLI_DOCS_ZIP_PATH_CMD % (self.CLI, module_name)
+        cmd = self.CLI_API_DOC_ZIP_PATH_CMD % (self.CLI, module_name)
         self.logger.debug("Doc zip path cmd: %s", cmd)
         console = Console()
         res = console.command(cmd)
@@ -625,3 +642,66 @@ class Developer(CleepModule):
         zip_path = res["stdout"][0].split("=")[1]
         self.logger.debug('Module "%s" docs path "%s"', module_name, zip_path)
         return {"filepath": zip_path, "filename": os.path.basename(zip_path)}
+
+    def generate_documentation(self, module_name):
+        """
+        Generate documentation of specified module
+
+        Args:
+            module_name (str): module name
+
+        Returns:
+            dict: documentation and check results
+
+        """
+        console = Console()
+
+        cmd = self.CLI_DOC_CMD % (self.CLI, module_name)
+        doc = console.command(cmd)
+        self.logger.debug("Doc cmd %s response: %s", cmd, doc)
+        doc_output = "".join(doc["stdout"])
+        if doc["returncode"] != 0:
+            self.logger.error("Unable to generate doc: %s", doc_output)
+            raise CommandError("Unable to generate doc")
+
+        cmd = self.CLI_CHECK_DOC_CMD % (self.CLI, module_name)
+        check = console.command(cmd)
+        self.logger.debug("Check doc cmd %s response: %s", cmd, check)
+        check_output = "".join(check["stdout"])
+
+        return {
+            "valid": check["returncode"] == 0,
+            "doc": json.loads(doc_output),
+            "check": json.loads(check_output),
+        }
+
+    def detect_breaking_changes(self, module_name):
+        """
+        Compute and return breaking changes
+
+        Args:
+            module_name (str): module name
+
+        Returns:
+            dict: breaking changes::
+
+                {
+                    errors (list): list of breaking changes,
+                    warnings (list): list of warnings,
+                    breaking_changes (bool): True if breaking changes detected,
+                }
+
+        """
+        console = Console()
+
+        cmd = self.CLI_CHECK_BREAKING_CHANGES_CMD % (self.CLI, module_name)
+        breaking = console.command(cmd, 20.0)
+        self.logger.debug("Breaking changes cmd %s response: %s", cmd, breaking)
+        breaking_output = "".join(breaking["stdout"])
+        breaking_json = json.loads(breaking_output)
+
+        return {
+            "errors": breaking_json["errors"],
+            "warnings": breaking_json["warnings"],
+            "breaking_changes": breaking["returncode"] != 0,
+        }
