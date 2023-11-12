@@ -4,8 +4,8 @@
  */
 angular
 .module('Cleep')
-.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', 'appToolbarService', '$window',
-function($q, $rootScope, rpcService, cleepService, appToolbarService, $window) {
+.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', '$window',
+function($q, $rootScope, rpcService, cleepService, $window) {
     var self = this;
     self.testsOutput = [];
     self.docsOutput = [];

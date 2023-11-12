@@ -4,8 +4,8 @@
  */
 angular
 .module('Cleep')
-.directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout', '$sce', '$location', '$q', '$mdDialog',
-function($rootScope, toast, cleepService, developerService, systemService, $timeout, $sce, $location, $q, $mdDialog) {
+.directive('developerConfigComponent', ['$rootScope', 'toastService', 'cleepService', 'developerService', 'systemService', '$timeout', '$sce', '$location', '$q', '$mdDialog', '$window',
+function($rootScope, toast, cleepService, developerService, systemService, $timeout, $sce, $location, $q, $mdDialog, $window) {
 
     // konami code: ssuperr
 
@@ -26,11 +26,36 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.analyzeError = null;
         self.remotedevUuid = null;
         self.cleepService = cleepService;
+        self.logButtons = [];
+        self.mdiUrl = '<a href=\"https://pictogrammers.com/library/mdi/\" target=\"_blank\">MaterialDesignIcons.com</a>';
+        self.semverUrl = '<a href="https://semver.org/" target="_blank">https://semver.org/</a>';
+        self.changelogUrl = '<a href="https://keepachangelog.com/" target="_blank">https://keepachangelog.com/</a>';
+        self.testUrl = '<a href="https://pylint.org/" target="_blank">https://pylint.org/</a>';
+        self.descUrl = '<a href="https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json</a>';
+        self.docstringUrl = '<a href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html" target="_blank">Google docstring</a>';
+        self.testsOutput = undefined;
+        self.docsOutput = undefined;
+        self.isDocsHtml = false;
+        self.breakingChanges = undefined;
 
         /**
          * Init controller
          */
         self.$onInit = function() {
+            self.logButtons = [
+                {
+                    label: 'Open logs',
+                    icon: 'open-in-new',
+                    click: self.openLogs,
+                },
+                {
+                    label: 'Clear log file',
+                    icon: 'delete',
+                    click: self.clearLogs,
+                    style: 'md-accent md-raised',
+                },
+            ];
+
 			// set remotedev device
             self.setRemotedevDevice();
             
@@ -64,7 +89,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             for( var module in cleepService.modules ) {
                 if( !all ) {
                     if( cleepService.modules[module].core===true || module==='developer' ) {
-                        // system module, drop it
+                        // core module, drop it
                         continue;
                     }
                 }
@@ -147,25 +172,81 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             }
 
             // check app
+            toast.loading('Analyzing application...');
             developerService.checkApplication(self.config.moduleInDev)
                 .then(function(resp) {
                     self.checkData = resp.data;
                     self.checkData.backend.metadata.longdescription = self.sceLongDescription = $sce.trustAsHtml(self.checkData.backend.metadata.longdescription);
                     self.checkData.errorsCount = resp.data.backend.errors.length + resp.data.frontend.errors.length + resp.data.tests.errors.length + resp.data.scripts.errors.length
                     self.checkData.warningsCount = resp.data.backend.warnings.length + resp.data.frontend.warnings.length + resp.data.tests.warnings.length + resp.data.scripts.warnings.length
-                    //self.checkData.preinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preinst.sh');
-                    //self.checkData.preuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'preuninst.sh');
-                    //self.checkData.postinstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postinst.sh');
-                    //self.checkData.postuninstScriptFound = resp.data.scripts.files.some(file => file.filename === 'postuninst.sh');
+                    self.checkData.backend.metadata.urls.site = self.__buildHref(self.checkData.backend.metadata.urls.site);
+                    self.checkData.backend.metadata.urls.info = self.__buildHref(self.checkData.backend.metadata.urls.info);
+                    self.checkData.backend.metadata.urls.help = self.__buildHref(self.checkData.backend.metadata.urls.help);
+                    self.checkData.backend.metadata.urls.bugs = self.__buildHref(self.checkData.backend.metadata.urls.bugs);
                     self.checkData.versionOk = !resp.data.changelog.unreleased && resp.data.changelog.version === resp.data.backend.metadata.version;
+                    self.checkData.frontend.filesItems = self.__buildFrontendFiles(self.checkData.frontend.files);
+                    const { drivers, events, formatters, misc, module } = self.__buildBackendFiles(self.checkData.backend.files);
+                    self.checkData.backend.filesDrivers = drivers;
+                    self.checkData.backend.filesEvents = events;
+                    self.checkData.backend.filesFormatters = formatters;
+                    self.checkData.backend.filesMisc = misc;
+                    self.checkData.backend.filesModule = module;
+                    self.checkData.tests.filesItems = self.__buildTestsFiles(self.checkData.tests.files);
 
                     self.selectedNav = 'buildmodule';
                 }, function(error) {
                     self.analyzeError = error;
                 })
                 .finally(function() {
+                    toast.close();
                     self.loading = false;
                 });
+        };
+
+        self.__buildTestsFiles = function (files) {
+            return files.map(file => ({
+                title: file.filename,
+            }));
+        };
+
+        self.__buildFrontendFiles = function (files) {
+            return files.map(file => ({
+                title: file.filename,
+                subtitle: 'Usage ' + file.usage,
+            }));
+        };
+
+        self.__buildBackendFiles = function (files) {
+            const drivers = files.drivers.map(file => ({
+                title: file.path,
+            }));
+            const events = files.events.map(file => ({
+                title: file.path,
+            }));
+            const formatters = files.formatters.map(file => ({
+                title: file.path,
+            }));
+            const misc = files.misc.map(file => ({
+                title: file.path,
+            }));
+            const module = [{
+                title: files.module.path,
+            }];
+
+            return {
+                drivers,
+                events,
+                formatters,
+                misc,
+                module,
+            };
+        };
+
+        self.__buildHref = function (url) {
+            if (!url) {
+                return null;
+            }
+            return '<a href="' + url + '" target="_blank">'+ url +'</a>';
         };
 
         /**
@@ -214,13 +295,18 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                 });
         };
 
+        self.openLogs = function () {
+            const logUrl = $location.protocol() + '://' + $location.host() + '/logs';
+            $window.open(logUrl, '_blank');
+        };
+
         /**
          * Create new application skeleton
          */
-        self.createApplication = function() {
+        self.createApplication = function(value) {
             self.loading = true;
 
-            developerService.createApplication(self.newApplicationName)
+            developerService.createApplication(value)
                 .then(function() {
                     self.openDialog();
                 })
@@ -234,11 +320,11 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          */
         self.launchTests = function() {
             self.loading = true;
-
             toast.info('Running unit tests. Please follow process in output');
+
             developerService.launchTests(self.config.moduleInDev)
                 .then(function(resp) {
-                    if( resp.data ) {
+                    if (resp.data) {
                         toast.info('Unit tests running...');
                     }
                 })
@@ -252,11 +338,11 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          */
         self.getLastCoverageReport = function() {
             self.loading = true;
-
             toast.info('Getting app coverage. Please follow process in output');
+
             developerService.getLastCoverageReport(self.config.moduleInDev)
                 .then(function(resp) {
-                    if( resp.data ) {
+                    if (resp.data) {
                         toast.info('Last report will be displayed in test output in few seconds');
                     }
                 })
@@ -265,16 +351,13 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                 });
         };
 
-        /**
-         * Generate application API documentation
-         */
         self.generateApiDocumentation = function() {
             self.loading = true;
-
             toast.info('Generating API documentation. Please follow process in output');
+
             developerService.generateApiDocumentation(self.config.moduleInDev)
                 .then(function(resp) {
-                    if( resp.data ) {
+                    if (resp.data) {
                         toast.info('Generating API documentation...');
                     }
                 })
@@ -283,18 +366,13 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                 });
         };
 
-        /**
-         * Download application API documentation (archive)
-         */
         self.downloadApiDocumentation = function() {
             developerService.downloadApiDocumentation(self.config.moduleInDev);
         };
 
-        /**
-         * Download application documentation
-         */
         self.generateDocumentation = function() {
             self.loading = true;
+            toast.loading('Checking application documentation...');
 
             developerService.generateDocumentation(self.config.moduleInDev)
                 .then((valid) => {
@@ -304,6 +382,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                 })
                 .finally(() => {
                     self.loading = false;
+                    toast.close();
                 });
         };
 
@@ -312,10 +391,12 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          */
         self.detectBreakingChanges = function() {
             self.loading = true;
+            toast.loading('Detecting breaking changes...');
 
             developerService.detectBreakingChanges(self.config.moduleInDev)
                 .finally(() => {
                     self.loading = false;
+                    toast.close();
                 });
         };
 
@@ -341,6 +422,61 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             $mdDialog.cancel();
             systemService.restart();
         };
+
+        $rootScope.$watchCollection(
+            () => self.developerService.testsOutput,
+            (output) => {
+                self.testsOutput = (!output?.length ? '' : output.join('\n'));
+            },
+        );
+
+        $rootScope.$watchCollection(
+            () => self.developerService.docsOutput,
+            (output) => {
+                self.docsOutput = (!output?.length ? '' : output.join('\n'));
+                self.isDocsHtml = false;
+            },
+        );
+
+        $rootScope.$watchCollection(
+            () => self.developerService.docsHtml,
+            (output) => {
+                self.docsOutput = (!output?.length ? '' : output);
+                self.isDocsHtml = true;
+            },
+        );
+
+        $rootScope.$watchCollection(
+            () => self.developerService.breakingChanges,
+            (output) => {
+                if (!output || !Object.keys(output).length) {
+                    self.breakingChanges = undefined;
+                    return;
+                }
+
+                self.breakingChanges = '';
+
+                if (output.errors?.length === 0) {
+                    self.breakingChanges += 'No breaking changes were detected<br>';
+                } else if (output.errors?.length > 0) {
+                    self.breakingChanges += 'Detected breaking changes:<ul>';
+                    for (const error of output.errors) {
+                        self.breakingChanges += '<li>' + error + '</li>';
+                    }
+                    self.breakingChanges += '</ul><br>';
+                }
+
+                if (output.warnings?.length === 0) {
+                    self.breakingChanges += 'No warnings were detected<br>';
+                } else if (output.warnings?.length > 0) {
+                    self.breakingChanges += 'Warnings:<ul>';
+                    for (const warning of output.warnings) {
+                        self.breakingChanges += '<li>' + warning + '</li>';
+                    }
+                    self.breakingChanges += '</ul><br>';
+                }
+            },
+        );
 
     }];
 

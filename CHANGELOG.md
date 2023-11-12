@@ -7,8 +7,9 @@
 
 ### Updated
 - Change documentation tab using new doc core command
-- Bump cleepcli to v1.32.0
+- Bump cleepcli to v1.32.2
 - Improve UI
+- Migrate to Cleep components
 
 ### Fixed
 - When last coverage report button is clicked all buttons remain disabled

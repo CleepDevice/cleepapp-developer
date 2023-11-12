@@ -1,29 +1,15 @@
 <div layout="column" layout-padding ng-cloak konami-code="devCtl.godMode()" konami-keys="[83, 83, 85, 80, 69, 82, 82]" konami-once="true">
 
     <!-- module selector -->
-    <md-list>
-        <md-list-item class="md-2-line">
-            <md-icon md-svg-icon="chevron-right"></md-icon>
-            <div class="md-list-item-text">
-                <h3>Choose application you are developing on</h3>
-                <p>Selected app debug mode will be turned on automatically.</p>
-            </div>
-            <md-input-container class="no-margin" style="padding-top: 10px;">
-                <md-select ng-model="devCtl.selectedModule" ng-disabled="devCtl.loading">
-                    <md-option value=""><em>No application</em></md-option>
-                    <md-option ng-repeat="module in devCtl.modules" ng-value="module">
-                        {{module}}
-                    </md-option>
-                </md-select>
-            </md-input-container>
-            <md-input-container class="no-margin">
-                <md-button class="md-raised md-primary" ng-click="devCtl.selectModule()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="account-hard-hat"></md-icon>
-                    Select application
-                </md-button>
-            </md-input-container>
-        </md-list-item>
-    </md-list>
+    <config-select
+        cl-title="Choose application you are developing on"
+        cl-subtitle="Selected app debug mode will be turned on automatically."
+        cl-disabled="devCtl.loading"
+        cl-options="devCtl.modules" cl-model="devCtl.selectedModule"
+        cl-btn-tooltip="Select application" cl-btn-icon="account-hard-hat"
+        cl-empty="No application"
+        cl-click="devCtl.selectModule()"
+    ></config-select>
 
     <!-- navigation -->
     <md-nav-bar md-selected-nav-item="devCtl.selectedMainNav">
@@ -45,285 +31,149 @@
     </md-nav-bar>
 
     <!-- dev tools -->
-    <div ng-show="devCtl.selectedMainNav==='devtools'">
-        <md-list>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Create new application skeleton</h3>
-                    <p>After click, don't forget to sync device source with local sources (download action in vscode plugin)</p>
-                </div>
-                <md-input-container class="md-secondary no-margin no-md-error">
-                    <input ng-model="devCtl.newApplicationName" placeholder="New application name">
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.createApplication()" ng-disabled="devCtl.loading">
-                        <md-icon md-svg-icon="plus"></md-icon>
-                        Create app
-                    </md-button>
-                </md-input>
-            </md-list-item>
-            <md-list-item>
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <p>Cleep logs</p>
-                <div class="md-secondary">
-                    <a href="http://{{devCtl.deviceIp}}/logs" target="_blank">http://{{devCtl.deviceIp}}/logs</a>
-                </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.clearLogs()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="delete"></md-icon>
-                    Clear logs file
-                </md-button>
-            </md-list-item>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Application icon</h3>
-                    <p>Choose an icon for your app from materialdesignicons.com</p>
-                </div>
-                <div class="md-secondary">
-                    <a href="https://materialdesignicons.com/" target="_blank">https://materialdesignicons.com/</a>
-                </div>
-            </md-list-item>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Application version</h3>
-                    <p>Your application version must follow semver guidelines</p>
-                </div>
-                <div class="md-secondary">
-                    <a href="https://semver.org/" target="_blank">https://semver.org/</a>
-                </div>
-            </md-list-item>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Application changelog</h3>
-                    <p>Your application changelog must follow keepachangelog guidelines</p>
-                </div>
-                <div class="md-secondary">
-                    <a href="https://keepachangelog.com/" target="_blank">https://keepachangelog.com/</a>
-                </div>
-            </md-list-item>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Unit tests</h3>
-                    <p>Your application needs unit tests to guarantee a certain level of quality. Cleep uses pylint to execute unit tests</p>
-                </div>
-                <div class="md-secondary">
-                    <a href="https://pylint.org/" target="_blank">https://pylint.org/</a>
-                </div>
-            </md-list-item>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Frontend desc.json file</h3>
-                    <p>To optimize loading time, all frontend files aren't loaded during Cleep startup. To allow this you must configure usage for each frontend files.</p>
-                </div>
-                <div class="md-secondary">
-                    <a href="https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json</a>
-                </div>
-            </md-list-item>
-        </md-list>
+    <div layout-padding ng-show="devCtl.selectedMainNav==='devtools'">
+        <config-text
+            cl-title="Create new application skeleton" cl-subtitle="After click, don't forget to sync device source with local sources (download action in vscode plugin)"
+            cl-model="devCtl.newApplicationName"
+            cl-btn-icon="plus" cl-disabled="devCtl.loading" cl-btn-tooltip="Create application"
+            cl-click="devCtl.createApplication(value)"
+        ></config-text>
+        <config-buttons
+            cl-title="Cleep logs"
+            cl-disabled="devCtl.loading"
+            cl-buttons="devCtl.logButtons"
+        ></config-buttons>
+        <config-comment
+            cl-title="Application icon" cl-subtitle="Choose an icon for your app from materialdesignicons.com"
+            cl-mode="html" cl-comment="devCtl.mdiUrl"
+        ></config-comment>
+        <config-comment
+            cl-title="Application version" cl-subtitle="Your application version must follow semver guidelines"
+            cl-mode="html" cl-comment="devCtl.semverUrl"
+        ></config-comment>
+        <config-comment
+            cl-title="Application changelog" cl-subtitle="Your application changelog must follow keepachangelog guidelines"
+            cl-mode="html" cl-comment="devCtl.changelogUrl"
+        ></config-comment>
+        <config-comment
+            cl-title="Unit tests" cl-subtitle="Your application needs unit tests to guarantee a certain level of quality. Cleep uses pylint to execute unit tests"
+            cl-mode="html" cl-comment="devCtl.testUrl"
+        ></config-comment>
+        <config-comment
+            cl-title="Frontend description file" cl-subtitle="desc.json file allows to normalize way your app UI is loaded"
+            cl-mode="html" cl-comment="devCtl.descUrl"
+        ></config-comment>
     </div>
 
     <!-- test tools -->
-    <div ng-show="devCtl.selectedMainNav==='testtools'">
-        <md-list>
-            <!-- note -->
-            <md-subheader class="md-no-sticky">Note on unit tests</md-subheader>
-            <md-list-item>
-                <p>Unit tests are required to publish an application. This is the minimum that must be done to guarantee a 
-                   certain level of quality of an application.</p>
-            </md-list-item>
-            <md-list-item>
-                <p>At least 60% of your source code must be covered to be able to publish an application.</p>
-            </md-list-item>
-            <md-list-item>
-                <p>You can find documentation on how to make your tests in developer wiki.</p>
-            </md-list-item>
-            <md-subheader class="md-no-sticky">Actions</md-subheader>
-            <md-list-item>
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <p>Click to execute tests available on your "tests" application directory</p>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.launchTests()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="wrench"></md-icon>
-                    Launch tests
-                </md-button>
-            </md-list-item>
-            <md-list-item>
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <p>Click to display last coverage report (if available)</p>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.getLastCoverageReport()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="gauge"></md-icon>
-                    Last coverage report
-                </md-button>
-            </md-list-item>
-        </md-list>
-
-        <!-- tests result -->
-        <div layout="column" layout-padding>
-            <md-content>
-                <md-toolbar class="md-hue-3">
-                    <div class="md-toolbar-tools">
-                        <h2 flex md-truncate>Tests output</h2>
-                    </div>
-                </md-toolbar>
-                <pre class="pre-output">
-{{devCtl.developerService.testsOutput.length>0 ? devCtl.developerService.testsOutput.join('\n') : 'No output'}}
-            </md-content>
-        </div>
+    <div layout-padding ng-show="devCtl.selectedMainNav==='testtools'">
+        <config-note
+            cl-note="Unit tests are required to publish an application. This is the minimum that must be done to guarantee a certain level of quality of an application.<br>At least 60% of your source code must be covered to be able to publish an application.<br>You can find documentation on how to make your tests in developer wiki."
+            cl-type="info" cl-icon="information"
+        ></config-note>
+        <config-button
+            cl-title="Click to execute available tests on your 'tests' application directory"
+            cl-click="devCtl.launchTests()" cl-disabled="devCtl.loading"
+            cl-btn-icon="play" cl-btn-label="Launch tests"
+        ></config-button>
+        <config-button
+            cl-title="Click to display last coverage report (if available)"
+            cl-click="devCtl.getLastCoverageReport()" cl-disabled="devCtl.loading"
+            cl-btn-icon="gauge" cl-btn-label="Show coverage"
+        ></config-button>
+        <config-text-viewer
+            cl-title="Tests output" cl-text="{{ devCtl.testsOutput }}"
+        ></config-text-viewer>
     </div>
 
     <!-- doc tools -->
-    <div ng-show="devCtl.selectedMainNav==='doctools'">
-        <md-list>
-            <!-- note -->
-            <md-subheader class="md-no-sticky">Note on documentation</md-subheader>
-            <md-list-item>
-                <p>Developer application gives you an easy way to build and share your application documentation.</p>
-            </md-list-item>
-            <md-list-item>
-                <p>Documentation is really important part of Cleep. It allows others developers to use your application requesting its API and it allows Cleep core
-                   to properly reference all your exposed function to online editors.
-                   So make sure your documentation follows <a href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html" target="_blank">Google docstring</a> rules.</p>
-            </md-list-item>
-
-            <md-subheader class="md-no-sticky">Actions</md-subheader>
-
-            <!-- check documentation -->
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Check your application documentation</h3>
-                    <p>This action will check your doc is well written returning errors and warnings</p>
-                </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateDocumentation()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="check"></md-icon>
-                    Check doc
-                </md-button>
-            </md-list-item>
-
-            <!-- build documentation -->
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Build your app API documentation</h3>
-                    <p>A text preview will be displayed in output below.</p>
-                </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateApiDocumentation()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="wrench"></md-icon>
-                    Generate API doc
-                </md-button>
-            </md-list-item>
-
-            <!-- download archive -->
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Download app API documentation</h3>
-                    <p>Download zip archive containing html doc. Run index.html on your browser to check content.</p>
-                </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.generateApiDocumentation()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="download"></md-icon>
-                    Download
-                </md-button>
-            </md-list-item>
-        </md-list>
-
-        <!-- documentation preview -->
-        <div layout="column" layout-padding>
-            <md-content>
-                <md-toolbar class="md-hue-3">
-                    <div class="md-toolbar-tools">
-                        <h2 flex md-truncate>Documentation output</h2>
-                    </div>
-                </md-toolbar>
-                <pre class="pre-output" ng-if="devCtl.developerService.docsOutput.length === 0 && devCtl.developerService.docsHtml.length === 0">No output</pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.docsOutput.length > 0">{{ devCtl.developerService.docsOutput.join('\n') }}</pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.docsHtml.length > 0" ng-bind-html="devCtl.developerService.docsHtml"></pre>
-            </md-content>
-        </div>
+    <div layout-padding ng-show="devCtl.selectedMainNav==='doctools'">
+        <config-note
+            cl-note="Developer application gives you an easy way to build and share your application documentation.<br>Documentation is really important part of Cleep. It allows others developers to use your application requesting its API and it allows Cleep core to properly reference all your exposed function to online editors. So make sure your documentation google docstring guidelines (link below)"
+            cl-type="info" cl-icon="information"
+        ></config-note>
+        <config-comment
+            cl-title="Google docstring example" cl-comment="devCtl.docstringUrl" cl-mode="html"
+        ></config-comment>
+        <config-button
+            cl-title="Check your application documentation" cl-subtitle="This action will check your doc is well written returning errors and warnings"
+            cl-click="devCtl.generateDocumentation()" cl-disabled="devCtl.loading"
+            cl-btn-icon="check" cl-btn-label="Check doc"
+        ></config-button>
+        <config-button
+            cl-title="Build your app API documentation" cl-subtitle="A text preview will be displayed in output below."
+            cl-click="devCtl.generateApiDocumentation()" cl-disabled="devCtl.loading"
+            cl-btn-icon="wrench" cl-btn-label="Generate API doc"
+        ></config-button>
+        <config-button
+            cl-title="Download app API documentation" cl-subtitle="Download zip archive containing html doc. Run index.html on your browser to check content."
+            cl-click="devCtl.downloadApiDocumentation()" cl-disabled="devCtl.loading"
+            cl-btn-icon="download" cl-btn-label="Download"
+        ></config-button>
+        <config-text-viewer
+            cl-title="Documentation output" cl-text="{{ devCtl.docsOutput }}" cl-empty="No output" cl-is-html="devCtl.isDocsHtml"
+        ></config-text-viewer>
     </div>
 
     <!-- breaking changes -->
-    <div ng-show="devCtl.selectedMainNav==='breakingchanges'">
-        <md-list>
-            <!-- note -->
-            <md-subheader class="md-no-sticky">Note on breaking changes</md-subheader>
-            <md-list-item>
-                <p>This tab allows you to check breaking changes detected from previous version. All detected breaking changes must be fixed before you are able to build and to publish your application</p>
-            </md-list-item>
-            <md-list-item>
-                <p>This detection should guarantee that your application is still usable release after release. So keep in mind this feature is really important and build your code intelligently ;-)</p>
-            </md-list-item>
-
-            <!-- actions -->
-            <md-subheader class="md-no-sticky">Actions</md-subheader>
-            <md-list-item class="md-2-line">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
-                <div class="md-list-item-text">
-                    <h3>Check breaking changes</h3>
-                    <p>Detection result will be displayed in output below.</p>
-                </div>
-                <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.detectBreakingChanges()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="wrench"></md-icon>
-                    Launch detection
-                </md-button>
-            </md-list-item>
-        </md-list>
-
-        <!-- breaking changes preview -->
-        <div layout="column" layout-padding>
-            <md-content>
-                <md-toolbar class="md-hue-3">
-                    <div class="md-toolbar-tools">
-                        <h2 flex md-truncate>Breaking changes output</h2>
-                    </div>
-                </md-toolbar>
-                <pre class="pre-output" ng-if="!devCtl.developerService.breakingChanges.errors">No result</pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length === 0">
-No breaking change detected
-                </pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length > 0">
-Breaking changes detected:<ul><li ng-repeat="error in devCtl.developerService.breakingChanges.errors">{{ error }}</li></ul>
-                </pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length === 0">
-No warning detected
-                </pre>
-                <pre class="pre-output" ng-if="devCtl.developerService.breakingChanges.errors.length > 0">
-Warnings detected:<ul><li ng-repeat="warn in devCtl.developerService.breakingChanges.warnings">{{ warn }}</li></ul>
-                </pre>
-            </md-content>
-        </div>
+    <div layout-padding ng-show="devCtl.selectedMainNav==='breakingchanges'">
+        <config-note
+            cl-note="This tab allows you to check breaking changes detected from previous version. All detected breaking changes must be fixed before you are able to build and to publish your application.<br>This detection should guarantee that your application is still usable release after release. So keep in mind this feature is really important and build your code intelligently ;-)"
+            cl-type="info" cl-icon="information"
+        ></config-note>
+        <config-button
+            cl-title="Check breaking changes" cl-subtitle="Detected breaking changes will be displayed in output below."
+            cl-click="devCtl.detectBreakingChanges()" cl-disabled="devCtl.loading"
+            cl-btn-icon="wrench" cl-btn-label="Launch detection"
+        ></config-button>
+        <config-text-viewer
+            cl-title="Breaking changes output" cl-text="{{ devCtl.breakingChanges }}" cl-empty="No output" cl-is-html="true"
+        ></config-text-viewer>
     </div>
 
     <!-- build tools -->
-    <div ng-show="devCtl.selectedMainNav==='buildtools'">
+    <div padding-layout ng-show="devCtl.selectedMainNav==='buildtools'">
+        <config-note
+            ng-if="!devCtl.config.moduleInDev"
+            cl-note="Please select an application to enable build" cl-type="warning" cl-icon="check"
+        ></config-note>
+        <config-button
+            cl-title="Analyze application to check its content and prepare package build"
+            cl-btn-label="Analyze app" cl-btn-icon="cogs" cl-disabled="devCtl.loading"
+            cl-click="devCtl.analyzeApplication()"
+        ></config-button>
+        
     
+        <!--
         <md-list>
 
-            <!-- no module selected -->
             <md-list-item ng-if="!devCtl.config.moduleInDev">
-                <md-icon md-svg-icon="alert"></md-icon>
+                <cl-icon cl-mdi="alert"></cl-icon>
                 <p>Please select an application to enable build.</p>
             </md-list-item>
 
-            <!-- analyze module -->
             <md-list-item ng-if="devCtl.config.moduleInDev">
-                <md-icon md-svg-icon="chevron-right"></md-icon>
+                <cl-icon cl-mdi="chevron-right"></cl-icon>
                 <p>Analyze application to check its content and prepare package build</p>
                 <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.analyzeApplication()" ng-disabled="devCtl.loading">
-                    <md-icon md-svg-icon="cogs"></md-icon>
+                    <cl-icon cl-mdi="cogs"></cl-icon>
                     Analyze app
                 </md-button>
             </md-list-item>
 
         </md-list>
+        -->
 
-        <!-- error after analyze -->
+        <config-note
+            ng-if="devCtl.analyzeError"
+            cl-type="error" cl-icon="alert-circle"
+            cl-note="<b>Error occured during application analysis, please check analyze logs:</b><br>{{ devCtl.analyzeError }}"
+        ></config-note>
+        <!--
         <md-content ng-if="devCtl.analyzeError">
             <div layout="row" flex>
                 <div style="padding-left:15px; padding-right:15px;">
-                    <md-icon md-svg-icon="alert-circle" class="icon-xl"></md-icon>
+                    <cl-icon cl-mdi="alert-circle" class="icon-xl"></cl-icon>
                 </div>
                 <div layout="column">
                     <span class="md-title">Error occured during application analysis, please check analyze logs:</span>
@@ -331,6 +181,7 @@ Warnings detected:<ul><li ng-repeat="warn in devCtl.developerService.breakingCha
                 </div>
             </div>
         </md-content>
+        -->
     
         <!-- navigation -->
         <md-nav-bar md-selected-nav-item="devCtl.selectedNav" ng-if="devCtl.checkData">
@@ -355,327 +206,156 @@ Warnings detected:<ul><li ng-repeat="warn in devCtl.developerService.breakingCha
         </md-nav-bar>
     
         <!-- build tab -->
-        <div ng-show="devCtl.selectedNav==='buildmodule'" ng-if="devCtl.checkData">
-            <md-list>
-    
-                <!-- errors -->
-                <md-subheader class="md-no-sticky">Errors</md-subheader>
-                <md-list-item ng-repeat="error in devCtl.checkData.backend.errors">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="error"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="error in devCtl.checkData.frontend.errors">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="error"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="error in devCtl.checkData.scripts.errors">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="error"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="error in devCtl.checkData.tests.errors">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="error"></p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.errorsCount===0">
-                    <md-icon md-svg-icon="thumb-up"></md-icon>
-                    <p>No error</p>
-                </md-list-item>
-    
-                <!-- warnings -->
-                <md-subheader class="md-no-sticky">Warnings</md-subheader>
-                <md-list-item ng-repeat="warn in devCtl.checkData.backend.warnings">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="warn"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="warn in devCtl.checkData.frontend.warnings">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="warn"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="warn in devCtl.checkData.scripts.warnings">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="warn"></p>
-                </md-list-item>
-                <md-list-item ng-repeat="warn in devCtl.checkData.tests.warnings">
-                    <md-icon class="md-accent" md-svg-icon="alert-circle"></md-icon>
-                    <p ng-bind-html="warn"></p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.warningsCount===0">
-                    <md-icon md-svg-icon="thumb-up"></md-icon>
-                </md-list-item>
+        <div layout-padding ng-show="devCtl.selectedNav==='buildmodule'" ng-if="devCtl.checkData">
+            <config-section cl-title="Analysis errors" cl-icon="alert-circle-outline"></config-section>
+            <config-list cl-items="devCtl.checkData.backend.errors" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.frontend.errors" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.scripts.errors" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.tests.errors" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.breakingChanges.errors" cl-empty=""></config-list>
+            <config-list
+                ng-if="devCtl.checkData.errorsCount===0"
+                cl-items="[]" cl-empty="No error detected" cl-empty-icon="thumb-up"
+            ></config-list>
 
-                <!-- release infos -->
-                <md-subheader class="md-no-sticky">Release informations</md-subheader>
-                <md-list-item>
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Changelog (markdown format)</p>
-                    <div class="md-secondary">
-                        <span marked="devCtl.checkData.changelog.changelog"></span>
-                    </div>
-                </md-list-item>
-                <md-list-item class="md-2-line">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Release version</h3>
-                        <p>Please follow semantic versionning available on <a target="_blank" href="https://semver.org/">semver.org</a></p>
-                    </div>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.checkData.backend.metadata.version"></span>
-                    </div>
-                </md-list-item>
-    
-                <!-- build actions -->
-                <md-subheader class="md-no-sticky">Build</md-subheader>
-                <md-list-item class="md-2-line">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Build and download application package archive</h3>
-                        <p>Please make sure popups <b>are not blocked</b> by your browser</p>
-                    </div>
-                    <div ng-if="devCtl.checkData.errorsCount>0" class="md-secondary">
-                        <span>Build disabled, please fix errors</span>
-                    </div>
-                    <div ng-if="devCtl.checkData.errorsCount===0 && !devCtl.checkData.versionOk" class="md-secondary">
-                        <span>Build disabled, please fix changelog version</span>
-                    </div>
-                    <md-button class="md-secondary md-raised md-primary" ng-click="devCtl.buildApplication()" ng-disabled="devCtl.checkData.errorsCount>0 || !devCtl.checkData.versionOk || devCtl.loading">
-                        <md-icon md-svg-icon="download"></md-icon>
-                        Build application
-                    </md-button>
-                </md-list-item>
-   
-            </md-list>
+            <config-section cl-title="Analysis warnings" cl-icon="alert-outline"></config-section>
+            <config-list cl-items="devCtl.checkData.backend.warnings" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.frontend.warnings" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.scripts.warnings" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.tests.warnings" cl-empty=""></config-list>
+            <config-list cl-items="devCtl.checkData.breakingChanges.warnings" cl-empty=""></config-list>
+            <config-list
+                ng-if="devCtl.checkData.warningsCount===0"
+                cl-items="[]" cl-empty="No warning detected" cl-empty-icon="thumb-up"
+            ></config-list>
+
+            <config-section cl-title="Release information" cl-icon="information"></config-section>
+            <config-comment cl-title="Changelog" cl-mode="markdown" cl-comment="devCtl.checkData.changelog.changelog"></config-comment>
+            <config-comment cl-title="Version" cl-comment="devCtl.checkData.backend.metadata.version"></config-comment>
+
+            <config-section cl-title="Build" cl-icon="cog"></config-section>
+            <config-note
+                ng-if="devCtl.checkData.errorsCount > 0"
+                cl-type="error" cl-note="Build disabled, please fix errors"
+            ></config-note>
+            <config-note
+                ng-if="devCtl.checkData.errorsCount === 0 && !devCtl.checkData.versionOk"
+                cl-type="error" cl-note="Build disabled, please update changelog version"
+            ></config-note>
+            <config-button
+                cl-title="Build and download application package archive" cl-subtitle="Please make sure popups are not blocked by your browser"
+                cl-btn-label="Build app" cl-btn-icon="download"
+                cl-disabled="devCtl.checkData.errorsCount>0 || !devCtl.checkData.versionOk || devCtl.loading"
+                cl-click="devCtl.buildApplication()"
+            ></config-button>
         </div>
     
         <!-- module description -->
-        <div ng-show="devCtl.selectedNav==='moduledesc'" ng-if="devCtl.checkData">
-            <md-list>
-                <md-subheader class="md-no-sticky">Application metadata</md-subheader>
-                <md-list-item ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Icon</p>
-                    <md-input-container class="md-secondary no-margin no-md-error" style="min-width: 30px; padding-bottom: 35px;">
-                        <md-icon md-svg-icon="{{devCtl.checkData.frontend.icon}}"></md-icon>
-                    </md-input-container>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.label" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Label</h3>
-                        <p>Forced displayed application name</p>
-                    </div>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.checkData.backend.metadata.label"></span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.author" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Author</p>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.checkData.backend.metadata.author"></span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.category" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Category</p>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.checkData.backend.metadata.category"></span>
-                    </div>
-                </md-list-item>
-                <md-list-item class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Short description of your application</h3>
-                        <p>This description is displayed on application card.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <span ng-if="devCtl.checkData.backend.metadata.description" ng-bind="devCtl.checkData.backend.metadata.description"></span>
-                        <span ng-if="!devCtl.checkData.backend.metadata.description">No short description</span>
-                    </div>
-                </md-list-item>
-                <md-list-item class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Long description of your application (html supported)</h3>
-                        <p>This description is displayed on application install dialog.</p>
-                    </div>
-                    <div class="md-secondary" style="max-width:600px; line-height:normal;">
-                        <span ng-if="devCtl.checkData.backend.metadata.longdescription" ng-bind-html="devCtl.checkData.backend.metadata.longdescription"></span>
-                        <span ng-if="!devCtl.checkData.backend.metadata.longdescription">No description</span>
-                    </div>
-                </md-list-item>
-                <!-- do not display price info until Cleep is ready to handle that... maybe one day
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.price!==undefined" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Application price</h3>
-                        <p>If your application is free set price to 0.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <span ng-if="devCtl.checkData.backend.metadata.price!==0">{{devCtl.checkData.backend.metadata.price}}€</span>
-                        <span ng-if="devCtl.checkData.backend.metadata.price===0">Free application</span>
-                    </div>
-                </md-list-item> -->
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.country" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Country</h3>
-                        <p>If your application is specific to a country, set ISO alpha2 country code to make your app only installable for this country users.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <span ng-bind="devCtl.checkData.backend.metadata.country"></span>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.urls.site" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Website url</h3>
-                        <p>Used to specify a link to a product your app is linked to (a connected bulb of a specific brand for example)</p>
-                    </div>
-                    <div class="md-secondary">
-                        <a href="{{devCtl.checkData.backend.metadata.urls.site}}" target="_blank">{{devCtl.checkData.backend.metadata.urls.site}}</a>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.urls.info" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Info url</h3>
-                        <p>Link to an info page about your app such as github project main page.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <a href="{{devCtl.checkData.metadata.urls.info}}" target="_blank">{{devCtl.checkData.backend.metadata.urls.info}}</a>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.urls.help" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Help url</h3>
-                        <p>Link to a page that describes how to use your app like a wiki page on your github repository.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <a href="{{devCtl.checkData.backend.metadata.urls.help}}" target="_blank">{{devCtl.checkData.backend.metadata.urls.help}}</a>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.urls.bugs" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Bugs url</h3>
-                        <p>Link to the bugs report page of your app.</p>
-                    </div>
-                    <div class="md-secondary">
-                        <a href="{{devCtl.checkData.backend.metadata.urls.bugs}}" target="_blank">{{devCtl.checkData.backend.metadata.urls.bugs}}</a>
-                    </div>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.tags && devCtl.checkData.backend.metadata.tags.length>0" class="md-2-line" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <div class="md-list-item-text">
-                        <h3>Application tags</h3>
-                        <p>Tags are used to find your app using search box.</p>
-                    </div>
-                    <md-input-container class="md-secondary" class="no-margin">
-                        <md-chips ng-model="devCtl.checkData.backend.metadata.tags" readonly="true" md-removable="false" md-enable-chip-edit="false"></md-chips>
-                    </md-input-container>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.metadata.deps && devCtl.checkData.backend.metadata.deps.length>0" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>Application dependencies</p>
-                    <md-input-container class="no-margin" class="md-secondary">
-                        <md-chips ng-model="devCtl.checkData.backend.metadata.deps" readonly="true" md-removable="false" md-enable-chip-edit="false"></md-chips>
-                    </md-input-container>
-                </md-list-item>
-    
-            </md-list>
+        <div layout-padding ng-show="devCtl.selectedNav==='moduledesc'" ng-if="devCtl.checkData">
+            <config-button
+                cl-title="Application icon" cl-btn-icon="{{ devCtl.checkData.frontend.icon }}" cl-btn-style=""
+            ></config-button>
+            <config-comment
+                cl-title="Application label" cl-subtitle="Displayed application name if you don't want default one (from python class name)"
+                cl-comment="devCtl.checkData.backend.metadata.label"
+            ></config-comment>
+            <config-comment
+                cl-title="Author" cl-comment="devCtl.checkData.backend.metadata.author"
+            ></config-comment>
+            <config-comment
+                cl-title="Application category" cl-comment="devCtl.checkData.backend.metadata.category"
+            ></config-comment>
+            <config-comment
+                cl-title="Short description" cl-subtitle="Short description is displayed on application card (text only)"
+                cl-comment="devCtl.checkData.backend.metadata.description || 'No description'"
+            ></config-comment>
+            <config-comment
+                cl-title="Long description" cl-subtitle="Long description is displayed on application installation dialogi (html supported)"
+                cl-comment="devCtl.checkData.backend.metadata.longdescription || 'No description'"
+            ></config-comment>
+            <!-- do not display price info until Cleep is ready to handle it... maybe one day
+            <config-comment
+                cl-title="Application price" cl-subtitle="If your application is free, set price to 0"
+                cl-comment="devCtl.checkData.backend.metadata.price"
+            ></config-comment>
+            -->
+            <config-comment
+                cl-title="Country" cl-subtitle="If your application is specific to a country, set ISO alpha2 country code to make your app only installble for users of this country"
+                cl-comment="devCtl.checkData.backend.metadata.country || 'No country code'"
+            ></config-comment>
+            <config-comment
+                cl-title="Application website url" cl-subtitle="Used to specify an url to a product your app is linked to (a connected bulb of a specific brand for example)"
+                cl-mode="html" cl-comment="devCtl.checkData.backend.metadata.urls.site || 'No url'"
+            ></config-comment>
+            <config-comment
+                cl-title="Application info url" cl-subtitle="Url to an info page about your app such as github project main page."
+                cl-mode="html" cl-comment="devCtl.checkData.backend.metadata.urls.info || 'no url'"
+            ></config-comment>
+            <config-comment
+                cl-title="Application help url" cl-subtitle="Url to a page that describes how to use your app like a wiki page on your github repository."
+                cl-mode="html" cl-comment="devCtl.checkData.backend.metadata.urls.help || 'no url'"
+            ></config-comment>
+            <config-comment
+                cl-title="Application bugs url" cl-subtitle="Url to the bugs report page of your app."
+                cl-mode="html" cl-comment="devCtl.checkData.backend.metadata.urls.bugs || 'no url'"
+            ></config-comment>
+            <config-chips
+                cl-title="Application tags" cl-subtitle="Tags are used during application search"
+                cl-readonly="true" cl-model="devCtl.checkData.backend.metadata.tags"
+            ></config-chips>
+            <config-chips
+                cl-title="Application dependencies" cl-subtitle="Dependencies are automatically installed with app"
+                cl-readonly="true" cl-model="devCtl.checkData.backend.metadata.deps"
+            ></config-chips>
         </div>
     
         <!-- scripts -->
-        <div ng-show="devCtl.selectedNav==='scripts'" ng-if="devCtl.checkData">
-            <md-list>
-                <md-list-item ng-click="devCtl.dummyClick()" ng-repeat="script in devCtl.checkData.scripts.files">
-                    <md-icon md-svg-icon="text-box-outline"></md-icon>
-                    <p>{{ script.filename }}</p>
-                </md-list-item>
-            </md-list>
+        <div layout-padding ng-show="devCtl.selectedNav==='scripts'" ng-if="devCtl.checkData">
+            <config-list
+                cl-items="devCtl.checkData.scripts.files" cl-empty="Your app does not provide installation scripts"
+            ></config-list>
         </div>
     
         <!-- backend files -->
-        <div ng-show="devCtl.selectedNav==='backendfiles'" ng-if="devCtl.checkData">
-            <md-list>
-                <!-- module -->
-                <md-subheader class="md-no-sticky">Application file</md-subheader>
-                <md-list-item>
-                    <md-icon md-svg-icon="language-python"></md-icon>
-                    <p>{{devCtl.checkData.backend.files.module.path}}</p>
-                </md-list-item>
-                <!-- other files -->
-                <md-subheader class="md-no-sticky">Application extra files</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.backend.files.misc">
-                    <md-icon md-svg-icon="language-python"></md-icon>
-                    <p>{{file.path}}</p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.files.misc.length===0">
-                    <p>No lib found</p>
-                </md-list-item>
-                <!-- events -->
-                <md-subheader class="md-no-sticky">Application events</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.backend.files.events">
-                    <md-icon md-svg-icon="bell"></md-icon>
-                    <p>{{file.path}}</p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.files.events.length===0">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>No event found</p>
-                </md-list-item>
-                <!-- formatters -->
-                <md-subheader class="md-no-sticky">Application formatters</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.backend.files.formatters" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="arrow-right-bold"></md-icon>
-                    <p>{{file.path}}</p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.files.formatters.length===0">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>No formatter found</p>
-                </md-list-item>
-                <!-- drivers -->
-                <md-subheader class="md-no-sticky">Application drivers</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.backend.files.drivers" ng-click="devCtl.dummyClick()">
-                    <md-icon md-svg-icon="arrow-right-bold"></md-icon>
-                    <p>{{file.path}}</p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.backend.files.drivers.length===0">
-                    <md-icon md-svg-icon="chevron-right"></md-icon>
-                    <p>No driver found</p>
-                </md-list-item>
-           </md-list>
+        <div layout-padding ng-show="devCtl.selectedNav==='backendfiles'" ng-if="devCtl.checkData">
+            <config-section cl-title="Application files" cl-icon="application-outline"></config-section>
+            <config-list
+                cl-items="devCtl.checkData.backend.filesModule" cl-empty="Your app does not have application files?"
+            ></config-list>
+
+            <config-section cl-title="Other application files" cl-icon="application-cog-outline"></config-section>
+            <config-list
+                cl-items="devCtl.checkData.backend.filesMisc" cl-empty="Your app does not provide other application files"
+            ></config-list>
+
+            <config-section cl-title="Application events" cl-icon="hand-wave-outline"></config-section>
+            <config-list
+                cl-items="devCtl.checkData.backend.filesEvents" cl-empty="Your app does not provide custom events"
+            ></config-list>
+
+            <config-section cl-title="Application formatters" cl-icon="format-size"></config-section>
+            <config-list
+                cl-items="devCtl.checkData.backend.filesFormatters" cl-empty="Your app does not provide specific formatters"
+            ></config-list>
+
+            <config-section cl-title="Application drivers" cl-icon="tools"></config-section>
+            <config-list
+                cl-items="devCtl.checkData.backend.filesdrivers" cl-empty="Your app does not provide hardware drivers"
+            ></config-list>
         </div>
     
         <!-- frontend files -->
-        <div ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.checkData">
-            <md-list>
-                <md-subheader class="md-no-sticky">Frontend files</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.frontend.files">
-                    <md-icon md-svg-icon="file"></md-icon>
-                    <p>{{file.filename}}</p>
-                    <span class="md-secondary">
-                        {{file.usage}}
-                    </span>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.js.files.length===0">
-                    <p>No file found</p>
-                </md-list-item>
-            </md-list>
+        <div layout-padding ng-show="devCtl.selectedNav==='frontendfiles'" ng-if="devCtl.checkData">
+            <config-list
+                cl-items="devCtl.checkData.frontend.filesItems" cl-empty="Your app does not provide frontend file. No ui will be available."
+            ></config-list>
         </div>
 
         <!-- tests -->
-        <div ng-show="devCtl.selectedNav==='tests'" ng-if="devCtl.checkData">
-            <md-list>
-                <md-subheader class="md-no-sticky">Test files</md-subheader>
-                <md-list-item ng-repeat="file in devCtl.checkData.tests.files">
-                    <md-icon md-svg-icon="file"></md-icon>
-                    <p>{{file.path}}</p>
-                </md-list-item>
-                <md-list-item ng-if="devCtl.checkData.tests.files.length===0">
-                    <p>No file found</p>
-                </md-list-item>
-            </md-list>
+        <div layout-padding ng-show="devCtl.selectedNav==='tests'" ng-if="devCtl.checkData">
+            <config-list
+                cl-items="devCtl.checkData.tests.filesItems" cl-empty="Your app does not provide tests files. Build will fail"
+            ></config-list>
         </div>
 
     </div>
