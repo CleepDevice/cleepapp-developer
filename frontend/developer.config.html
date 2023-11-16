@@ -142,47 +142,13 @@
             cl-btn-label="Analyze app" cl-btn-icon="cogs" cl-disabled="$ctrl.loading"
             cl-click="$ctrl.analyzeApplication()"
         ></config-button>
-        
     
-        <!--
-        <md-list>
-
-            <md-list-item ng-if="!$ctrl.config.moduleInDev">
-                <cl-icon cl-mdi="alert"></cl-icon>
-                <p>Please select an application to enable build.</p>
-            </md-list-item>
-
-            <md-list-item ng-if="$ctrl.config.moduleInDev">
-                <cl-icon cl-mdi="chevron-right"></cl-icon>
-                <p>Analyze application to check its content and prepare package build</p>
-                <md-button class="md-secondary md-raised md-primary" ng-click="$ctrl.analyzeApplication()" ng-disabled="$ctrl.loading">
-                    <cl-icon cl-mdi="cogs"></cl-icon>
-                    Analyze app
-                </md-button>
-            </md-list-item>
-
-        </md-list>
-        -->
-
         <config-note
             ng-if="$ctrl.analyzeError"
             cl-type="error" cl-icon="alert-circle"
             cl-note="<b>Error occured during application analysis, please check analyze logs:</b><br>{{ $ctrl.analyzeError }}"
         ></config-note>
-        <!--
-        <md-content ng-if="$ctrl.analyzeError">
-            <div layout="row" flex>
-                <div style="padding-left:15px; padding-right:15px;">
-                    <cl-icon cl-mdi="alert-circle" class="icon-xl"></cl-icon>
-                </div>
-                <div layout="column">
-                    <span class="md-title">Error occured during application analysis, please check analyze logs:</span>
-                    <p ng-bind="$ctrl.analyzeError"></p>
-                </div>
-            </div>
-        </md-content>
-        -->
-    
+
         <!-- navigation -->
         <md-nav-bar md-selected-nav-item="$ctrl.selectedNav" ng-if="$ctrl.checkData">
             <md-nav-item name="buildmodule" md-nav-click="$ctrl.showTab('buildmodule')">
