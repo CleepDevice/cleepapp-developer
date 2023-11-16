@@ -484,7 +484,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         templateUrl: 'developer.config.html',
         replace: true,
         controller: developerController,
-        controllerAs: 'devCtl'
+        controllerAs: '$ctrl',
     };
 }]);
 
