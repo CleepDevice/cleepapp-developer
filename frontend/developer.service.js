@@ -4,8 +4,8 @@
  */
 angular
 .module('Cleep')
-.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', '$window',
-function($q, $rootScope, rpcService, cleepService, $window) {
+.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', '$window', '$timeout',
+function($q, $rootScope, rpcService, cleepService, $window, $timeout) {
     var self = this;
     self.testsOutput = [];
     self.docsOutput = [];
@@ -270,7 +270,7 @@ function($q, $rootScope, rpcService, cleepService, $window) {
      * Catch cleep-cli stoped events
      **/
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
-        $window.location.reload(true);
+        $timeout(() => { $window.location.reload(true); }, 1000);
     });
 
     /**
