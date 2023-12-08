@@ -39,6 +39,10 @@
                 cl-btn-icon="plus" cl-disabled="$ctrl.loading" cl-btn-tooltip="Create application"
                 cl-click="$ctrl.createApplication(value)"
             ></config-text>
+            <config-comment
+                cl-title="Configure remote development on VSCode following this tutorial"
+                cl-mode="html" cl-comment="$ctrl.remoteDevUrl"
+            ></config-comment>
             <config-buttons
                 cl-title="Cleep logs"
                 cl-disabled="$ctrl.loading"

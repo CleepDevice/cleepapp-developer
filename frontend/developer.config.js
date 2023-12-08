@@ -27,11 +27,12 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.remotedevUuid = null;
         self.cleepService = cleepService;
         self.logButtons = [];
-        self.mdiUrl = '<a href=\"https://pictogrammers.com/library/mdi/\" target=\"_blank\">MaterialDesignIcons.com</a>';
-        self.semverUrl = '<a href="https://semver.org/" target="_blank">https://semver.org/</a>';
-        self.changelogUrl = '<a href="https://keepachangelog.com/" target="_blank">https://keepachangelog.com/</a>';
-        self.testUrl = '<a href="https://pylint.org/" target="_blank">https://pylint.org/</a>';
-        self.descUrl = '<a href="https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json" target="_blank">https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json</a>';
+        self.remoteDevUrl = '<a href="https://github.com/CleepDevice/cleep-cli#watch-usage" target="_blank">Cleep-cli watch usage</a>';
+        self.mdiUrl = '<a href="https://pictogrammers.com/library/mdi/" target="_blank">material-design-icons.com</a>';
+        self.semverUrl = '<a href="https://semver.org/" target="_blank">semver.org/</a>';
+        self.changelogUrl = '<a href="https://keepachangelog.com/" target="_blank">keepachangelog.com/</a>';
+        self.testUrl = '<a href="https://pylint.org/" target="_blank">pylint.org/</a>';
+        self.descUrl = '<a href="https://github.com/CleepDevice/cleepapp-developer/wiki/desc.json" target="_blank">Wiki on desc.json</a>';
         self.docstringUrl = '<a href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html" target="_blank">Google docstring</a>';
         self.testsOutput = undefined;
         self.docsOutput = undefined;
