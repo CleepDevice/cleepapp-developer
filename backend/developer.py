@@ -396,7 +396,7 @@ class Developer(CleepModule):
             "scripts": scripts_result,
             "tests": tests_result,
             "changelog": changelog_result,
-            "breakingChanges": breaking_changes_result,
+            "breaking_changes": breaking_changes_result,
             # 'quality': code_result,
         }
 
