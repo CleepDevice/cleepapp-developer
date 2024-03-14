@@ -184,7 +184,7 @@
                     <config-list cl-items="$ctrl.checkData.frontend.errors" cl-empty=""></config-list>
                     <config-list cl-items="$ctrl.checkData.scripts.errors" cl-empty=""></config-list>
                     <config-list cl-items="$ctrl.checkData.tests.errors" cl-empty=""></config-list>
-                    <config-list cl-items="$ctrl.checkData.breakingChanges.errors" cl-empty=""></config-list>
+                    <config-list cl-items="$ctrl.checkData.breaking_changes.errors" cl-empty=""></config-list>
                     <config-list
                         ng-if="$ctrl.checkData.errorsCount===0"
                         cl-items="[]" cl-empty="No error detected" cl-empty-icon="thumb-up"
@@ -195,7 +195,7 @@
                     <config-list cl-items="$ctrl.checkData.frontend.warnings" cl-empty=""></config-list>
                     <config-list cl-items="$ctrl.checkData.scripts.warnings" cl-empty=""></config-list>
                     <config-list cl-items="$ctrl.checkData.tests.warnings" cl-empty=""></config-list>
-                    <config-list cl-items="$ctrl.checkData.breakingChanges.warnings" cl-empty=""></config-list>
+                    <config-list cl-items="$ctrl.checkData.breaking_changes.warnings" cl-empty=""></config-list>
                     <config-list
                         ng-if="$ctrl.checkData.warningsCount===0"
                         cl-items="[]" cl-empty="No warning detected" cl-empty-icon="thumb-up"
@@ -212,7 +212,7 @@
                     ></config-note>
                     <config-note
                         ng-if="$ctrl.checkData.errorsCount === 0 && !$ctrl.checkData.versionOk"
-                        cl-type="error" cl-note="Build disabled, please update changelog version"
+                        cl-type="error" cl-note="Build disabled, please fix app version that must be the same in app python file and latest changelog entry"
                     ></config-note>
                     <config-button
                         cl-title="Build and download application package archive" cl-subtitle="Please make sure popups are not blocked by your browser"

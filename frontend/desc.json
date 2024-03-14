@@ -17,6 +17,12 @@
         "js": [
             "developer.config.js"
         ]
-    }, 
+    },
+    "pages": {
+        "components": {
+            "html": "components.html",
+            "js": "components.js"
+        }
+    },
     "icon": "account-hard-hat"
 }
