@@ -295,7 +295,7 @@ class TestDeveloper(unittest.TestCase):
             "stderr": "stderr",
         }
 
-        result = self.module._Developer__cli_check("a command")
+        result = self.module._Developer__cli_check("a command", "an error")
         logging.debug("Result: %s" % result)
 
         self.assertEqual(result, {"hello": "world"})
@@ -310,8 +310,9 @@ class TestDeveloper(unittest.TestCase):
         }
 
         with self.assertRaises(CommandError) as cm:
-            self.module._Developer__cli_check("a command")
-        self.assertEqual(str(cm.exception), "Command failed")
+            self.module._Developer__cli_check("a command", "an error")
+
+        self.assertEqual(str(cm.exception), "an error")
 
     @patch("backend.developer.Console")
     def test_cli_check_invalid_json(self, console_mock):
@@ -323,7 +324,8 @@ class TestDeveloper(unittest.TestCase):
         }
 
         with self.assertRaises(CommandError) as cm:
-            self.module._Developer__cli_check("a command")
+            self.module._Developer__cli_check("a command", "an error")
+
         self.assertEqual(
             str(cm.exception), "Error parsing check result. Check Cleep logs"
         )
@@ -345,9 +347,10 @@ class TestDeveloper(unittest.TestCase):
                 "scripts": "result",
                 "tests": "result",
                 "changelog": "result",
+                "breakingChanges": "result",
             },
         )
-        self.assertEqual(self.module._Developer__cli_check.call_count, 5)
+        self.assertEqual(self.module._Developer__cli_check.call_count, 6)
 
     def test_check_application_invalid_params(self):
         self.init()
@@ -466,7 +469,7 @@ class TestDeveloper(unittest.TestCase):
 
         self.assertEqual(self.session.event_call_count("developer.tests.output"), 2)
         self.assertEqual(
-            params["messages"], "===== Tests execution crashes (return code: {return_code}) =====", 1
+            params["messages"], "===== Tests execution crashes (return code: 1) ====="
         )
         self.assertEqual(len(self.module._Developer__tests_buffer), 0)
 
@@ -528,25 +531,25 @@ class TestDeveloper(unittest.TestCase):
         self.assertEqual(len(self.module._Developer__docs_buffer), 0)
 
     @patch("backend.developer.EndlessConsole")
-    def test_generate_documentation(self, endless_console_mock):
+    def test_generate_api_documentation(self, endless_console_mock):
         self.init()
 
-        self.module.generate_documentation("dummy")
+        self.module.generate_api_documentation("dummy")
 
         endless_console_mock.return_value.start.assert_called()
 
-    def test_generate_documentation_already_running(self):
+    def test_generate_api_documentation_already_running(self):
         self.init()
         self.module._Developer__docs_task = Mock()
 
         with self.assertRaises(CommandError) as cm:
-            self.module.generate_documentation("dummy")
+            self.module.generate_api_documentation("dummy")
         self.assertEqual(
-            str(cm.exception), "Doc generation is running. Please wait end of it"
+            str(cm.exception), "API doc generation is running. Please wait end of it"
         )
 
     @patch("backend.developer.Console")
-    def test_download_documentation(self, console_mock):
+    def test_download_api_documentation(self, console_mock):
         self.init()
         console_mock.return_value.command.return_value = {
             "returncode": 0,
@@ -554,7 +557,7 @@ class TestDeveloper(unittest.TestCase):
             "stderr": [""],
         }
 
-        result = self.module.download_documentation("dummy")
+        result = self.module.download_api_documentation("dummy")
         logging.debug("Result: %s" % result)
 
         self.assertEqual(
@@ -566,7 +569,7 @@ class TestDeveloper(unittest.TestCase):
         )
 
     @patch("backend.developer.Console")
-    def test_download_documentation_failed(self, console_mock):
+    def test_download_api_documentation_failed(self, console_mock):
         self.init()
         console_mock.return_value.command.return_value = {
             "returncode": 1,
@@ -575,7 +578,7 @@ class TestDeveloper(unittest.TestCase):
         }
 
         with self.assertRaises(CommandError) as cm:
-            self.module.download_documentation("dummy")
+            self.module.download_api_documentation("dummy")
         self.assertEqual(str(cm.exception), "error")
 
 
