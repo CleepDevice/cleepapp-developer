@@ -680,7 +680,13 @@ class Developer(CleepModule):
             module_name (str): module name
 
         Returns:
-            dict: documentation and check results
+            dict: documentation and check results::
+
+                {
+                    valid (bool): True if general documentation is valid, False otherwise
+                    doc (dict): documentation output
+                    check (dict): documentation check output
+                }
 
         """
         console = Console()
