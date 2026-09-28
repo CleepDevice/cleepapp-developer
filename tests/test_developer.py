@@ -33,8 +33,10 @@ class TestDeveloper(unittest.TestCase):
     def tearDown(self):
         self.session.clean()
 
-    def init(self, start_module=True):
-        self.module = self.session.setup(Developer)
+    def init(self, start_module=True, mock_on_start=True, mock_on_stop=True):
+        self.module = self.session.setup(
+            Developer, mock_on_start=mock_on_start, mock_on_stop=mock_on_stop
+        )
         if start_module:
             self.session.start_module(self.module)
 
@@ -105,7 +107,7 @@ class TestDeveloper(unittest.TestCase):
         self.assertIsNotNone(self.module._Developer__developer_uuid)
 
     def test_on_start(self):
-        self.init(False)
+        self.init(False, mock_on_start=False)
         self.module._Developer__start_watcher = Mock()
 
         self.session.start_module(self.module)
@@ -113,7 +115,7 @@ class TestDeveloper(unittest.TestCase):
         self.assertTrue(self.module._Developer__start_watcher.called)
 
     def test_on_stop(self):
-        self.init(False)
+        self.init(False, mock_on_start=False, mock_on_stop=False)
         self.module._Developer__watcher_task = Mock()
         self.module._Developer__tests_task = Mock()
         self.module._Developer__docs_task = Mock()
@@ -150,7 +152,7 @@ class TestDeveloper(unittest.TestCase):
         self.module.logger.error.assert_called_with("Error on watcher: %s %s", "stdout", "stderr")
 
     def test_watcher_end_callback(self):
-        self.init(False)
+        self.init(False, mock_on_start=False)
         self.module._Developer__watcher_task = Mock()
         self.module._Developer__tests_task = Mock()
         self.module._Developer__start_watcher = Mock()
