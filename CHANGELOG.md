@@ -1,13 +1,13 @@
 # Changelog
 
-## [UNRELEASED]
+## [3.2.0] - 2026-09-25
 ### Added
 - Check application documentation before generating release archive
 - Add breaking changes detection feature
 
 ### Updated
 - Change documentation tab using new doc core command
-- Bump cleepcli to v1.32.2
+- Bump cleepcli to v1.43.9
 - Improve UI
 - Migrate to Cleep components
 

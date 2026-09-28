@@ -16,14 +16,14 @@ function($q, $rootScope, rpcService, cleepService, $window, $timeout) {
      * Start remotedev
      */
     self.startRemotedev = function() {
-        return rpcService.sendCommand('start_remotedev', 'developer', 15);
+        return rpcService.sendCommand('start_remotedev', 'developer', undefined, 15);
     };
 
     /**
      * Stop remotedev
      */
     self.stopRemotedev = function() {
-        return rpcService.sendCommand('stop_remotedev', 'developer', 15);
+        return rpcService.sendCommand('stop_remotedev', 'developer', undefined, 15);
     };
 
     /**
@@ -133,6 +133,12 @@ function($q, $rootScope, rpcService, cleepService, $window, $timeout) {
      */
     self.__checkDocToHtml = function(doc, check) {
         let html = "<ul>";
+
+        // general error+warn
+        if (check.error) {
+            html += `<li class="doc-function"><span class="doc-red">General error:</span>&nbsp;${check.error}</li>`;
+        }
+
         for (const [fnName, data] of Object.entries(doc)) {
             html += "<li class=\"doc-function\"><span>Command " + fnName + "</span><ul>";
 

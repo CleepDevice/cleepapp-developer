@@ -13,6 +13,7 @@ from cleep.libs.internals import __all__ as internals_libs
 from cleep.libs.drivers import __all__ as drivers_libs
 from cleep.libs.configs import __all__ as configs_libs
 from cleep.libs.commands import __all__ as commands_libs
+from cleep.libs.configs.cleepconf import CleepConf
 
 
 __all__ = ["Developer"]
@@ -28,7 +29,7 @@ class Developer(CleepModule):
     """
 
     MODULE_AUTHOR = "Cleep"
-    MODULE_VERSION = "3.1.0"
+    MODULE_VERSION = "3.2.0"
     MODULE_DEPS = []
     MODULE_DESCRIPTION = "Helps you to develop Cleep applications."
     MODULE_LONGDESCRIPTION = "Developer module helps you to develop on Cleep installing \
@@ -300,14 +301,41 @@ class Developer(CleepModule):
                 "Create app cmd result: %s %s", res["stdout"], res["stderr"]
             )
             if res["returncode"] != 0:
-                raise CommandError(
-                    "Error during application creation. Check Cleep logs."
-                )
+                self.logger.error("Create app failed: cleep-cli modcreate [%s][%s]", res["stdout"], res["stderr"])
+                raise Exception("Cleep-cli modcreate failed")
 
             # sync new app content
             console.command(self.CLI_SYNC_MODULE_CMD % module_name)
+            if res["returncode"] != 0:
+                self.logger.error("Create app failed: cleep-cli modsync failed [%s][%s]", res["stdout"], res["stderr"])
+                raise Exception("Cleep-cli modsync failed")
+
+            # set application as installed
+            cleep_conf = CleepConf(self.cleep_filesystem)
+            if not cleep_conf.install_module(module_name):
+                self.logger.error("Create app failed: unable to add app to installed apps")
+                raise Exception("App install failed")
+
+        except Exception as error:
+            raise CommandError(
+                "Error during application creation. Check Cleep logs."
+            ) from error
+
         finally:
             self.__start_watcher()
+
+    @staticmethod
+    def valid_json(string):
+        """
+        Return True if string seems to be valid json. Useful to filter command output
+
+        Args:
+            string (str): string to check
+
+        Returns:
+            bool: True if string seems to be valid json
+        """
+        return string.startswith(("{", "["))
 
     def __cli_check(self, command, error_message, timeout=15.0):
         """
@@ -331,7 +359,8 @@ class Developer(CleepModule):
             raise CommandError(error_message)
 
         try:
-            return json.loads("".join(res["stdout"]))
+            valid_json = filter(Developer.valid_json, res["stdout"])
+            return json.loads("".join(valid_json))
         except Exception as error:
             self.logger.exception('Error parsing command "%s" output', command)
             raise CommandError(
@@ -659,7 +688,7 @@ class Developer(CleepModule):
         cmd = self.CLI_DOC_CMD % (self.CLI, module_name)
         doc = console.command(cmd)
         self.logger.debug("Doc cmd %s response: %s", cmd, doc)
-        doc_output = "".join(doc["stdout"])
+        doc_output = "".join(filter(Developer.valid_json, doc["stdout"]))
         if doc["returncode"] != 0:
             self.logger.error("Unable to generate doc: %s", doc_output)
             raise CommandError("Unable to generate doc")
@@ -667,7 +696,7 @@ class Developer(CleepModule):
         cmd = self.CLI_CHECK_DOC_CMD % (self.CLI, module_name)
         check = console.command(cmd)
         self.logger.debug("Check doc cmd %s response: %s", cmd, check)
-        check_output = "".join(check["stdout"])
+        check_output = "".join(filter(Developer.valid_json, check["stdout"]))
 
         return {
             "valid": check["returncode"] == 0,
@@ -697,7 +726,7 @@ class Developer(CleepModule):
         cmd = self.CLI_CHECK_BREAKING_CHANGES_CMD % (self.CLI, module_name)
         breaking = console.command(cmd, 20.0)
         self.logger.debug("Breaking changes cmd %s response: %s", cmd, breaking)
-        breaking_output = "".join(breaking["stdout"])
+        breaking_output = "".join(filter(Developer.valid_json, breaking["stdout"]))
         breaking_json = json.loads(breaking_output)
 
         return {

@@ -72,7 +72,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                     self.modules = self.__modulesList(false);
 
                     // make sure god mode wasn't enabled before
-                    if( self.config.moduleInDev && self.modules.indexOf(self.config.moduleInDev)===-1 ) {
+                    if (self.config.moduleInDev && self.modules.indexOf(self.config.moduleInDev)===-1) {
                         self.modules = self.__modulesList(true);
                     }
                 });
@@ -82,14 +82,14 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
          * Load modules that can be developed
          */
         self.__modulesList = function(all) {
-            if( all===undefined ) {
+            if (all===undefined) {
                 all = false;
             }
 
-            var temp = [];
-            for( var module in cleepService.modules ) {
-                if( !all ) {
-                    if( cleepService.modules[module].core===true || module==='developer' ) {
+            const temp = [];
+            for (const module in cleepService.modules) {
+                if (!all) {
+                    if (cleepService.modules[module].core===true || module==='developer') {
                         // core module, drop it
                         continue;
                     }
@@ -114,23 +114,23 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             self.modules = self.__modulesList(true);
         };
 
-		/**
+        /**
          * Set remotedev device
          */
         self.setRemotedevDevice = function() {
-           	for( var i=0; i<cleepService.devices.length; i++ ) {
-    	        if( cleepService.devices[i].type==='developer' ) {
+            for (var i=0; i<cleepService.devices.length; i++) {
+                if (cleepService.devices[i].type==='developer') {
                     self.remotedevUuid = cleepService.devices[i].uuid;
                     break;
-	            }
-    	    }
+                }
+            }
         };
 
         /**
          * Set module configuration internally
          */
         self.setConfig = function(config) {
-            if( config ) {
+            if (config) {
                 self.config.moduleInDev = config.moduleindev;
                 self.selectedModule = config.moduleindev || '';
             }
@@ -166,7 +166,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             self.analyzeError = null;
 
             // check params
-            if( !self.config.moduleInDev ) {
+            if (!self.config.moduleInDev) {
                 toast.error('Please select an application');
                 self.loading = false;
                 return;
@@ -379,11 +379,12 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
                 .then((valid) => {
                     if (!valid) {
                         toast.error('Documentation is invalid. Please fix it');
+                    } else {
+                        toast.success('Documentation seems to be valid');
                     }
                 })
                 .finally(() => {
                     self.loading = false;
-                    toast.close();
                 });
         };
 

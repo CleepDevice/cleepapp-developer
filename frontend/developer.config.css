@@ -46,3 +46,6 @@ li.doc-function > span:first-child {
     font-size: large;
 }
 
+li.doc-red {
+    color: red !important;
+}
