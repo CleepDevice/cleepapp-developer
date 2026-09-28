@@ -260,18 +260,21 @@ class TestDeveloper(unittest.TestCase):
             self.fail("Should handle exception")
         self.module.logger.exception.assert_called_with("Unable to change debug status")
 
+    @patch("backend.developer.CleepConf")
     @patch("backend.developer.Console")
-    def test_create_application(self, console_mock):
+    def test_create_application(self, console_mock, cleep_conf_mock):
         self.init()
         console_mock.return_value.command.return_value = {
             "returncode": 0,
             "stdout": "stdout",
             "stderr": "stderr",
         }
+        cleep_conf_mock.return_value.install_module.return_value = True
 
         self.module.create_application("test")
 
         console_mock.return_value.command.assert_called()
+        cleep_conf_mock.return_value.install_module.assert_called_with("test")
 
     @patch("backend.developer.Console")
     def test_create_application_exception(self, console_mock):
@@ -349,7 +352,7 @@ class TestDeveloper(unittest.TestCase):
                 "scripts": "result",
                 "tests": "result",
                 "changelog": "result",
-                "breakingChanges": "result",
+                "breaking_changes": "result",
             },
         )
         self.assertEqual(self.module._Developer__cli_check.call_count, 6)
