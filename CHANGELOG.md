@@ -10,6 +10,7 @@
 ### Updated
 
 - Update components showcase page design
+- Register newly created apps via update `register_local_module` (no direct CleepConf write)
 
 ### Fixed
 

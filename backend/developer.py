@@ -13,7 +13,6 @@ from cleep.libs.internals import __all__ as internals_libs
 from cleep.libs.drivers import __all__ as drivers_libs
 from cleep.libs.configs import __all__ as configs_libs
 from cleep.libs.commands import __all__ as commands_libs
-from cleep.libs.configs.cleepconf import CleepConf
 
 
 __all__ = ["Developer"]
@@ -310,10 +309,17 @@ class Developer(CleepModule):
                 self.logger.error("Create app failed: cleep-cli modsync failed [%s][%s]", res["stdout"], res["stderr"])
                 raise Exception("Cleep-cli modsync failed")
 
-            # set application as installed
-            cleep_conf = CleepConf(self.cleep_filesystem)
-            if not cleep_conf.install_module(module_name):
-                self.logger.error("Create app failed: unable to add app to installed apps")
+            # register application via update (owns install lifecycle)
+            resp = self.send_command(
+                "register_local_module",
+                "update",
+                {"module_name": module_name},
+            )
+            if resp.error:
+                self.logger.error(
+                    "Create app failed: unable to register app via update: %s",
+                    resp.message,
+                )
                 raise Exception("App install failed")
 
         except Exception as error:
