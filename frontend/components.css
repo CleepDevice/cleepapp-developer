@@ -1,0 +1,108 @@
+.components-showcase md-content.md-padding {
+    padding: 28px 32px 56px;
+}
+
+.components-showcase config-section,
+.components-showcase components-doc-panel,
+.components-showcase config-collapse,
+.components-showcase config-button,
+.components-showcase config-buttons,
+.components-showcase config-comment,
+.components-showcase config-number,
+.components-showcase config-text,
+.components-showcase config-slider,
+.components-showcase config-checkbox,
+.components-showcase config-switch,
+.components-showcase config-select,
+.components-showcase config-time,
+.components-showcase config-date,
+.components-showcase config-note,
+.components-showcase config-progress,
+.components-showcase config-chips,
+.components-showcase config-list,
+.components-showcase config-file,
+.components-showcase config-text-viewer {
+    display: block;
+}
+
+.components-showcase config-section {
+    margin-top: 48px;
+}
+
+.components-showcase md-content > config-note:first-child + config-section,
+.components-showcase md-content > config-section:first-of-type {
+    margin-top: 12px;
+}
+
+.components-showcase .components-variant {
+    margin: 24px 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    opacity: 0.65;
+}
+
+.components-showcase .config-item-section {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-top: 4px;
+}
+
+.components-showcase .config-item {
+    margin-bottom: 10px;
+}
+
+.components-showcase .config-collapse-header.config-item,
+.components-showcase .config-collapse > .config-item {
+    margin-bottom: 0;
+}
+
+.components-showcase config-note {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.components-showcase md-content > config-note:first-child {
+    margin-bottom: 36px;
+}
+
+.components-showcase .components-icon-row {
+    gap: 24px;
+    padding: 16px 0 32px;
+}
+
+.components-showcase .components-widget-demo {
+    margin-top: 32px;
+    margin-bottom: 28px;
+    min-height: 240px;
+}
+
+.components-showcase .components-doc-card {
+    margin: 4px 0 28px;
+    border-radius: 8px;
+}
+
+.components-showcase .components-doc-title {
+    margin-bottom: 8px;
+    opacity: 0.75;
+}
+
+.components-showcase .components-doc-desc {
+    margin-bottom: 10px;
+}
+
+.components-showcase .components-doc-bindings {
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+
+.components-showcase .components-doc-code {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: auto;
+}

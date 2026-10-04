@@ -20,11 +20,12 @@ from unittest.mock import Mock, DEFAULT, patch
 
 LOG_LEVEL = get_log_level()
 
+
 class TestDeveloper(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(
             level=LOG_LEVEL,
-            format=u"%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
         )
         self.session = session.TestSession(self)
         with open("test.log", "a") as fd:
@@ -149,7 +150,9 @@ class TestDeveloper(unittest.TestCase):
         self.session.start_module(self.module)
         self.module._Developer__watcher_callback("stdout", "stderr")
 
-        self.module.logger.error.assert_called_with("Error on watcher: %s %s", "stdout", "stderr")
+        self.module.logger.error.assert_called_with(
+            "Error on watcher: %s %s", "stdout", "stderr"
+        )
 
     def test_watcher_end_callback(self):
         self.init(False, mock_on_start=False)
@@ -591,7 +594,7 @@ class TestsDeveloperDocsOutputEvent(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(
             level=LOG_LEVEL,
-            format=u"%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
         )
         self.session = session.TestSession(self)
         self.event = self.session.setup_event(DeveloperDocsOutputEvent)
@@ -604,7 +607,7 @@ class TestsDeveloperTestsOutputEvent(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(
             level=LOG_LEVEL,
-            format=u"%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
         )
         self.session = session.TestSession(self)
         self.event = self.session.setup_event(DeveloperTestsOutputEvent)
@@ -617,7 +620,7 @@ class TestsDeveloperFrontendRestartEvent(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(
             level=LOG_LEVEL,
-            format=u"%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
         )
         self.session = session.TestSession(self)
         self.event = self.session.setup_event(DeveloperFrontendRestartEvent)

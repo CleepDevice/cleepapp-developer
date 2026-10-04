@@ -37,6 +37,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         self.testsOutput = undefined;
         self.docsOutput = undefined;
         self.isDocsHtml = false;
+        self.docsCheckError = null;
         self.breakingChanges = undefined;
 
         /**
@@ -301,6 +302,10 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
             $window.open(logUrl, '_blank');
         };
 
+        self.openComponentsPage = function () {
+            $window.location.href = '#!/module/developer/components';
+        };
+
         /**
          * Create new application skeleton
          */
@@ -354,6 +359,7 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
 
         self.generateApiDocumentation = function() {
             self.loading = true;
+            self.docsCheckError = null;
             toast.info('Generating API documentation. Please follow process in output');
 
             developerService.generateApiDocumentation(self.config.moduleInDev)
@@ -368,20 +374,28 @@ function($rootScope, toast, cleepService, developerService, systemService, $time
         };
 
         self.downloadApiDocumentation = function() {
+            self.docsCheckError = null;
             developerService.downloadApiDocumentation(self.config.moduleInDev);
         };
 
         self.generateDocumentation = function() {
             self.loading = true;
+            self.docsCheckError = null;
             toast.loading('Checking application documentation...');
 
             developerService.generateDocumentation(self.config.moduleInDev)
                 .then((valid) => {
                     if (!valid) {
+                        self.docsCheckError =
+                            'Documentation is invalid. Fix errors highlighted in red in the output below.';
                         toast.error('Documentation is invalid. Please fix it');
                     } else {
                         toast.success('Documentation seems to be valid');
                     }
+                })
+                .catch(() => {
+                    self.docsCheckError =
+                        'Documentation check failed. See Cleep logs or retry Check doc.';
                 })
                 .finally(() => {
                     self.loading = false;

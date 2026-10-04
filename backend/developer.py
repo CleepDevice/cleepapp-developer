@@ -685,7 +685,7 @@ class Developer(CleepModule):
                 {
                     valid (bool): True if general documentation is valid, False otherwise
                     doc (dict): documentation output
-                    check (dict): documentation check output
+                    check (dict): per-command check results (errors/warnings), not CLI envelope
                 }
 
         """
@@ -703,11 +703,16 @@ class Developer(CleepModule):
         check = console.command(cmd)
         self.logger.debug("Check doc cmd %s response: %s", cmd, check)
         check_output = "".join(filter(Developer.valid_json, check["stdout"]))
+        # modcheckdoc --json wraps results in {error, message, data}; UI expects data only
+        check_json = json.loads(check_output)
+        check_data = check_json.get("data") if isinstance(check_json, dict) else None
+        if not isinstance(check_data, dict):
+            check_data = check_json if isinstance(check_json, dict) else {}
 
         return {
             "valid": check["returncode"] == 0,
             "doc": json.loads(doc_output),
-            "check": json.loads(check_output),
+            "check": check_data,
         }
 
     def detect_breaking_changes(self, module_name):

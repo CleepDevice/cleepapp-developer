@@ -21,7 +21,8 @@
     "pages": {
         "components": {
             "html": ["components.html"],
-            "js": ["components.js"]
+            "js": ["components.js"],
+            "css": ["components.css"]
         }
     },
     "icon": "account-hard-hat"

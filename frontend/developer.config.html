@@ -68,6 +68,11 @@
                 cl-title="Frontend description file" cl-subtitle="desc.json file allows to normalize way your app UI is loaded"
                 cl-mode="html" cl-comment="$ctrl.descUrl"
             ></config-comment>
+            <config-button
+                cl-title="UI components showcase" cl-subtitle="Preview Cleep config, UI and widget components"
+                cl-click="$ctrl.openComponentsPage()"
+                cl-btn-icon="palette-swatch" cl-btn-label="Open components"
+            ></config-button>
         </div>
 
         <!-- test tools -->
@@ -115,6 +120,11 @@
                 cl-click="$ctrl.downloadApiDocumentation()" cl-disabled="$ctrl.loading"
                 cl-btn-icon="download" cl-btn-label="Download"
             ></config-button>
+            <config-note
+                ng-if="$ctrl.docsCheckError"
+                cl-type="error" cl-icon="alert-circle"
+                cl-note="<b>{{ $ctrl.docsCheckError }}</b>"
+            ></config-note>
             <config-text-viewer
                 cl-title="Documentation output" cl-text="{{ $ctrl.docsOutput }}" cl-empty="No output" cl-is-html="$ctrl.isDocsHtml"
             ></config-text-viewer>

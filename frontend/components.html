@@ -1,277 +1,418 @@
-<div layout="column" layout-fill>
-    <div layout="column" layout-padding ng-cloak>
-        <md-content>
-            <md-tabs md-center-tabs md-dynamic-height>
-                <md-tab label="config components">
-                    <md-content class="md-padding">
-                        <!-- config-button -->
-                        <h3 class="md-title">config-button</h3>
-                        <p class="md-body-1">
-                            <config-button
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="wrench" cl-icon-class="md-accent"
-                                cl-btn-color="md-accent" cl-btn-style="" cl-btn-icon="wrench" cl-btn-label="Click" cl-btn-tooltip="Tooltip"
-                                cl-disabled="true"
-                            ></config-button>
-                        </p>
+<div layout="column" class="components-showcase" ng-cloak>
+    <md-tabs md-dynamic-height md-border-bottom>
+        <!-- Config -->
+        <md-tab label="Config">
+            <md-content class="md-padding"><config-note
+                    cl-type="info" cl-icon="information"
+                    cl-note="Interactive catalog of <code>config-*</code> components. Use <strong>Show code</strong> on each section for usage docs."
+                ></config-note>
 
-                        <!-- config-buttons -->
-                        <h3 class="md-title">config-buttons</h3>
-                        <h3 class="md-subhead">max 2 buttons</h3>
-                        <p class="md-body-1">
-                            <config-buttons
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="wrench" cl-icon-class="md-accent"
-                                cl-buttons="$ctrl.twoButtons"
-                            ></config-button>
-                        </p>
-                        <h3 class="md-subhead">more than 2 buttons</h3>
-                        <p class="md-body-1">
-                            <config-buttons
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="wrench" cl-icon-class="md-accent"
-                                cl-buttons="$ctrl.fourButtons"
-                            ></config-button>
-                        </p>
+                <config-section
+                    cl-title="config-button" cl-icon="gesture-tap-button"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-button') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-button') }}"
+                    cl-click="$ctrl.toggleDoc('config-button')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-button')" doc="$ctrl.docs['config-button']"></components-doc-panel>
+                <div class="components-variant">Enabled</div>
+                <config-button
+                    cl-title="Restart service" cl-subtitle="Apply changes and restart"
+                    cl-icon="restart" cl-btn-icon="play" cl-btn-label="Restart" cl-btn-tooltip="Restart now"
+                    cl-click="$ctrl.onAction('Restart')" cl-meta="$ctrl.meta"
+                ></config-button>
+                <div class="components-variant">Disabled</div>
+                <config-button
+                    cl-title="Publish application" cl-subtitle="Unavailable until checks pass"
+                    cl-icon="upload" cl-btn-icon="upload" cl-btn-label="Publish"
+                    cl-disabled="true"
+                ></config-button>
 
-                        <!-- config-section -->
-                        <h3 class="md-title">config-section</h3>
-                        <p class="md-body-1">
-                            <config-section
-                                cl-title="Section title" cl-icon="alert"
-                            ></config-section>
-                        </p>
+                <config-section
+                    cl-title="config-buttons" cl-icon="dots-horizontal"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-buttons') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-buttons') }}"
+                    cl-click="$ctrl.toggleDoc('config-buttons')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-buttons')" doc="$ctrl.docs['config-buttons']"></components-doc-panel>
+                <div class="components-variant">Up to 2 buttons inline</div>
+                <config-buttons
+                    cl-title="Log file" cl-subtitle="Open or clear device logs"
+                    cl-icon="text-box-outline" cl-buttons="$ctrl.twoButtons"
+                ></config-buttons>
+                <div class="components-variant">More than 2 buttons (menu)</div>
+                <config-buttons
+                    cl-title="Quick actions" cl-subtitle="Overflow opens a menu"
+                    cl-icon="lightning-bolt" cl-buttons="$ctrl.fourButtons"
+                ></config-buttons>
 
-                        <!-- config-info -->
-                        <h3 class="md-title">config-info</h3>
-                        <h3 class="md-subhead">Text mode</h3>
-                        <p class="md-body-1">
-                            <config-info
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="alert"
-                                cl-content="$ctrl.textContent"
-                            ></config-section>
-                        </p>
-                        <h3 class="md-subhead">HTML mode</h3>
-                        <p class="md-body-1">
-                            <config-info
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="alert" cl-icon-class="md-accent"
-                                cl-content="$ctrl.htmlContent" cl-mode="html"
-                            ></config-section>
-                        </p>
-                        <h3 class="md-subhead">Markdown mode</h3>
-                        <p class="md-body-1">
-                            <config-info
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-icon="alert" cl-icon-class="md-warn"
-                                cl-content="$ctrl.markdownContent" cl-mode="markdown"
-                            ></config-section>
-                        </p>
+                <config-section
+                    cl-title="config-checkbox" cl-icon="checkbox-marked-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-checkbox') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-checkbox') }}"
+                    cl-click="$ctrl.toggleDoc('config-checkbox')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-checkbox')" doc="$ctrl.docs['config-checkbox']"></components-doc-panel>
+                <config-checkbox
+                    cl-title="Enable debug" cl-subtitle="Verbose logging for this app"
+                    cl-icon="bug" cl-caption="Enabled"
+                    cl-model="$ctrl.inputCheckbox" cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-checkbox>
 
-                        <!-- config-number -->
-                        <h3 class="md-title">config-number</h3>
-                        <p class="md-body-1">
-                            <config-number
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-btn-color="md-accent" cl-btn-style="" cl-btn-icon="wrench" cl-btn-label="Click" cl-btn-tooltip="Tooltip"
-                                cl-min="1" cl-max="10" cl-required="true"
-                                cl-disabled="true" cl-model="$ctrl.inputNumber"
-                            ></config-number>
-                        </p>
+                <config-section
+                    cl-title="config-chips" cl-icon="tag-multiple"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-chips') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-chips') }}"
+                    cl-click="$ctrl.toggleDoc('config-chips')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-chips')" doc="$ctrl.docs['config-chips']"></components-doc-panel>
+                <div class="components-variant">Editable / removable</div>
+                <config-chips
+                    cl-title="Tags" cl-subtitle="Add or remove chips"
+                    cl-icon="tag-multiple" cl-model="$ctrl.chips"
+                    cl-removable="true" cl-readonly="false"
+                    cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-chips>
+                <div class="components-variant">Readonly</div>
+                <config-chips
+                    cl-title="Installed drivers" cl-subtitle="Read-only list"
+                    cl-icon="tag-multiple" cl-model="$ctrl.chips" cl-readonly="true"
+                ></config-chips>
 
-                        <!-- config-text -->
-                        <h3 class="md-title">config-text</h3>
-                        <h3 class="md-subhead">Text input</h3>
-                        <p class="md-body-1">
-                            <config-text
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-btn-color="md-accent" cl-btn-icon="wrench" cl-btn-label="Click" cl-btn-tooltip="Tooltip" cl-click="$ctrl.onClick()"
-                                cl-min="1" cl-max="10" cl-required="true"
-                                cl-model="$ctrl.inputText" cl-disabled="true"
-                            ></config-text>
-                        </p>
-                        <h3 class="md-subhead">Password input</h3>
-                        <p class="md-body-1">
-                            <config-text
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-btn-color="md-accent" cl-btn-style="" cl-btn-icon="wrench" cl-btn-label="Click" cl-btn-tooltip="Tooltip"
-                                cl-min="1" cl-max="10" cl-required="true"
-                                cl-model="$ctrl.inputText" cl-password="true"
-                            ></config-text>
-                        </p>
+                <config-section
+                    cl-title="config-collapse" cl-icon="arrow-collapse-vertical"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-collapse') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-collapse') }}"
+                    cl-click="$ctrl.toggleDoc('config-collapse')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-collapse')" doc="$ctrl.docs['config-collapse']"></components-doc-panel>
+                <div class="components-variant">Closed by default</div>
+                <config-collapse
+                    cl-title="Advanced options" cl-subtitle="Click to expand nested settings"
+                    cl-icon="cog" cl-opened="$ctrl.collapseClosed"
+                >
+                    <config-text
+                        cl-title="Extra parameter" cl-subtitle="Nested inside collapse"
+                        cl-icon="tune" cl-model="$ctrl.collapseText"
+                        cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                        cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                    ></config-text>
+                    <config-switch
+                        cl-title="Experimental feature" cl-subtitle="Nested toggle"
+                        cl-icon="flask" cl-model="$ctrl.collapseSwitch"
+                        cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                    ></config-switch>
+                </config-collapse>
+                <div class="components-variant">Opened by default</div>
+                <config-collapse
+                    cl-title="Network details" cl-subtitle="Expanded on load"
+                    cl-icon="lan" cl-opened="$ctrl.collapseOpened"
+                >
+                    <config-comment
+                        cl-title="IP address" cl-icon="ip" cl-comment="$ctrl.textContent"
+                    ></config-comment>
+                    <config-note
+                        cl-type="info" cl-icon="information"
+                        cl-note="Use config-collapse to group optional or advanced settings."
+                    ></config-note>
+                </config-collapse>
 
-                        <!-- config-slider -->
-                        <h3 class="md-title">config-slider</h3>
-                        <p class="md-body-1">
-                            <config-slider
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-btn-color="md-accent" cl-btn-style="" cl-btn-icon="wrench" cl-btn-label="Click" cl-btn-tooltip="Tooltip"
-                                cl-min="1" cl-max="50" cl-step="5" cl-required="true"
-                                cl-model="$ctrl.inputSlider"
-                            ></config-slider>
-                        </p>
+                <config-section
+                    cl-title="config-comment" cl-icon="comment-text-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-comment') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-comment') }}"
+                    cl-click="$ctrl.toggleDoc('config-comment')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-comment')" doc="$ctrl.docs['config-comment']"></components-doc-panel>
+                <div class="components-variant">Plain text</div>
+                <config-comment
+                    cl-title="Device name" cl-subtitle="Read-only value"
+                    cl-icon="label-outline" cl-comment="$ctrl.textContent"
+                ></config-comment>
+                <div class="components-variant">HTML</div>
+                <config-comment
+                    cl-title="Help link" cl-subtitle="Trusted HTML content"
+                    cl-icon="web" cl-comment="$ctrl.htmlContent" cl-mode="html"
+                ></config-comment>
+                <div class="components-variant">Markdown</div>
+                <config-comment
+                    cl-title="Release notes snippet" cl-subtitle="Rendered markdown"
+                    cl-icon="language-markdown" cl-comment="$ctrl.markdownContent" cl-mode="markdown"
+                ></config-comment>
 
-                        <!-- config-checkbox -->
-                        <h3 class="md-title">config-checkbox</h3>
-                        <p class="md-body-1">
-                            <config-checkbox
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-caption="Click me" cl-selected-value="selected" cl-unselected-value="unselected"
-                                cl-model="$ctrl.inputCheckbox" cl-click="$ctrl.onClick(value, meta)" cl-disabled="false" cl-meta="$ctrl.meta"
-                            ></config-checkbox>
-                        </p>
+                <config-section
+                    cl-title="config-date" cl-icon="calendar"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-date') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-date') }}"
+                    cl-click="$ctrl.toggleDoc('config-date')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-date')" doc="$ctrl.docs['config-date']"></components-doc-panel>
+                <config-date
+                    cl-title="Install date" cl-subtitle="Reference date"
+                    cl-icon="calendar-check" cl-model="$ctrl.inputDate"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-date>
 
-                        <!-- config-switch -->
-                        <h3 class="md-title">config-checkbox</h3>
-                        <p class="md-body-1">
-                            <config-switch
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-caption="Switch me" cl-on-value="ON" cl-off-value="OFF" cl-disabled="true"
-                                cl-model="$ctrl.inputSwitch" cl-click="$ctrl.onClick(value, meta)" cl-disabled="false" cl-meta="$ctrl.meta"
-                            ></config-switch>
-                        </p>
+                <config-section
+                    cl-title="config-file" cl-icon="file-upload-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-file') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-file') }}"
+                    cl-click="$ctrl.toggleDoc('config-file')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-file')" doc="$ctrl.docs['config-file']"></components-doc-panel>
+                <config-file
+                    cl-title="Import configuration" cl-subtitle="Select a JSON file"
+                    cl-icon="file-upload" cl-btn-label="Choose file" cl-btn-icon="folder-open"
+                    cl-click="$ctrl.onFile(file)"
+                ></config-file>
 
-                        <!-- config-select -->
-                        <h3 class="md-title">config-checkbox</h3>
-                        <h3 class="md-subhead">Single choice</h3>
-                        <p class="md-body-1">
-                            <config-select
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-options="$ctrl.selectOptions" cl-disabled="false"
-                                cl-model="$ctrl.inputSelect" cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
-                                cl-change="$ctrl.onSelectChange(value, $event)"
-                            ></config-select>
-                        </p>
-                        <h3 class="md-subhead">Multiple choices</h3>
-                        <p class="md-body-1">
-                            <config-select
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-options="$ctrl.selectOptions" cl-disabled="false"
-                                cl-model="$ctrl.inputSelects" cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
-                                cl-change="$ctrl.onSelectChange(values, $event)"
-                            ></config-select>
-                        </p>
+                <config-section
+                    cl-title="config-list" cl-icon="format-list-bulleted"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-list') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-list') }}"
+                    cl-click="$ctrl.toggleDoc('config-list')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-list')" doc="$ctrl.docs['config-list']"></components-doc-panel>
+                <div class="components-variant">Selectable with actions</div>
+                <config-list
+                    cl-selectable="true" cl-items="$ctrl.listItems"
+                    cl-on-select="$ctrl.onSelect(current, index, selections, event)"
+                ></config-list>
+                <div class="components-variant">Empty</div>
+                <config-list
+                    cl-items="$ctrl.emptyList" cl-empty="No devices found" cl-empty-icon="devices"
+                ></config-list>
 
-                        <!-- config-time -->
-                        <h3 class="md-title">config-time</h3>
-                        <p class="md-body-1">
-                            <config-time
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-caption="Switch me" cl-disabled="false"
-                                cl-model="$ctrl.inputTime" cl-click="$ctrl.onClick(value, meta)" cl-disabled="false" cl-meta="$ctrl.meta"
-                            ></config-time>
-                        </p>
+                <config-section
+                    cl-title="config-note" cl-icon="note-text"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-note') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-note') }}"
+                    cl-click="$ctrl.toggleDoc('config-note')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-note')" doc="$ctrl.docs['config-note']"></components-doc-panel>
+                <div class="components-variant">Default</div>
+                <config-note cl-note="A simple note with default styling."></config-note>
+                <div class="components-variant">Info / success / warning / error</div>
+                <config-note cl-type="info" cl-icon="information" cl-note="Informational note."></config-note>
+                <config-note cl-type="success" cl-icon="check-circle" cl-note="Success note."></config-note>
+                <config-note cl-type="warning" cl-icon="alert" cl-note="Warning note."></config-note>
+                <config-note cl-type="error" cl-icon="alert-circle" cl-note="Error note."></config-note>
 
-                        <!-- config-date -->
-                        <h3 class="md-title">config-time</h3>
-                        <p class="md-body-1">
-                            <config-date
-                                cl-title="Line title" cl-subtitle="Line subtitle"
-                                cl-caption="Switch me" cl-disabled="false"
-                                cl-model="$ctrl.inputDate" cl-click="$ctrl.onClick(value, meta)" cl-disabled="false" cl-meta="$ctrl.meta"
-                            ></config-date>
-                        </p>
+                <config-section
+                    cl-title="config-number" cl-icon="numeric"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-number') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-number') }}"
+                    cl-click="$ctrl.toggleDoc('config-number')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-number')" doc="$ctrl.docs['config-number']"></components-doc-panel>
+                <config-number
+                    cl-title="Port" cl-subtitle="Listening port (1–65535)"
+                    cl-icon="lan" cl-min="1" cl-max="65535" cl-required="true"
+                    cl-model="$ctrl.inputNumber" cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-number>
 
-                        <!-- config-note -->
-                        <h3 class="md-title">config-note</h3>
-                        <h3 class="md-subhead">Default note without style</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A simple block of text without style'"
-                            ></config-note>
-                        </p>
-                        <h3 class="md-subhead">Default note with default style</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A note with note type'" cl-type="note"
-                            ></config-note>
-                        </p>
-                        <h3 class="md-subhead">Info note</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A note with info type'" cl-type="info"
-                            ></config-date>
-                        </p>
-                        <h3 class="md-subhead">Success note</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A note with success type'" cl-type="success"
-                            ></config-date>
-                        </p>
-                        <h3 class="md-subhead">Warning note</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A note with warning type with icon'" cl-type="warning" cl-icon="alert"
-                            ></config-date>
-                        </p>
-                        <h3 class="md-subhead">Error note</h3>
-                        <p class="md-body-1">
-                            <config-note
-                                cl-note="'A note with error type with md-accent icon class'" cl-type="error" cl-icon="alert-circle" cl-icon-class="md-accent"
-                            ></config-date>
-                        </p>
+                <config-section
+                    cl-title="config-progress" cl-icon="progress-check"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-progress') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-progress') }}"
+                    cl-click="$ctrl.toggleDoc('config-progress')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-progress')" doc="$ctrl.docs['config-progress']"></components-doc-panel>
+                <div class="components-variant">Determinate</div>
+                <config-progress
+                    cl-title="Downloading update" cl-subtitle="Cancel available while running"
+                    cl-icon="download" cl-model="$ctrl.progress"
+                    cl-cancel="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-progress>
+                <div class="components-variant">Indeterminate</div>
+                <config-progress
+                    cl-title="Analyzing sources" cl-subtitle="Infinite progress"
+                    cl-icon="magnify" cl-model="$ctrl.progress" cl-infinite="true"
+                    cl-cancel="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-progress>
 
-                        <!-- config-progress -->
-                        <h3 class="md-title">config-progress</h3>
-                        <h3 class="md-subhead">Determinate progress</h3>
-                        <p class="md-body-1">
-                            <config-progress
-                                cl-title="Line title" cl-subtitle="Line subtitle" cl-meta="$ctrl.meta"
-                                cl-model="$ctrl.progress" cl-cancel="$ctrl.onClick(value, meta)"
-                            ></config-progress>
-                        </p>
-                        <h3 class="md-subhead">Infinite progress</h3>
-                        <p class="md-body-1">
-                            <config-progress
-                                cl-title="Line title" cl-subtitle="Line subtitle" cl-meta="$ctrl.meta"
-                                cl-model="$ctrl.progress" cl-cancel="$ctrl.onClick(value, meta)" cl-infinite="true"
-                            ></config-progress>
-                        </p>
+                <config-section
+                    cl-title="config-section" cl-icon="bookmark-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-section') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-section') }}"
+                    cl-click="$ctrl.toggleDoc('config-section')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-section')" doc="$ctrl.docs['config-section']"></components-doc-panel>
+                <div class="components-variant">Title only</div>
+                <config-section cl-title="Example section header" cl-icon="folder-outline"></config-section>
+                <div class="components-variant">With action button</div>
+                <config-section
+                    cl-title="Devices" cl-icon="devices"
+                    cl-btn-label="Add" cl-btn-icon="plus"
+                    cl-click="$ctrl.onAction('Add device')"
+                ></config-section>
 
-                        <!-- config-chips -->
-                        <h3 class="md-title">config-chips</h3>
-                        <h3 class="md-subhead">Removable chips</h3>
-                        <p class="md-body-1">
-                            <config-chips
-                                cl-title="Line title" cl-subtitle="Line subtitle" cl-meta="$ctrl.meta"
-                                cl-model="$ctrl.chips" cl-click="$ctrl.onClick(value, meta)" cl-removable="true" cl-readonly="false"
-                            ></config-chips>
-                        </p>
-                        <h3 class="md-subhead">Readonly chips</h3>
-                        <p class="md-body-1">
-                            <config-chips
-                                cl-title="Line title" cl-subtitle="Line subtitle" cl-meta="$ctrl.meta"
-                                cl-model="$ctrl.chips" cl-click="$ctrl.onClick(value, meta)" cl-readonly="true"
-                            ></config-chips>
-                        </p>
+                <config-section
+                    cl-title="config-select" cl-icon="menu-down"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-select') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-select') }}"
+                    cl-click="$ctrl.toggleDoc('config-select')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-select')" doc="$ctrl.docs['config-select']"></components-doc-panel>
+                <div class="components-variant">Single choice</div>
+                <config-select
+                    cl-title="Audio output" cl-subtitle="Default sink"
+                    cl-icon="speaker" cl-options="$ctrl.selectOptions"
+                    cl-model="$ctrl.inputSelect"
+                    cl-click="$ctrl.onClick(value, meta)" cl-change="$ctrl.onSelectChange(value, $event)"
+                    cl-meta="$ctrl.meta"
+                ></config-select>
+                <div class="components-variant">Multiple choices</div>
+                <config-select
+                    cl-title="Enabled rooms" cl-subtitle="Multi-select"
+                    cl-icon="home-group" cl-options="$ctrl.selectOptions"
+                    cl-model="$ctrl.inputSelects"
+                    cl-click="$ctrl.onClick(value, meta)" cl-change="$ctrl.onSelectChange(values, $event)"
+                    cl-meta="$ctrl.meta"
+                ></config-select>
 
-                        <!-- config-list -->
-                        <h3 class="md-title">config-list</h3>
-                        <h3 class="md-subhead">Basic list</h3>
-                        <p class="md-body-1">
-                            <config-list
-                                cl-meta="$ctrl.meta" cl-selectable="true" cl-items="$ctrl.listItems"
-                                cl-on-select="$ctrl.onSelect(current, index, selections, event)"
-                            ></config-list>
-                        </p>
-                        <h3 class="md-subhead">Empty list</h3>
-                        <p class="md-body-1">
-                            <config-list
-                                cl-meta="$ctrl.meta" cl-selectable="true" cl-items="[]" cl-empty="Empty list" cl-empty-icon="alert"
-                                cl-on-select="$ctrl.onSelect(current, index, selections, event)"
-                            ></config-list>
-                        </p>
+                <config-section
+                    cl-title="config-slider" cl-icon="tune"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-slider') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-slider') }}"
+                    cl-click="$ctrl.toggleDoc('config-slider')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-slider')" doc="$ctrl.docs['config-slider']"></components-doc-panel>
+                <config-slider
+                    cl-title="Volume" cl-subtitle="Output level"
+                    cl-icon="volume-high" cl-min="0" cl-max="100" cl-step="5"
+                    cl-model="$ctrl.inputSlider"
+                    cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-slider>
 
-                    </md-content>
-                </md-tab>
-                <md-tab label="ui components">
+                <config-section
+                    cl-title="config-switch" cl-icon="toggle-switch"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-switch') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-switch') }}"
+                    cl-click="$ctrl.toggleDoc('config-switch')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-switch')" doc="$ctrl.docs['config-switch']"></components-doc-panel>
+                <config-switch
+                    cl-title="Night mode" cl-subtitle="Dim UI after sunset"
+                    cl-icon="weather-night" cl-on-value="ON" cl-off-value="OFF"
+                    cl-model="$ctrl.inputSwitch" cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-switch>
 
-                </md-tab>
-                <md-tab label="widgets components">
+                <config-section
+                    cl-title="config-text" cl-icon="form-textbox"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-text') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-text') }}"
+                    cl-click="$ctrl.toggleDoc('config-text')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-text')" doc="$ctrl.docs['config-text']"></components-doc-panel>
+                <div class="components-variant">Text</div>
+                <config-text
+                    cl-title="Hostname" cl-subtitle="Device hostname"
+                    cl-icon="server" cl-model="$ctrl.inputText" cl-required="true"
+                    cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-text>
+                <div class="components-variant">Password</div>
+                <config-text
+                    cl-title="API token" cl-subtitle="Stored encrypted on device"
+                    cl-icon="key" cl-model="$ctrl.inputPassword" cl-password="true"
+                    cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-text>
 
-                </md-tab>
-            </md-tabs>
-        </md-content>
-    </div>
+                <config-section
+                    cl-title="config-text-viewer" cl-icon="file-document-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-text-viewer') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-text-viewer') }}"
+                    cl-click="$ctrl.toggleDoc('config-text-viewer')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-text-viewer')" doc="$ctrl.docs['config-text-viewer']"></components-doc-panel>
+                <config-text-viewer
+                    cl-title="Command output"
+                    cl-text="{{ $ctrl.viewerText }}"
+                ></config-text-viewer>
+            <config-section
+                    cl-title="config-time" cl-icon="clock-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-time') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-time') }}"
+                    cl-click="$ctrl.toggleDoc('config-time')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-time')" doc="$ctrl.docs['config-time']"></components-doc-panel>
+                <config-time
+                    cl-title="Alarm time" cl-subtitle="Daily trigger"
+                    cl-icon="alarm" cl-model="$ctrl.inputTime"
+                    cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                ></config-time>
+
+                
+</md-content>
+        </md-tab>
+
+        <!-- UI -->
+        <md-tab label="UI">
+            <md-content class="md-padding">
+                <config-note
+                    cl-type="info" cl-icon="information"
+                    cl-note="UI helpers intended for application frontends. Shell-only controls (loading bar, FAB) are not listed here."
+                ></config-note>
+
+                <config-section
+                    cl-title="cl-icon" cl-icon="emoticon-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('cl-icon') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('cl-icon') }}"
+                    cl-click="$ctrl.toggleDoc('cl-icon')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('cl-icon')" doc="$ctrl.docs['cl-icon']"></components-doc-panel>
+                <div layout="row" layout-align="start center" layout-wrap class="components-icon-row">
+                    <cl-icon cl-icon="home" cl-tooltip="home" cl-class="icon-md"></cl-icon>
+                    <cl-icon cl-icon="cog" cl-tooltip="cog" cl-class="icon-md md-primary"></cl-icon>
+                    <cl-icon cl-icon="alert" cl-tooltip="alert" cl-class="icon-md md-accent"></cl-icon>
+                    <cl-icon cl-icon="check-circle" cl-tooltip="check-circle" cl-class="icon-md md-primary"></cl-icon>
+                    <cl-icon cl-icon="account-hard-hat" cl-tooltip="account-hard-hat" cl-class="icon-xl"></cl-icon>
+                </div>
+            </md-content>
+        </md-tab>
+
+        <!-- Widgets -->
+        <md-tab label="Widgets">
+            <md-content class="md-padding">
+                <config-note
+                    cl-type="info" cl-icon="information"
+                    cl-note="Dashboard widget shells. Toggle the fake device to see on/off background colors."
+                ></config-note>
+
+                <config-section
+                    cl-title="widget-basic" cl-icon="view-dashboard-outline"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('widget-basic') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('widget-basic') }}"
+                    cl-click="$ctrl.toggleDoc('widget-basic')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('widget-basic')" doc="$ctrl.docs['widget-basic']"></components-doc-panel>
+                <config-switch
+                    cl-title="Device power" cl-subtitle="Toggles widget content background"
+                    cl-icon="power" cl-model="$ctrl.widgetDevice.on"
+                    cl-click="$ctrl.onWidgetToggle(value)"
+                ></config-switch>
+
+                <div class="components-widget-demo" layout="row" layout-align="center center">
+                    <div flex="100" flex-gt-xs="50" flex-gt-sm="33">
+                        <widget-basic
+                            cl-title="$ctrl.widgetTitle"
+                            cl-subtitle="$ctrl.widgetSubtitle"
+                            cl-icon="$ctrl.widgetIcon"
+                            cl-device="$ctrl.widgetDevice"
+                            cl-footer="$ctrl.widgetFooter"
+                        >
+                            <widget-content layout="column" layout-align="center center">
+                                <div class="md-headline">{{ $ctrl.widgetDevice.on ? 'ON' : 'OFF' }}</div>
+                                <div class="md-caption">Brightness {{ $ctrl.widgetDevice.brightness }}%</div>
+                            </widget-content>
+                        </widget-basic>
+                    </div>
+                </div>
+            </md-content>
+        </md-tab>
+    </md-tabs>
 </div>
