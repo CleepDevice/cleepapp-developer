@@ -16,6 +16,10 @@ function() {
         self.collapseOpened = true;
         self.collapseText = 'advanced-value';
         self.collapseSwitch = false;
+        self.tabsSelected = 'general';
+        self.tabsName = 'living-room';
+        self.tabsPort = 80;
+        self.tabsDhcp = true;
         self.textContent = 'cleep-dev';
         self.htmlContent = 'See the <a href="https://github.com/CleepDevice/cleepapp-developer/wiki" target="_blank">developer wiki</a>.';
         self.markdownContent = 'Use **config-comment** with `cl-mode="markdown"` for rich help text.';
@@ -187,6 +191,19 @@ function() {
 '>\n' +
 '    <config-text cl-title="Extra" cl-model="$ctrl.value"></config-text>\n' +
 '</config-collapse>',
+            },
+            'config-tabs': {
+                description: 'Tab group rendered with Angular Material md-tabs. Each config-tab projects the usual config components. On load, the query parameter tab selects the matching config-tab id. An unknown or missing value opens the first tab. cl-selected then follows the active tab.',
+                bindings: 'cl-selected (=? tab id). config-tab: cl-id, cl-label, cl-icon',
+                example:
+'<config-tabs cl-selected="$ctrl.tab">\n' +
+'    <config-tab cl-id="general" cl-label="General" cl-icon="cog">\n' +
+'        <config-text cl-title="Name" cl-model="$ctrl.name"></config-text>\n' +
+'    </config-tab>\n' +
+'    <config-tab cl-id="network" cl-label="Network" cl-icon="lan">\n' +
+'        <config-number cl-title="Port" cl-model="$ctrl.port"></config-number>\n' +
+'    </config-tab>\n' +
+'</config-tabs>',
             },
             'config-comment': {
                 description: 'Read-only value next to a title. Supports plain text, HTML or markdown via cl-mode.',

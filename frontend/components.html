@@ -118,6 +118,46 @@
                 </config-collapse>
 
                 <config-section
+                    cl-title="config-tabs" cl-icon="tab"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-tabs') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-tabs') }}"
+                    cl-click="$ctrl.toggleDoc('config-tabs')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-tabs')" doc="$ctrl.docs['config-tabs']"></components-doc-panel>
+                <config-tabs cl-selected="$ctrl.tabsSelected">
+                    <config-tab cl-id="general" cl-label="General" cl-icon="cog">
+                        <config-text
+                            cl-title="Device name" cl-subtitle="Inside the General tab"
+                            cl-icon="label-outline" cl-model="$ctrl.tabsName"
+                            cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                            cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                        ></config-text>
+                        <config-switch
+                            cl-title="DHCP" cl-subtitle="Inside the General tab"
+                            cl-icon="ip-network" cl-model="$ctrl.tabsDhcp"
+                            cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                        ></config-switch>
+                    </config-tab>
+                    <config-tab cl-id="network" cl-label="Network" cl-icon="lan">
+                        <config-number
+                            cl-title="Port" cl-subtitle="Inside the Network tab"
+                            cl-icon="ethernet" cl-model="$ctrl.tabsPort"
+                            cl-min="1" cl-max="65535"
+                            cl-btn-icon="content-save" cl-btn-tooltip="Save"
+                            cl-click="$ctrl.onClick(value, meta)" cl-meta="$ctrl.meta"
+                        ></config-number>
+                        <config-note
+                            cl-type="info" cl-icon="information"
+                            cl-note="These controls are projected into an md-tab panel."
+                        ></config-note>
+                    </config-tab>
+                </config-tabs>
+                <config-comment
+                    cl-title="Selected tab" cl-subtitle="Bound to cl-selected"
+                    cl-icon="tab" cl-comment="$ctrl.tabsSelected"
+                ></config-comment>
+
+                <config-section
                     cl-title="config-comment" cl-icon="comment-text-outline"
                     cl-btn-label="{{ $ctrl.docBtnLabel('config-comment') }}"
                     cl-btn-icon="{{ $ctrl.docBtnIcon('config-comment') }}"
