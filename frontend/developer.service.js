@@ -4,13 +4,14 @@
  */
 angular
 .module('Cleep')
-.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', '$window', '$timeout',
-function($q, $rootScope, rpcService, cleepService, $window, $timeout) {
+.service('developerService', ['$q', '$rootScope', 'rpcService', 'cleepService', '$window', '$timeout', 'blockUI', 'toastService',
+function($q, $rootScope, rpcService, cleepService, $window, $timeout, blockUI, toast) {
     var self = this;
     self.testsOutput = [];
     self.docsOutput = [];
     self.docsHtml = "";
     self.breakingChanges = {};
+    self.syncInProgress = false;
 
     /**
      * Start remotedev
@@ -277,6 +278,38 @@ function($q, $rootScope, rpcService, cleepService, $window, $timeout) {
      **/
     $rootScope.$on('developer.frontend.restart', function(event, uuid, params) {
         $timeout(() => { $window.location.reload(true); }, 1000);
+    });
+
+    /**
+     * Watch sync feedback (cleep-cli watch): show overlay as soon as files change,
+     * before the quiet period ends and rsync runs.
+     */
+    $rootScope.$on('developer.sync.started', function() {
+        self.syncInProgress = true;
+        blockUI.start({
+            message: 'Synchronizing sources...',
+            submessage: 'Waiting for files to settle, then applying changes.',
+            spinner: true,
+            icon: null,
+        });
+    });
+
+    $rootScope.$on('developer.sync.done', function() {
+        if (!self.syncInProgress) {
+            return;
+        }
+        self.syncInProgress = false;
+        blockUI.stop();
+        toast.success('Sources synchronized');
+    });
+
+    $rootScope.$on('developer.sync.failed', function() {
+        if (!self.syncInProgress) {
+            return;
+        }
+        self.syncInProgress = false;
+        blockUI.stop();
+        toast.error('Source synchronization failed');
     });
 
     /**

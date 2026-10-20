@@ -8,6 +8,9 @@ from backend.developer import Developer
 from backend.developerdocsoutputevent import DeveloperDocsOutputEvent
 from backend.developertestsoutputevent import DeveloperTestsOutputEvent
 from backend.developerfrontendrestartevent import DeveloperFrontendRestartEvent
+from backend.developersyncstartedevent import DeveloperSyncStartedEvent
+from backend.developersyncdoneevent import DeveloperSyncDoneEvent
+from backend.developersyncfailedevent import DeveloperSyncFailedEvent
 from cleep.exception import (
     InvalidParameter,
     MissingParameter,
@@ -54,9 +57,15 @@ class TestDeveloper(unittest.TestCase):
         return my_mock
 
     def test_configure_moduleindev(self):
+        """First configure with no device must remount RW before writing."""
         self.init(False)
         self.module._get_config_field = Mock(
             side_effect=self.mock_get_config_field({"moduleindev": "test"})
+        )
+        self.module._get_device_count = Mock(return_value=0)
+        self.module._add_device = Mock()
+        self.module.get_module_devices = Mock(
+            return_value={"uuid": {"type": "developer"}}
         )
 
         self.session.start_module(self.module)
@@ -64,6 +73,30 @@ class TestDeveloper(unittest.TestCase):
         self.module.cleep_filesystem.enable_write.assert_called_with(
             root=True, boot=True
         )
+        self.assertTrue(self.module._Developer__rw_enabled_during_configure)
+
+    def test_configure_moduleindev_defers_rw_when_device_exists(self):
+        """Usual reboot: remount is deferred to _on_start (join barrier)."""
+        self.init(False, mock_on_start=False)
+        devices = {"1234567890": {"type": "developer"}}
+        self.module._get_config_field = Mock(
+            side_effect=self.mock_get_config_field(
+                {"devices": devices, "moduleindev": "test"}
+            )
+        )
+        self.module._get_device_count = Mock(return_value=1)
+        self.module.get_module_devices = Mock(return_value=devices)
+        self.module._Developer__start_watcher = Mock()
+        self.module.cleep_filesystem.enable_write.reset_mock()
+
+        self.module._configure()
+        self.module.cleep_filesystem.enable_write.assert_not_called()
+
+        self.module._on_start()
+        self.module.cleep_filesystem.enable_write.assert_called_with(
+            root=True, boot=True
+        )
+        self.module._Developer__start_watcher.assert_called()
 
     def test_configure_add_device(self):
         self.init(False)
@@ -183,6 +216,27 @@ class TestDeveloper(unittest.TestCase):
         self.module.restart_frontend()
 
         self.session.assert_event_called("developer.frontend.restart")
+
+    def test_notify_sync_started(self):
+        self.init()
+
+        self.module.notify_sync_started()
+
+        self.session.assert_event_called("developer.sync.started")
+
+    def test_notify_sync_done(self):
+        self.init()
+
+        self.module.notify_sync_done()
+
+        self.session.assert_event_called("developer.sync.done")
+
+    def test_notify_sync_failed(self):
+        self.init()
+
+        self.module.notify_sync_failed()
+
+        self.session.assert_event_called("developer.sync.failed")
 
     def test_select_application_for_development(self):
         self.init()
@@ -627,6 +681,45 @@ class TestsDeveloperFrontendRestartEvent(unittest.TestCase):
         )
         self.session = session.TestSession(self)
         self.event = self.session.setup_event(DeveloperFrontendRestartEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, [])
+
+
+class TestsDeveloperSyncStartedEvent(unittest.TestCase):
+    def setUp(self):
+        logging.basicConfig(
+            level=LOG_LEVEL,
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+        )
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperSyncStartedEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, [])
+
+
+class TestsDeveloperSyncDoneEvent(unittest.TestCase):
+    def setUp(self):
+        logging.basicConfig(
+            level=LOG_LEVEL,
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+        )
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperSyncDoneEvent)
+
+    def test_event_params(self):
+        self.assertCountEqual(self.event.EVENT_PARAMS, [])
+
+
+class TestsDeveloperSyncFailedEvent(unittest.TestCase):
+    def setUp(self):
+        logging.basicConfig(
+            level=LOG_LEVEL,
+            format="%(asctime)s %(name)s:%(lineno)d %(levelname)s : %(message)s",
+        )
+        self.session = session.TestSession(self)
+        self.event = self.session.setup_event(DeveloperSyncFailedEvent)
 
     def test_event_params(self):
         self.assertCountEqual(self.event.EVENT_PARAMS, [])

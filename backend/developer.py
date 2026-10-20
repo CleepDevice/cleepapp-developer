@@ -28,7 +28,7 @@ class Developer(CleepModule):
     """
 
     MODULE_AUTHOR = "Cleep"
-    MODULE_VERSION = "3.2.0"
+    MODULE_VERSION = "3.2.2"
     MODULE_DEPS = []
     MODULE_DESCRIPTION = "Helps you to develop Cleep applications."
     MODULE_LONGDESCRIPTION = "Developer module helps you to develop on Cleep installing \
@@ -100,28 +100,39 @@ class Developer(CleepModule):
         self.__tests_buffer = []
         self.__docs_task = None
         self.__docs_buffer = []
+        self.__module_in_dev = None
+        self.__rw_enabled_during_configure = False
 
         # events
         self.tests_output_event = self._get_event("developer.tests.output")
         self.docs_output_event = self._get_event("developer.docs.output")
         self.frontend_restart_event = self._get_event("developer.frontend.restart")
+        self.sync_started_event = self._get_event("developer.sync.started")
+        self.sync_done_event = self._get_event("developer.sync.done")
+        self.sync_failed_event = self._get_event("developer.sync.failed")
 
     def _configure(self):
         """
         Configure module
         """
-        # disable rw if in development
-        module_in_dev = self._get_config_field("moduleindev")
-        self.logger.debug("Module in development: %s", module_in_dev)
-        if module_in_dev:
+        self.__module_in_dev = self._get_config_field("moduleindev")
+        self.logger.debug("Module in development: %s", self.__module_in_dev)
+
+        # Remount RW only when configure must write (first device create).
+        # Usual reboot with moduleindev: defer remount to _on_start to keep
+        # the join barrier short (~remount cost).
+        need_device = self._get_device_count() == 0
+        if self.__module_in_dev and need_device:
             self.logger.info(
-                'Module "%s" is in development, disable RO feature', module_in_dev
+                'Module "%s" is in development, disable RO feature',
+                self.__module_in_dev,
             )
             self.cleep_filesystem.enable_write(root=True, boot=True)
+            self.__rw_enabled_during_configure = True
 
         # add dummy device
         self.logger.debug("device_count=%d", self._get_device_count())
-        if self._get_device_count() == 0:
+        if need_device:
             self.logger.debug("Add default devices")
             developer = {"type": "developer", "name": "Developer"}
             self._add_device(developer)
@@ -137,6 +148,12 @@ class Developer(CleepModule):
         """
         Module starts
         """
+        if self.__module_in_dev and not self.__rw_enabled_during_configure:
+            self.logger.info(
+                'Module "%s" is in development, disable RO feature',
+                self.__module_in_dev,
+            )
+            self.cleep_filesystem.enable_write(root=True, boot=True)
         self.__start_watcher()
 
     def _on_stop(self):
@@ -227,6 +244,27 @@ class Developer(CleepModule):
         """
         self.logger.debug("Sending restart event to frontend")
         self.frontend_restart_event.send(to="rpc")
+
+    def notify_sync_started(self):
+        """
+        Tell the UI a source sync is starting (cleep-cli watch).
+        """
+        self.logger.debug("Sending sync started event to frontend")
+        self.sync_started_event.send(to="rpc")
+
+    def notify_sync_done(self):
+        """
+        Tell the UI a source sync finished without restarting Cleep.
+        """
+        self.logger.debug("Sending sync done event to frontend")
+        self.sync_done_event.send(to="rpc")
+
+    def notify_sync_failed(self):
+        """
+        Tell the UI a source sync failed.
+        """
+        self.logger.debug("Sending sync failed event to frontend")
+        self.sync_failed_event.send(to="rpc")
 
     def select_application_for_development(self, module_name):
         """

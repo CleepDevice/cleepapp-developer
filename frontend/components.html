@@ -158,6 +158,28 @@
                 ></config-comment>
 
                 <config-section
+                    cl-title="config-table" cl-icon="table"
+                    cl-btn-label="{{ $ctrl.docBtnLabel('config-table') }}"
+                    cl-btn-icon="{{ $ctrl.docBtnIcon('config-table') }}"
+                    cl-click="$ctrl.toggleDoc('config-table')"
+                ></config-section>
+                <components-doc-panel open="$ctrl.isDocOpen('config-table')" doc="$ctrl.docs['config-table']"></components-doc-panel>
+                <div class="components-variant">With header (border on)</div>
+                <config-table
+                    cl-title="Devices" cl-subtitle="Online peers"
+                    cl-icon="table"
+                    cl-columns="$ctrl.tableColumns"
+                    cl-rows="$ctrl.tableRows"
+                ></config-table>
+                <div class="components-variant">Without header / without border</div>
+                <config-table
+                    cl-title="Metric" cl-subtitle="Cell descriptors"
+                    cl-icon="chart-bar"
+                    cl-rows="$ctrl.tableRowsNoHeader"
+                    cl-border="false"
+                ></config-table>
+
+                <config-section
                     cl-title="config-comment" cl-icon="comment-text-outline"
                     cl-btn-label="{{ $ctrl.docBtnLabel('config-comment') }}"
                     cl-btn-icon="{{ $ctrl.docBtnIcon('config-comment') }}"

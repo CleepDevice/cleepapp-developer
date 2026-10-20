@@ -20,6 +20,19 @@ function() {
         self.tabsName = 'living-room';
         self.tabsPort = 80;
         self.tabsDhcp = true;
+        self.tableColumns = [
+            { id: 'name', label: 'Name' },
+            { id: 'status', label: 'Status' },
+            { id: 'ip', label: 'IP' },
+        ];
+        self.tableRows = [
+            { name: 'Living room', status: 'online', ip: '192.168.1.10' },
+            { name: 'Kitchen', status: 'offline', ip: '192.168.1.11' },
+        ];
+        self.tableRowsNoHeader = [
+            { colId: 'metric', value: 'connections' },
+            { colId: 'value', value: 42 },
+        ];
         self.textContent = 'cleep-dev';
         self.htmlContent = 'See the <a href="https://github.com/CleepDevice/cleepapp-developer/wiki" target="_blank">developer wiki</a>.';
         self.markdownContent = 'Use **config-comment** with `cl-mode="markdown"` for rich help text.';
@@ -204,6 +217,20 @@ function() {
 '        <config-number cl-title="Port" cl-model="$ctrl.port"></config-number>\n' +
 '    </config-tab>\n' +
 '</config-tabs>',
+            },
+            'config-table': {
+                description: 'Read-only data table with the usual config left column (title, subtitle, icon). The table fills the right side. Columns are optional (omit cl-columns to hide the header). Header background defaults to #EEEEEE (same as widget-bg-color).',
+                bindings: 'cl-title, cl-subtitle, cl-icon, cl-columns (< [{id,label}] or {id:label}), cl-rows (<), cl-border (< true by default), cl-header-color (@ #EEEEEE by default), cl-id',
+                example:
+'<config-table\n' +
+'    cl-title="Devices"\n' +
+'    cl-subtitle="Online peers"\n' +
+'    cl-icon="table"\n' +
+'    cl-columns="$ctrl.columns"\n' +
+'    cl-rows="$ctrl.rows"\n' +
+'    cl-border="true"\n' +
+'    cl-header-color="#EEEEEE"\n' +
+'></config-table>',
             },
             'config-comment': {
                 description: 'Read-only value next to a title. Supports plain text, HTML or markdown via cl-mode.',

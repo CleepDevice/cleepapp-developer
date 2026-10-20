@@ -2,20 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Defer RO remount for `moduleindev` to `_on_start` when the developer device already exists (shorter configure join)
+
 ### Added
 
+- Watch sync feedback: block the UI as soon as cleep-cli detects source changes (`developer.sync.started` / `done` / `failed`)
 - Add error banner after modcheckdoc command if any
 - Add link to UI components showcase from Development helpers tab
-
-### Updated
-
-- Update components showcase page design
-- Register newly created apps via update `register_local_module` (no direct CleepConf write)
-
-### Fixed
-
-- Fix components page templateUrl so it loads via module page cache
-- Errors and warns weren't return to frontend after modcheckdoc command
+- Showcase `config-table` in the UI components catalog
 
 ## [3.2.0] - 2026-09-25
 
