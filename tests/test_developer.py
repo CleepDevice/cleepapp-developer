@@ -1,9 +1,7 @@
 import unittest
 import logging
-import sys
 import time
 
-sys.path.append("../")
 from backend.developer import Developer
 from backend.developerdocsoutputevent import DeveloperDocsOutputEvent
 from backend.developertestsoutputevent import DeveloperTestsOutputEvent
